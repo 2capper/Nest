@@ -17,8 +17,12 @@ export const TournamentCards = ({ tournaments, teams, games, pools, ageDivisions
   const totalGames = games.length;
   const progressPercentage = totalGames > 0 ? (completedGames / totalGames) * 100 : 0;
 
-  // Calculate age division stats
-  const ageDivisionStats = ageDivisions.map(division => {
+  // Calculate age division stats - only show 11U and 13U
+  const targetDivisions = ageDivisions.filter(div => 
+    div.name === '11U' || div.name === '13U'
+  );
+  
+  const ageDivisionStats = targetDivisions.map(division => {
     const divisionPools = pools.filter(p => p.ageDivisionId === division.id);
     const divisionTeams = teams.filter(t => divisionPools.some(p => p.id === t.poolId));
     const divisionGames = games.filter(g => divisionPools.some(p => p.id === g.poolId));
@@ -45,31 +49,37 @@ export const TournamentCards = ({ tournaments, teams, games, pools, ageDivisions
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{ageDivisions.length}</div>
+              <div className="text-2xl font-bold text-gray-900">{targetDivisions.length}</div>
               <div className="text-sm text-gray-500">Age Divisions</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{pools.length}</div>
+              <div className="text-2xl font-bold text-gray-900">{ageDivisionStats.reduce((sum, stat) => sum + stat.poolCount, 0)}</div>
               <div className="text-sm text-gray-500">Total Pools</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{teams.length}</div>
+              <div className="text-2xl font-bold text-gray-900">{ageDivisionStats.reduce((sum, stat) => sum + stat.teamCount, 0)}</div>
               <div className="text-sm text-gray-500">Total Teams</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{completedGames}/{totalGames}</div>
+              <div className="text-2xl font-bold text-gray-900">{ageDivisionStats.reduce((sum, stat) => sum + stat.completedGames, 0)}/{ageDivisionStats.reduce((sum, stat) => sum + stat.gameCount, 0)}</div>
               <div className="text-sm text-gray-500">Games Complete</div>
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-gray-100">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-gray-500">Overall Progress</span>
-              <span className="text-sm font-medium text-gray-900">{Math.round(progressPercentage)}%</span>
+              <span className="text-sm font-medium text-gray-900">{Math.round(
+                ageDivisionStats.reduce((sum, stat) => sum + stat.gameCount, 0) > 0 ? 
+                (ageDivisionStats.reduce((sum, stat) => sum + stat.completedGames, 0) / ageDivisionStats.reduce((sum, stat) => sum + stat.gameCount, 0)) * 100 : 0
+              )}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-[var(--falcons-green)] h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${progressPercentage}%` }}
+                style={{ width: `${
+                  ageDivisionStats.reduce((sum, stat) => sum + stat.gameCount, 0) > 0 ? 
+                  (ageDivisionStats.reduce((sum, stat) => sum + stat.completedGames, 0) / ageDivisionStats.reduce((sum, stat) => sum + stat.gameCount, 0)) * 100 : 0
+                }%` }}
               />
             </div>
           </div>
