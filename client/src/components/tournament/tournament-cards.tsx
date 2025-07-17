@@ -88,38 +88,7 @@ export const TournamentCards = ({ tournaments, teams, games, pools, ageDivisions
 
       
 
-      {/* Upcoming Tournament Card */}
-      {upcomingTournament && (
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover-lift">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold text-gray-900">{upcomingTournament.name}</h3>
-            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Upcoming</span>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center text-gray-600">
-              <Calendar className="w-4 h-4 mr-2" />
-              <span>{upcomingTournament.date}</span>
-            </div>
-            <div className="flex items-center text-gray-600">
-              <Users className="w-4 h-4 mr-2" />
-              <span>8 Teams</span>
-            </div>
-            <div className="flex items-center text-gray-600">
-              <Calendar className="w-4 h-4 mr-2" />
-              <span>16 Games</span>
-            </div>
-            <div className="flex items-center text-gray-600">
-              <Trophy className="w-4 h-4 mr-2" />
-              <span>2 Pools</span>
-            </div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <button className="w-full bg-[var(--falcons-green)] text-white py-2 px-4 rounded-lg hover:bg-[var(--falcons-dark-green)] transition-colors">
-              Manage Tournament
-            </button>
-          </div>
-        </div>
-      )}
+      
 
       
     </div>
