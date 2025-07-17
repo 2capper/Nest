@@ -86,48 +86,7 @@ export const TournamentCards = ({ tournaments, teams, games, pools, ageDivisions
         </div>
       )}
 
-      {/* Age Division Cards */}
-      {ageDivisionStats.length > 0 && (
-        <div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">Age Divisions</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {ageDivisionStats.map(({ division, poolCount, teamCount, gameCount, completedGames, progressPercentage }) => (
-              <div key={division.id} className="bg-white rounded-lg shadow p-4 border border-gray-200">
-                <div className="flex items-center justify-between mb-3">
-                  <h5 className="text-lg font-semibold text-gray-900">{division.name}</h5>
-                  <Trophy className="w-5 h-5 text-[var(--falcons-green)]" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Pools:</span>
-                    <span className="font-medium text-gray-900">{poolCount}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Teams:</span>
-                    <span className="font-medium text-gray-900">{teamCount}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Games:</span>
-                    <span className="font-medium text-gray-900">{completedGames}/{gameCount}</span>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs text-gray-500">Progress</span>
-                    <span className="text-xs font-medium text-gray-900">{Math.round(progressPercentage)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1.5">
-                    <div 
-                      className="bg-[var(--falcons-green)] h-1.5 rounded-full transition-all duration-300" 
-                      style={{ width: `${progressPercentage}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      
 
       {/* Upcoming Tournament Card */}
       {upcomingTournament && (
