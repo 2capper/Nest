@@ -121,27 +121,7 @@ export const TournamentCards = ({ tournaments, teams, games, pools, ageDivisions
         </div>
       )}
 
-      {/* Quick Stats Card */}
-      <div className="bg-gradient-to-br from-[var(--falcons-green)] to-[var(--falcons-dark-green)] rounded-xl shadow-lg p-6 text-white">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold">Quick Stats</h3>
-          <BarChart3 className="w-8 h-8 opacity-75" />
-        </div>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-green-200">Total Teams</span>
-            <span className="text-2xl font-bold">{teams.length}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-green-200">Games Today</span>
-            <span className="text-2xl font-bold">{games.filter(g => g.date === new Date().toISOString().split('T')[0]).length}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-green-200">Completed</span>
-            <span className="text-2xl font-bold">{completedGames}</span>
-          </div>
-        </div>
-      </div>
+      
     </div>
   );
 };
