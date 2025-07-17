@@ -3,13 +3,13 @@ import { useParams } from 'wouter';
 import { Loader2, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTournamentData } from '@/hooks/use-tournament-data';
-import { ScoreSubmissionNew } from '@/components/tournament/score-submission-new';
+import { HierarchicalScoreInput } from '@/components/tournament/hierarchical-score-input';
 import { SimpleNavigation } from '@/components/tournament/simple-navigation';
 
 export default function CoachScoreInput() {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const currentTournamentId = tournamentId || 'aug-classic';
-  const { teams, games, pools, tournaments, loading, error } = useTournamentData(currentTournamentId);
+  const { teams, games, pools, tournaments, ageDivisions, loading, error } = useTournamentData(currentTournamentId);
 
   const currentTournament = tournaments.find(t => t.id === currentTournamentId);
 
@@ -62,10 +62,11 @@ export default function CoachScoreInput() {
           </CardContent>
         </Card>
 
-        <ScoreSubmissionNew 
+        <HierarchicalScoreInput 
           games={games}
           teams={teams}
           pools={pools}
+          ageDivisions={ageDivisions}
           tournamentId={currentTournamentId}
         />
 
@@ -78,8 +79,9 @@ export default function CoachScoreInput() {
             <div>
               <h4 className="font-semibold text-gray-900">How to Submit Scores:</h4>
               <ol className="list-decimal list-inside space-y-2 text-gray-700 mt-2">
-                <li>Select the pool your game was played in</li>
-                <li>Choose the specific game from the dropdown</li>
+                <li>Select your age division (11U or 13U)</li>
+                <li>Choose your team from the division</li>
+                <li>Select the specific pool game to report</li>
                 <li>Enter the final score for both teams</li>
                 <li>Record the innings batted for each team</li>
                 <li>Select forfeit status if applicable</li>

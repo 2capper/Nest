@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Team, Game, Pool, AgeDivision } from '@shared/schema';
+import { Button } from '@/components/ui/button';
 
 interface StandingsTableProps {
   teams: Team[];
@@ -129,6 +130,8 @@ const resolveTie = (tiedTeams: any[], allGames: Game[]): any[] => {
 };
 
 export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColumn = true }: StandingsTableProps) => {
+  const [selectedDivision, setSelectedDivision] = useState<string | null>(null);
+  
   const standingsByDivision = useMemo(() => {
     if (!teams.length || !ageDivisions.length) return [];
     
@@ -286,9 +289,38 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
     </div>
   );
 
+  const targetDivisions = ageDivisions.filter(div => 
+    div.name === '11U' || div.name === '13U'
+  );
+
+  const displayedDivisions = selectedDivision 
+    ? standingsByDivision.filter(s => s.division.id === selectedDivision)
+    : standingsByDivision;
+
   return (
     <div className="space-y-8">
-      {standingsByDivision.map(({ division, pools: divisionPools, overallStandings, poolStandings }) => (
+      {/* Division Toggle Buttons */}
+      <div className="flex items-center justify-center space-x-4">
+        <Button
+          variant={selectedDivision === null ? "default" : "outline"}
+          onClick={() => setSelectedDivision(null)}
+          className={selectedDivision === null ? "bg-[var(--falcons-green)] text-white" : ""}
+        >
+          All Divisions
+        </Button>
+        {targetDivisions.map(division => (
+          <Button
+            key={division.id}
+            variant={selectedDivision === division.id ? "default" : "outline"}
+            onClick={() => setSelectedDivision(division.id)}
+            className={selectedDivision === division.id ? "bg-[var(--falcons-green)] text-white" : ""}
+          >
+            {division.name}
+          </Button>
+        ))}
+      </div>
+
+      {displayedDivisions.map(({ division, pools: divisionPools, overallStandings, poolStandings }) => (
         <div key={division.id} className="space-y-6">
           {/* Overall Division Standings */}
           <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 pl-[12px] pr-[12px] pt-[12px] pb-[12px]">
