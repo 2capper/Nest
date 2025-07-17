@@ -1,11 +1,15 @@
 export const DashboardHeader = () => {
   return (
     <div className="mb-8">
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+      <div className="bg-white shadow-lg p-6 border border-[var(--card-border)]">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="mb-4 md:mb-0">
-            <h2 className="text-3xl font-bold text-gray-900">Tournament Dashboard</h2>
-            <p className="text-gray-600 mt-1">Manage your baseball tournaments with real-time updates</p>
+            <h2 className="text-3xl font-bold text-[var(--splash-dark-gray)] uppercase tracking-wide" style={{ fontFamily: 'Oswald' }}>
+              Tournament Dashboard
+            </h2>
+            <p className="text-[var(--text-secondary)] mt-1" style={{ fontFamily: 'Roboto' }}>
+              Manage your baseball tournaments with real-time updates
+            </p>
           </div>
         </div>
       </div>

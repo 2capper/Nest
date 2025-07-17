@@ -24,14 +24,14 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
   const [location] = useLocation();
   
   return (
-    <nav className="bg-[var(--falcons-green)] shadow-lg sticky top-0 z-50">
+    <nav className="bg-[var(--splash-navy)] shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <FalconLogo />
             <div className="text-white ml-4">
-              <h1 className="text-xl font-bold">Tournament Manager</h1>
-              <p className="text-sm text-green-200">Forest Glade Falcons</p>
+              <h1 className="text-xl font-bold uppercase tracking-wide" style={{ fontFamily: 'Oswald' }}>Tournament Manager</h1>
+              <p className="text-sm text-orange-200" style={{ fontFamily: 'Roboto' }}>Forest Glade Falcons</p>
             </div>
           </div>
           
@@ -41,8 +41,8 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'dashboard' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`flex items-center text-white hover:text-green-200 ${
-                  currentPage === 'dashboard' ? 'bg-white/20' : 'hover:bg-white/10'
+                className={`flex items-center text-white hover:text-orange-200 ${
+                  currentPage === 'dashboard' ? 'bg-[var(--splash-orange)]/20' : 'hover:bg-white/10'
                 }`}
               >
                 <Home className="w-4 h-4 mr-2" />
@@ -54,8 +54,8 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'coach' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`flex items-center text-white hover:text-green-200 ${
-                  currentPage === 'coach' ? 'bg-white/20' : 'hover:bg-white/10'
+                className={`flex items-center text-white hover:text-orange-200 ${
+                  currentPage === 'coach' ? 'bg-[var(--splash-orange)]/20' : 'hover:bg-white/10'
                 }`}
               >
                 <FileText className="w-4 h-4 mr-2" />
@@ -67,8 +67,8 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'admin' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`flex items-center text-white hover:text-green-200 ${
-                  currentPage === 'admin' ? 'bg-white/20' : 'hover:bg-white/10'
+                className={`flex items-center text-white hover:text-orange-200 ${
+                  currentPage === 'admin' ? 'bg-[var(--splash-orange)]/20' : 'hover:bg-white/10'
                 }`}
               >
                 <Shield className="w-4 h-4 mr-2" />

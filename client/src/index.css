@@ -1,5 +1,5 @@
-/* Import professional fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Roboto+Slab:wght@300;400;500;600;700&display=swap');
+/* Import fonts from StyleMix Baseball website */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;900&family=Oswald:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,58 +7,57 @@
 
 :root {
   --background: hsl(0, 0%, 100%);
-  --foreground: hsl(220, 13%, 18%);
-  --muted: hsl(220, 13%, 95%);
-  --muted-foreground: hsl(220, 9%, 46%);
+  --foreground: hsl(0, 0%, 13%);
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: hsl(0, 0%, 45%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(220, 13%, 18%);
+  --popover-foreground: hsl(0, 0%, 13%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(220, 13%, 18%);
-  --border: hsl(220, 13%, 91%);
-  --input: hsl(220, 13%, 91%);
-  --primary: hsl(24, 77%, 52%);
+  --card-foreground: hsl(0, 0%, 13%);
+  --border: hsl(0, 0%, 89%);
+  --input: hsl(0, 0%, 89%);
+  --primary: hsl(13, 88%, 48%);
   --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(220, 13%, 95%);
-  --secondary-foreground: hsl(220, 13%, 18%);
-  --accent: hsl(24, 77%, 52%);
+  --secondary: hsl(0, 0%, 96%);
+  --secondary-foreground: hsl(0, 0%, 13%);
+  --accent: hsl(13, 88%, 48%);
   --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 84%, 60%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --ring: hsl(24, 77%, 52%);
-  --radius: 0.5rem;
+  --ring: hsl(13, 88%, 48%);
+  --radius: 0rem;
 
-  /* Baseball theme colors inspired by professional sports sites */
-  --baseball-primary: hsl(24, 77%, 52%); /* Orange/red like MLB */
-  --baseball-secondary: hsl(220, 13%, 18%); /* Dark blue/navy */
-  --baseball-accent: hsl(45, 93%, 47%); /* Gold */
-  --baseball-green: hsl(118, 83%, 29%); /* Field green */
-  --baseball-dark-green: hsl(124, 55%, 29%);
-  --baseball-gold: hsl(45, 93%, 47%);
-  --baseball-dark-gold: hsl(45, 93%, 35%);
-  --baseball-brown: hsl(24, 45%, 37%); /* Baseball brown */
-  --baseball-cream: hsl(48, 100%, 96%); /* Cream background */
+  /* StyleMix Baseball theme colors */
+  --splash-orange: hsl(13, 88%, 48%); /* Main orange from website */
+  --splash-dark-orange: hsl(13, 88%, 38%); /* Darker orange */
+  --splash-navy: hsl(215, 25%, 27%); /* Navy blue */
+  --splash-dark-navy: hsl(215, 25%, 20%); /* Darker navy */
+  --splash-white: hsl(0, 0%, 100%); /* Pure white */
+  --splash-light-gray: hsl(0, 0%, 96%); /* Light gray background */
+  --splash-gray: hsl(0, 0%, 45%); /* Medium gray text */
+  --splash-dark-gray: hsl(0, 0%, 13%); /* Dark gray/black text */
   
-  /* Text colors */
-  --text-primary: hsl(220, 13%, 18%);
-  --text-secondary: hsl(220, 9%, 46%);
-  --text-light: hsl(220, 9%, 64%);
+  /* Text colors from StyleMix Baseball */
+  --text-primary: hsl(0, 0%, 13%);
+  --text-secondary: hsl(0, 0%, 45%);
+  --text-light: hsl(0, 0%, 60%);
   --text-white: hsl(0, 0%, 100%);
   
-  /* Background colors */
+  /* Background colors from StyleMix Baseball */
   --bg-primary: hsl(0, 0%, 100%);
-  --bg-secondary: hsl(48, 100%, 96%);
-  --bg-dark: hsl(220, 13%, 18%);
-  --bg-muted: hsl(220, 13%, 95%);
-  --bg-hero: linear-gradient(135deg, hsl(24, 77%, 52%) 0%, hsl(220, 13%, 18%) 100%);
+  --bg-secondary: hsl(0, 0%, 96%);
+  --bg-dark: hsl(215, 25%, 27%);
+  --bg-darker: hsl(215, 25%, 20%);
+  --bg-hero: linear-gradient(135deg, hsl(13, 88%, 48%) 0%, hsl(215, 25%, 27%) 100%);
   
-  /* Component colors */
-  --header-bg: hsl(220, 13%, 18%);
+  /* Component colors from StyleMix Baseball */
+  --header-bg: hsl(215, 25%, 27%);
   --header-text: hsl(0, 0%, 100%);
   --card-bg: hsl(0, 0%, 100%);
-  --card-border: hsl(220, 13%, 91%);
-  --table-header: hsl(220, 13%, 95%);
-  --table-row-even: hsl(220, 13%, 98%);
-  --table-row-hover: hsl(220, 13%, 95%);
+  --card-border: hsl(0, 0%, 89%);
+  --table-header: hsl(0, 0%, 96%);
+  --table-row-even: hsl(0, 0%, 98%);
+  --table-row-hover: hsl(0, 0%, 96%);
   
   /* Shadow and effects */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -68,59 +67,58 @@
 }
 
 .dark {
-  --background: hsl(220, 13%, 9%);
+  --background: hsl(215, 25%, 20%);
   --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(220, 13%, 15%);
-  --muted-foreground: hsl(220, 9%, 64%);
-  --popover: hsl(220, 13%, 9%);
+  --muted: hsl(215, 25%, 15%);
+  --muted-foreground: hsl(0, 0%, 60%);
+  --popover: hsl(215, 25%, 20%);
   --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(220, 13%, 12%);
+  --card: hsl(215, 25%, 25%);
   --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(220, 13%, 20%);
-  --input: hsl(220, 13%, 20%);
-  --primary: hsl(24, 77%, 52%);
+  --border: hsl(215, 25%, 35%);
+  --input: hsl(215, 25%, 35%);
+  --primary: hsl(13, 88%, 48%);
   --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(220, 13%, 15%);
+  --secondary: hsl(215, 25%, 15%);
   --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(24, 77%, 52%);
+  --accent: hsl(13, 88%, 48%);
   --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 84%, 60%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --ring: hsl(24, 77%, 52%);
-  --radius: 0.5rem;
+  --ring: hsl(13, 88%, 48%);
+  --radius: 0rem;
 
-  /* Baseball theme colors for dark mode */
-  --baseball-primary: hsl(24, 77%, 52%);
-  --baseball-secondary: hsl(220, 13%, 9%);
-  --baseball-accent: hsl(45, 93%, 47%);
-  --baseball-green: hsl(118, 83%, 29%);
-  --baseball-dark-green: hsl(124, 55%, 29%);
-  --baseball-gold: hsl(45, 93%, 47%);
-  --baseball-dark-gold: hsl(45, 93%, 35%);
-  --baseball-brown: hsl(24, 45%, 37%);
-  --baseball-cream: hsl(220, 13%, 12%);
+  /* StyleMix Baseball theme colors for dark mode */
+  --splash-orange: hsl(13, 88%, 48%);
+  --splash-dark-orange: hsl(13, 88%, 38%);
+  --splash-navy: hsl(215, 25%, 20%);
+  --splash-dark-navy: hsl(215, 25%, 15%);
+  --splash-white: hsl(0, 0%, 100%);
+  --splash-light-gray: hsl(215, 25%, 25%);
+  --splash-gray: hsl(0, 0%, 60%);
+  --splash-dark-gray: hsl(0, 0%, 98%);
   
   /* Text colors for dark mode */
   --text-primary: hsl(0, 0%, 98%);
-  --text-secondary: hsl(220, 9%, 64%);
-  --text-light: hsl(220, 9%, 46%);
+  --text-secondary: hsl(0, 0%, 60%);
+  --text-light: hsl(0, 0%, 45%);
   --text-white: hsl(0, 0%, 100%);
   
   /* Background colors for dark mode */
-  --bg-primary: hsl(220, 13%, 9%);
-  --bg-secondary: hsl(220, 13%, 12%);
-  --bg-dark: hsl(220, 13%, 6%);
-  --bg-muted: hsl(220, 13%, 15%);
-  --bg-hero: linear-gradient(135deg, hsl(24, 77%, 52%) 0%, hsl(220, 13%, 6%) 100%);
+  --bg-primary: hsl(215, 25%, 20%);
+  --bg-secondary: hsl(215, 25%, 25%);
+  --bg-dark: hsl(215, 25%, 15%);
+  --bg-darker: hsl(215, 25%, 10%);
+  --bg-hero: linear-gradient(135deg, hsl(13, 88%, 48%) 0%, hsl(215, 25%, 15%) 100%);
   
   /* Component colors for dark mode */
-  --header-bg: hsl(220, 13%, 6%);
+  --header-bg: hsl(215, 25%, 15%);
   --header-text: hsl(0, 0%, 100%);
-  --card-bg: hsl(220, 13%, 12%);
-  --card-border: hsl(220, 13%, 20%);
-  --table-header: hsl(220, 13%, 15%);
-  --table-row-even: hsl(220, 13%, 11%);
-  --table-row-hover: hsl(220, 13%, 15%);
+  --card-bg: hsl(215, 25%, 25%);
+  --card-border: hsl(215, 25%, 35%);
+  --table-header: hsl(215, 25%, 20%);
+  --table-row-even: hsl(215, 25%, 22%);
+  --table-row-hover: hsl(215, 25%, 30%);
   
   /* Shadow and effects for dark mode */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
@@ -136,16 +134,18 @@
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    font-weight: 400;
     line-height: 1.6;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Roboto Slab', serif;
+    font-family: 'Oswald', 'Arial Narrow', sans-serif;
     font-weight: 600;
     line-height: 1.2;
     color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
   }
 
   h1 {

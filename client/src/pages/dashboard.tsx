@@ -19,9 +19,9 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--splash-light-gray)] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-baseball-primary mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--splash-orange)] mx-auto mb-4" />
           <p className="text-[var(--text-secondary)]">Loading tournament dashboard...</p>
         </div>
       </div>
@@ -30,12 +30,12 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--splash-light-gray)] flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error loading tournament data: {error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="baseball-btn-primary"
+            className="bg-[var(--splash-orange)] text-white px-6 py-3 rounded font-semibold hover:bg-[var(--splash-dark-orange)] transition-colors"
           >
             Retry
           </button>
@@ -45,7 +45,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-[var(--splash-light-gray)]">
       <SimpleNavigation tournamentId={currentTournamentId} currentPage="dashboard" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

@@ -43,6 +43,12 @@ Preferred communication style: Simple, everyday language.
 - **Hierarchical Score Input**: Restructured coach score input flow (Division → Team → Pool games)
 - **Admin Portal Enhancement**: Moved new tournament and export functionality to admin portal
 - **Access Control**: Separated admin functions from public dashboard for better security
+- **StyleMix Baseball Theme**: Applied professional baseball styling with authentic colors and fonts
+  - Colors: Orange (#E55720) and Navy (#3A5998) from StyleMix Baseball website
+  - Fonts: Oswald for headings, Roboto for body text
+  - Typography: Uppercase headings with letter spacing for professional sports look
+  - Background: Light gray (#F5F5F5) for subtle contrast
+  - Navigation: Navy header with orange accent highlights
 
 ### Frontend Components
 - **Tournament Dashboard**: Main interface for tournament management
