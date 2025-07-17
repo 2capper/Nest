@@ -304,7 +304,7 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
           {/* Pool Standings */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {poolStandings.map(({ pool, teams: poolTeams }) => (
-              <div key={pool.id} className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+              <div key={pool.id} className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 text-left pl-[12px] pr-[12px] pt-[12px] pb-[12px]">
                 <div className="flex items-center justify-between mb-6">
                   <h4 className="text-lg font-semibold text-gray-900">{pool.name}</h4>
                   <div className="text-sm text-gray-500">
