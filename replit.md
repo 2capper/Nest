@@ -38,15 +38,22 @@ Preferred communication style: Simple, everyday language.
 - **Schema Location**: `/shared/schema.ts` using Drizzle ORM
 - **Migration Management**: Drizzle Kit with PostgreSQL dialect
 
+### Recent Changes (January 2025)
+- **Division Toggle**: Added interactive division switching for standings display (11U/13U)
+- **Hierarchical Score Input**: Restructured coach score input flow (Division → Team → Pool games)
+- **Admin Portal Enhancement**: Moved new tournament and export functionality to admin portal
+- **Access Control**: Separated admin functions from public dashboard for better security
+
 ### Frontend Components
 - **Tournament Dashboard**: Main interface for tournament management
 - **Navigation**: Responsive navigation with mobile menu support
 - **Tournament Cards**: Overview cards showing tournament statistics
-- **Standings Table**: Real-time standings with tie-breaker logic
+- **Standings Table**: Real-time standings with tie-breaker logic and division toggle
 - **Games Management**: Game scheduling and score submission
 - **Teams Management**: Team registration and information
 - **Playoffs**: Tournament bracket management
-- **Admin Portal**: Administrative functions and data import
+- **Admin Portal**: Administrative functions including data import, export, and tournament creation
+- **Hierarchical Score Input**: Step-by-step score submission workflow for coaches
 
 ### Authentication System
 - **Storage Interface**: Abstracted storage layer with in-memory fallback

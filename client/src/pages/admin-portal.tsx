@@ -1,19 +1,86 @@
 import { useState } from 'react';
 import { useParams } from 'wouter';
-import { Loader2, Shield, Database, Users, Calendar } from 'lucide-react';
+import { Loader2, Shield, Database, Users, Calendar, Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTournamentData } from '@/hooks/use-tournament-data';
 import { AdminPortalNew } from '@/components/tournament/admin-portal-new';
 import { SimpleNavigation } from '@/components/tournament/simple-navigation';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminPortal() {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const currentTournamentId = tournamentId || 'aug-classic';
   const { teams, games, pools, tournaments, ageDivisions, loading, error } = useTournamentData(currentTournamentId);
+  const { toast } = useToast();
 
   const currentTournament = tournaments.find(t => t.id === currentTournamentId);
+
+  const handleNewTournament = () => {
+    // TODO: Implement new tournament creation
+    console.log('Create new tournament');
+    toast({
+      title: "Feature Coming Soon",
+      description: "Tournament creation feature will be available soon.",
+    });
+  };
+
+  const handleExportData = () => {
+    // TODO: Implement data export functionality
+    console.log('Export tournament data');
+    
+    // Generate CSV export for tournament data
+    const csvData = {
+      teams: teams.map(team => ({
+        id: team.id,
+        name: team.name,
+        poolId: team.poolId,
+        poolName: pools.find(p => p.id === team.poolId)?.name || 'Unknown'
+      })),
+      games: games.map(game => ({
+        id: game.id,
+        homeTeam: teams.find(t => t.id === game.homeTeamId)?.name || 'Unknown',
+        awayTeam: teams.find(t => t.id === game.awayTeamId)?.name || 'Unknown',
+        homeScore: game.homeScore || 0,
+        awayScore: game.awayScore || 0,
+        status: game.status,
+        poolName: pools.find(p => p.id === game.poolId)?.name || 'Unknown'
+      }))
+    };
+    
+    // Convert to CSV and download
+    const teamsCSV = [
+      'Team ID,Team Name,Pool ID,Pool Name',
+      ...csvData.teams.map(team => `${team.id},${team.name},${team.poolId},${team.poolName}`)
+    ].join('\n');
+    
+    const gamesCSV = [
+      'Game ID,Home Team,Away Team,Home Score,Away Score,Status,Pool Name',
+      ...csvData.games.map(game => `${game.id},${game.homeTeam},${game.awayTeam},${game.homeScore},${game.awayScore},${game.status},${game.poolName}`)
+    ].join('\n');
+    
+    // Download teams CSV
+    const teamsBlob = new Blob([teamsCSV], { type: 'text/csv' });
+    const teamsUrl = URL.createObjectURL(teamsBlob);
+    const teamsLink = document.createElement('a');
+    teamsLink.href = teamsUrl;
+    teamsLink.download = `${currentTournamentId}_teams.csv`;
+    teamsLink.click();
+    
+    // Download games CSV
+    const gamesBlob = new Blob([gamesCSV], { type: 'text/csv' });
+    const gamesUrl = URL.createObjectURL(gamesBlob);
+    const gamesLink = document.createElement('a');
+    gamesLink.href = gamesUrl;
+    gamesLink.download = `${currentTournamentId}_games.csv`;
+    gamesLink.click();
+    
+    toast({
+      title: "Data Exported",
+      description: "Tournament data has been exported to CSV files.",
+    });
+  };
 
   if (loading) {
     return (
@@ -109,6 +176,24 @@ export default function AdminPortal() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Admin Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <Button 
+            onClick={handleNewTournament}
+            className="bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)] transition-colors flex-1"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Tournament
+          </Button>
+          <Button 
+            onClick={handleExportData}
+            className="bg-[var(--falcons-gold)] text-white hover:bg-[var(--falcons-dark-gold)] transition-colors flex-1"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export Data
+          </Button>
         </div>
 
         {/* Admin Tabs */}
