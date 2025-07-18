@@ -29,10 +29,6 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <NestLogo />
-            <div className="text-white ml-4">
-              <h1 className="text-xl font-bold uppercase tracking-wide" style={{ fontFamily: 'Oswald' }}>Tournament Manager</h1>
-              <p className="text-sm text-orange-200" style={{ fontFamily: 'Roboto' }}>The Nest</p>
-            </div>
           </div>
           
           {/* Navigation Links */}
