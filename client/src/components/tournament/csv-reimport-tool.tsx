@@ -135,7 +135,7 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
           );
           
           return {
-            id: `team_div_${division}-${nameParts.join('-')}`,
+            id: `team_div_${division}-${teamName}`, // Keep spaces in team ID
             name: teamName,
             ageDivisionId: `div_${division}`,
             poolId: poolMatch?.Pool 
