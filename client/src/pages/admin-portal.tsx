@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useParams } from 'wouter';
-import { Loader2, Shield, Database, Users, Calendar, Plus, Download } from 'lucide-react';
+import { Loader2, Shield, Database, Users, Calendar, Plus, Download, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTournamentData } from '@/hooks/use-tournament-data';
 import { AdminPortalNew } from '@/components/tournament/admin-portal-new';
 import { SimpleNavigation } from '@/components/tournament/simple-navigation';
+import { TournamentCreationForm } from '@/components/tournament/tournament-creation-form';
+import { GameResultEditor } from '@/components/tournament/game-result-editor';
 import { useToast } from '@/hooks/use-toast';
 
 export default function AdminPortal() {
@@ -197,19 +199,66 @@ export default function AdminPortal() {
         </div>
 
         {/* Admin Tabs */}
-        <Tabs defaultValue="import" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="tournaments" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="tournaments">Tournaments</TabsTrigger>
             <TabsTrigger value="import">Data Import</TabsTrigger>
-            <TabsTrigger value="manage">Manage Data</TabsTrigger>
+            <TabsTrigger value="games">Edit Games</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
           </TabsList>
           
+          <TabsContent value="tournaments" className="mt-6">
+            <div className="space-y-6">
+              <TournamentCreationForm 
+                onSuccess={(tournament) => {
+                  console.log('Tournament created:', tournament);
+                }}
+              />
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Existing Tournaments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {tournaments.map((tournament) => (
+                      <div key={tournament.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <h4 className="font-medium">{tournament.name}</h4>
+                          <p className="text-sm text-gray-500">{tournament.date}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-500">ID: {tournament.id}</span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(`/dashboard/${tournament.id}`, '_blank')}
+                          >
+                            View Dashboard
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           <TabsContent value="import" className="mt-6">
             <AdminPortalNew 
               tournamentId={currentTournamentId}
               onImportSuccess={() => {
                 console.log('Import successful, data updated via queries');
               }}
+            />
+          </TabsContent>
+
+          <TabsContent value="games" className="mt-6">
+            <GameResultEditor
+              games={games}
+              teams={teams}
+              tournamentId={currentTournamentId}
             />
           </TabsContent>
           

@@ -58,7 +58,7 @@ Preferred communication style: Simple, everyday language.
 - **Games Management**: Game scheduling and score submission
 - **Teams Management**: Team registration and information
 - **Playoffs**: Tournament bracket management
-- **Admin Portal**: Administrative functions including data import, export, and tournament creation
+- **Admin Portal**: Administrative functions including tournament creation, data import with tournament selection, game result editing, and export capabilities
 - **Hierarchical Score Input**: Step-by-step score submission workflow for coaches
 
 ### Authentication System
@@ -117,6 +117,15 @@ Preferred communication style: Simple, everyday language.
 - **Schema**: Defined in `/shared/schema.ts`
 - **Migrations**: Run via `npm run db:push`
 - **Connection**: Serverless PostgreSQL via Neon Database
+
+## Recent Changes
+
+- Updated logo and branding to "The Nest" (January 2025)
+- Fixed application startup issues and port conflicts (January 2025)
+- Enhanced admin portal with tournament creation form (January 2025)
+- Added tournament selection for CSV data imports (January 2025)
+- Implemented game result editor for admins (January 2025)
+- Reorganized admin portal with tabbed interface (January 2025)
 
 ## Key Architectural Decisions
 

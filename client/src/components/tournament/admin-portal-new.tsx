@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 
 interface AdminPortalNewProps {
@@ -15,14 +16,25 @@ interface AdminPortalNewProps {
 
 export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNewProps) => {
   const [file, setFile] = useState<File | null>(null);
+  const [selectedTournamentId, setSelectedTournamentId] = useState<string>(tournamentId);
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info' | ''; text: string }>({ type: '', text: '' });
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Fetch all tournaments for selection
+  const { data: tournaments = [] } = useQuery({
+    queryKey: ['/api/tournaments'],
+    queryFn: async () => {
+      const response = await fetch('/api/tournaments');
+      if (!response.ok) throw new Error('Failed to fetch tournaments');
+      return response.json();
+    },
+  });
+
   const bulkImportMutation = useMutation({
     mutationFn: async (importData: any) => {
-      const response = await fetch(`/api/tournaments/${tournamentId}/bulk-import`, {
+      const response = await fetch(`/api/tournaments/${selectedTournamentId}/bulk-import`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(importData)
@@ -33,9 +45,10 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
     onSuccess: () => {
       toast({
         title: "Import Successful",
-        description: "Tournament data has been successfully imported.",
+        description: `Tournament data has been successfully imported to ${tournaments.find(t => t.id === selectedTournamentId)?.name || selectedTournamentId}.`,
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/tournaments', tournamentId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tournaments', selectedTournamentId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
       setFile(null);
       if (onImportSuccess) onImportSuccess();
     },
@@ -267,6 +280,25 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
+          <Label htmlFor="tournamentSelect" className="text-sm font-medium">Select Tournament</Label>
+          <Select value={selectedTournamentId} onValueChange={setSelectedTournamentId}>
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Select a tournament..." />
+            </SelectTrigger>
+            <SelectContent>
+              {tournaments.map((tournament: any) => (
+                <SelectItem key={tournament.id} value={tournament.id}>
+                  {tournament.name} ({tournament.date})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-sm text-gray-500 mt-1">
+            Choose which tournament to import data into
+          </p>
+        </div>
+
+        <div>
           <Label htmlFor="csvFile" className="text-sm font-medium">Import Tournament Data (CSV)</Label>
           <div className="mt-2 flex items-center space-x-4">
             <Input
@@ -278,7 +310,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
             />
             <Button 
               onClick={handleImport} 
-              disabled={!file || bulkImportMutation.isPending}
+              disabled={!file || !selectedTournamentId || bulkImportMutation.isPending}
               className="bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)]"
             >
               {bulkImportMutation.isPending ? (
