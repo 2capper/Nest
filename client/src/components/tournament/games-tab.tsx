@@ -129,6 +129,37 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
     });
   };
 
+  // Convert Central Time to Eastern Time
+  const convertCentralToEastern = (timeStr: string) => {
+    if (!timeStr) return 'TBD';
+    
+    try {
+      // Parse the time (assuming format like "9:00 AM" or "14:30")
+      const [time, period] = timeStr.split(' ');
+      const timeParts = time.split(':');
+      const hours = parseInt(timeParts[0]) || 0;
+      const minutes = timeParts[1] ? parseInt(timeParts[1]) : 0;
+      
+      let hour24 = hours;
+      if (period?.toLowerCase() === 'pm' && hours !== 12) {
+        hour24 += 12;
+      } else if (period?.toLowerCase() === 'am' && hours === 12) {
+        hour24 = 0;
+      }
+      
+      // Add 1 hour for Eastern Time (Eastern is 1 hour ahead of Central)
+      hour24 = (hour24 + 1) % 24;
+      
+      // Convert back to 12-hour format
+      const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+      const newPeriod = hour24 >= 12 ? 'PM' : 'AM';
+      
+      return `${hour12}:${minutes.toString().padStart(2, '0')} ${newPeriod} ET`;
+    } catch (e) {
+      return timeStr; // Return original if parsing fails
+    }
+  };
+
   const getDirectionsUrl = (diamond: string) => {
     const coords = DIAMOND_COORDINATES[diamond as keyof typeof DIAMOND_COORDINATES];
     if (!coords || (coords.lat === 0 && coords.lng === 0)) {
@@ -210,7 +241,7 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
                         {/* Date and Time */}
                         <div className="flex-shrink-0 w-32">
                           <p className="font-medium text-gray-900">{formatDate(game.date)}</p>
-                          <p className="text-sm text-gray-600">{game.time}</p>
+                          <p className="text-sm text-gray-600">{convertCentralToEastern(game.time)}</p>
                         </div>
                         
                         {/* Teams and Score */}
@@ -236,13 +267,11 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
                           <div className="text-sm text-gray-600 mb-2">
                             <div className="flex items-center gap-2 justify-end">
                               <MapPin className="w-4 h-4" />
-                              <span>{game.location}</span>
+                              <span className="font-medium">{game.subVenue || 'TBD'}</span>
                             </div>
-                            {game.subVenue && (
-                              <div className="text-xs text-gray-500 mt-1">
-                                Diamond: {game.subVenue}
-                              </div>
-                            )}
+                            <div className="text-xs text-gray-500 mt-1">
+                              {game.location}
+                            </div>
                           </div>
                           {game.subVenue && (
                             <Button
