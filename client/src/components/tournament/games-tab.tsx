@@ -123,9 +123,6 @@ export const GamesTab = ({ games, teams }: GamesTabProps) => {
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">{game.date}</span>
-                    <button className="text-[var(--falcons-green)] hover:text-[var(--falcons-dark-green)] font-medium">
-                      {game.status === 'completed' ? 'View Details' : 'Update Score'}
-                    </button>
                   </div>
                 </div>
               </div>
