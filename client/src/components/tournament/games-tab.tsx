@@ -15,7 +15,7 @@ interface GamesTabProps {
 const DIAMOND_COORDINATES = {
   // CSV format names - these match exactly what's in the database
   'Bernie Amlin Field (BAF)': { lat: 42.208056, lng: -83.009443 },
-  'Tom Wilson Field (TWF)': { lat: 42.2535417, lng: -83.0189028 }, // Corrected coordinates from Google Maps link
+  'Tom Wilson Field (TWF)': { lat: 42.303269, lng: -82.917965 }, // Updated coordinates
   'Optimist 1 (OPT1)': { lat: 42.208169, lng: -83.008209 },
   'Optimist 2 (OPT2)': { lat: 42.208594, lng: -83.007789 },
   'Donna Bombardier Diamond (DBD)': { lat: 42.209259, lng: -83.009798 },
