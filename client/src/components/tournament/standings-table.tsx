@@ -239,11 +239,7 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
             <tr key={team.id} className={`hover:bg-gray-50 transition-colors ${team.forfeitLosses > 0 ? 'bg-red-50' : ''}`}>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
-                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                    index === 0 ? 'bg-[var(--falcons-green)]' : 
-                    index === 1 ? 'bg-gray-400' : 
-                    index === 2 ? 'bg-yellow-500' : 'bg-gray-300'
-                  }`}>
+                  <div className="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center bg-[#92a1b3]">
                     <span className="text-white font-bold text-sm">{index + 1}</span>
                   </div>
                   <div className="ml-4">
