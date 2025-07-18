@@ -11,8 +11,15 @@ interface GamesTabProps {
   ageDivisions: AgeDivision[];
 }
 
-// All baseball diamonds are located at this complex
-const COMPLEX_ADDRESS = '3215 Forest Glade Dr, Windsor, ON N8R 1W7, Canada';
+// Diamond coordinates for precise navigation within the complex
+const DIAMOND_COORDINATES = {
+  // CSV format names - these match exactly what's in the database
+  'Bernie Amlin Field (BAF)': { lat: 42.208056, lng: -83.009443 },
+  'Tom Wilson Field (TWF)': { lat: 42.209054, lng: -83.008994 },
+  'Optimist 1 (OPT1)': { lat: 42.208169, lng: -83.008209 },
+  'Optimist 2 (OPT2)': { lat: 42.208594, lng: -83.007789 },
+  'Donna Bombardier Diamond (DBD)': { lat: 42.209259, lng: -83.009798 },
+};
 
 export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) => {
   const [divisionFilter, setDivisionFilter] = useState('');
@@ -153,9 +160,13 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
   };
 
   const getDirectionsUrl = (diamond: string) => {
-    // Use the complex address with field name for accurate directions
-    const destination = `${COMPLEX_ADDRESS} ${diamond}`;
-    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=walking`;
+    const coords = DIAMOND_COORDINATES[diamond as keyof typeof DIAMOND_COORDINATES];
+    if (!coords) {
+      // Fallback to diamond name if coordinates not found
+      return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(diamond)}&travelmode=walking`;
+    }
+    // Use coordinates for precise navigation within the park
+    return `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}&travelmode=walking`;
   };
 
   return (

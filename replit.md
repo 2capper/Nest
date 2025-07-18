@@ -60,12 +60,12 @@ Preferred communication style: Simple, everyday language.
 - **Playoffs**: Tournament bracket management
 - **Admin Portal**: Administrative functions including tournament creation with auto-generated IDs, data import with tournament selection, game result editing with filtering, CSV reimport tool, and export capabilities
 - **Hierarchical Score Input**: Step-by-step score submission workflow for coaches
-- **Diamond GPS Coordinates**: 
-  - Bernie Amlin Field: 42.208056, -83.009443
-  - Tom Wilson Field: 42.209054, -83.008994
-  - Optimist 1: 42.208169, -83.008209
-  - Optimist 2: 42.208594, -83.007789
-  - Donna Bombardier: 42.209259, -83.009798
+- **Diamond GPS Coordinates** (all at 3215 Forest Glade Dr, Windsor, ON): 
+  - Bernie Amlin Field (BAF): 42.208056, -83.009443
+  - Tom Wilson Field (TWF): 42.209054, -83.008994
+  - Optimist 1 (OPT1): 42.208169, -83.008209
+  - Optimist 2 (OPT2): 42.208594, -83.007789
+  - Donna Bombardier Diamond (DBD): 42.209259, -83.009798
 
 ### Authentication System
 - **Storage Interface**: Abstracted storage layer with in-memory fallback
