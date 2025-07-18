@@ -87,9 +87,6 @@ export const GamesTab = ({ games, teams }: GamesTabProps) => {
             return (
               <div key={game.id} className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 hover-lift">
                 <div className="flex items-center justify-between mb-4">
-                  <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${statusInfo.statusClass}`}>
-                    {statusInfo.status}
-                  </span>
                   <span className="text-sm text-gray-500">{game.location}</span>
                 </div>
                 
