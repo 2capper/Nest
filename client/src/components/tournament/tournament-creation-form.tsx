@@ -37,6 +37,15 @@ export const TournamentCreationForm = ({ onSuccess }: TournamentCreationFormProp
       toast({
         title: "Tournament Created",
         description: `Tournament "${tournament.name}" has been successfully created.`,
+        action: (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => window.open(`/tournament/${tournament.id}`, '_blank')}
+          >
+            View Tournament
+          </Button>
+        ),
       });
       queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
       setFormData({ id: '', name: '', date: '' });
@@ -73,21 +82,20 @@ export const TournamentCreationForm = ({ onSuccess }: TournamentCreationFormProp
     return `${name}-${date}`.replace(/--+/g, '-');
   };
 
-  const handleNameChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      name: value,
-      id: generateTournamentId()
-    }));
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Auto-generate ID when name or date changes
+    if (field === 'name' || field === 'date') {
+      const updatedData = { ...formData, [field]: value };
+      const name = updatedData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const date = updatedData.date ? new Date(updatedData.date).toISOString().slice(0, 7) : '';
+      const generatedId = `${name}-${date}`.replace(/--+/g, '-');
+      setFormData(prev => ({ ...prev, id: generatedId }));
+    }
   };
 
-  const handleDateChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      date: value,
-      id: generateTournamentId()
-    }));
-  };
+
 
   if (!isOpen) {
     return (
@@ -116,7 +124,7 @@ export const TournamentCreationForm = ({ onSuccess }: TournamentCreationFormProp
             <Input
               id="tournamentName"
               value={formData.name}
-              onChange={(e) => handleNameChange(e.target.value)}
+              onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="e.g., Spring Championship 2024"
               required
               className="mt-1"
@@ -129,7 +137,7 @@ export const TournamentCreationForm = ({ onSuccess }: TournamentCreationFormProp
               id="tournamentDate"
               type="date"
               value={formData.date}
-              onChange={(e) => handleDateChange(e.target.value)}
+              onChange={(e) => handleInputChange('date', e.target.value)}
               required
               className="mt-1"
             />
@@ -145,9 +153,16 @@ export const TournamentCreationForm = ({ onSuccess }: TournamentCreationFormProp
               required
               className="mt-1 font-mono text-sm"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              This ID will be used in URLs and data references
-            </p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-gray-500">
+                This ID will be used in URLs and data references
+              </p>
+              {formData.id && (
+                <p className="text-xs text-blue-600 font-mono">
+                  URL: /tournament/{formData.id}
+                </p>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center justify-end space-x-2 pt-4">

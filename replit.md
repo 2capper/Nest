@@ -58,7 +58,7 @@ Preferred communication style: Simple, everyday language.
 - **Games Management**: Game scheduling and score submission
 - **Teams Management**: Team registration and information
 - **Playoffs**: Tournament bracket management
-- **Admin Portal**: Administrative functions including tournament creation, data import with tournament selection, game result editing, and export capabilities
+- **Admin Portal**: Administrative functions including tournament creation with auto-generated IDs, data import with tournament selection, game result editing with filtering, and export capabilities
 - **Hierarchical Score Input**: Step-by-step score submission workflow for coaches
 
 ### Authentication System
@@ -122,10 +122,12 @@ Preferred communication style: Simple, everyday language.
 
 - Updated logo and branding to "The Nest" (January 2025)
 - Fixed application startup issues and port conflicts (January 2025)
-- Enhanced admin portal with tournament creation form (January 2025)
+- Enhanced admin portal with tournament creation form and auto-generated IDs (January 2025)
 - Added tournament selection for CSV data imports (January 2025)
-- Implemented game result editor for admins (January 2025)
+- Implemented game result editor with filtering by tournament, division, and team (January 2025)
 - Reorganized admin portal with tabbed interface (January 2025)
+- Added standalone tournament URLs with dedicated /tournament/{id} routes (January 2025)
+- Enhanced tournament creation with immediate URL preview and navigation (January 2025)
 
 ## Key Architectural Decisions
 

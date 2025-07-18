@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Edit3, Save, X, Loader2, Trophy } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Edit3, Save, X, Loader2, Trophy, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import type { Game, Team } from '@shared/schema';
 
 interface GameResultEditorProps {
@@ -25,6 +25,54 @@ export const GameResultEditor = ({ games, teams, tournamentId }: GameResultEdito
     forfeitStatus: 'none',
     status: 'scheduled',
   });
+  
+  // Filter states
+  const [selectedTournament, setSelectedTournament] = useState<string>('all');
+  const [selectedDivision, setSelectedDivision] = useState<string>('all');
+  const [selectedTeam, setSelectedTeam] = useState<string>('all');
+  
+  // Fetch tournaments for filtering
+  const { data: tournaments = [] } = useQuery({
+    queryKey: ['/api/tournaments'],
+  });
+  
+  // Fetch age divisions for filtering
+  const { data: ageDivisions = [] } = useQuery({
+    queryKey: ['/api/tournaments', tournamentId, 'age-divisions'],
+  });
+
+  // Filter and sort games based on selected criteria
+  const filteredGames = useMemo(() => {
+    let filtered = games;
+    
+    // Filter by tournament (if multiple tournaments are supported)
+    if (selectedTournament !== 'all') {
+      filtered = filtered.filter(game => game.tournamentId === selectedTournament);
+    }
+    
+    // Filter by division
+    if (selectedDivision !== 'all') {
+      filtered = filtered.filter(game => {
+        const homeTeam = teams.find(t => t.id === game.homeTeamId);
+        const awayTeam = teams.find(t => t.id === game.awayTeamId);
+        return homeTeam?.ageDivisionId === selectedDivision || awayTeam?.ageDivisionId === selectedDivision;
+      });
+    }
+    
+    // Filter by team
+    if (selectedTeam !== 'all') {
+      filtered = filtered.filter(game => 
+        game.homeTeamId === selectedTeam || game.awayTeamId === selectedTeam
+      );
+    }
+    
+    // Sort by date, then by time
+    return filtered.sort((a, b) => {
+      const dateA = new Date(`${a.date} ${a.time}`);
+      const dateB = new Date(`${b.date} ${b.time}`);
+      return dateA.getTime() - dateB.getTime();
+    });
+  }, [games, teams, selectedTournament, selectedDivision, selectedTeam]);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -104,8 +152,68 @@ export const GameResultEditor = ({ games, teams, tournamentId }: GameResultEdito
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Filter Controls */}
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center mb-4">
+            <Filter className="w-4 h-4 text-gray-500 mr-2" />
+            <h3 className="text-sm font-medium">Filter Games</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label className="text-sm font-medium">Tournament</Label>
+              <Select value={selectedTournament} onValueChange={setSelectedTournament}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="All Tournaments" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Tournaments</SelectItem>
+                  {tournaments.map((tournament: any) => (
+                    <SelectItem key={tournament.id} value={tournament.id}>
+                      {tournament.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label className="text-sm font-medium">Division</Label>
+              <Select value={selectedDivision} onValueChange={setSelectedDivision}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="All Divisions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Divisions</SelectItem>
+                  {ageDivisions.map((division: any) => (
+                    <SelectItem key={division.id} value={division.id}>
+                      {division.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label className="text-sm font-medium">Team</Label>
+              <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="All Teams" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Teams</SelectItem>
+                  {teams.map((team: any) => (
+                    <SelectItem key={team.id} value={team.id}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-4">
-          {games.map((game) => {
+          {filteredGames.map((game) => {
             const isEditing = editingGame?.id === game.id;
             
             return (

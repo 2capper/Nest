@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "@/pages/dashboard";
 import CoachScoreInput from "@/pages/coach-score-input";
 import AdminPortal from "@/pages/admin-portal";
+import TournamentDashboard from "@/pages/tournament-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -13,8 +14,9 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard/:tournamentId" component={Dashboard} />
+      <Route path="/tournament/:tournamentId" component={TournamentDashboard} />
       <Route path="/coach-score-input/:tournamentId" component={CoachScoreInput} />
-      <Route path="/admin-portal/:tournamentId" component={AdminPortal} />
+      <Route path="/admin-portal/:tournamentId?" component={AdminPortal} />
       <Route component={NotFound} />
     </Switch>
   );

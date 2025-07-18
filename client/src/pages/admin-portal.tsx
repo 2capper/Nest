@@ -232,9 +232,9 @@ export default function AdminPortal() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => window.open(`/dashboard/${tournament.id}`, '_blank')}
+                            onClick={() => window.open(`/tournament/${tournament.id}`, '_blank')}
                           >
-                            View Dashboard
+                            View Tournament
                           </Button>
                         </div>
                       </div>

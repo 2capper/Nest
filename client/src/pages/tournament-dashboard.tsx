@@ -1,64 +1,43 @@
-import { useState, useEffect } from 'react';
 import { useParams } from 'wouter';
-import { Loader2, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { Loader2, Calendar, Users, Trophy, TrendingUp } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-import { Navigation } from '@/components/tournament/navigation';
-import { DashboardHeader } from '@/components/tournament/dashboard-header';
-import { TournamentCards } from '@/components/tournament/tournament-cards';
+import { Button } from '@/components/ui/button';
 import { StandingsTable } from '@/components/tournament/standings-table';
 import { GamesTab } from '@/components/tournament/games-tab';
-import { PlayoffsTab } from '@/components/tournament/playoffs-tab';
 import { TeamsTab } from '@/components/tournament/teams-tab';
-import { ScoreSubmissionNew } from '@/components/tournament/score-submission-new';
-import { AdminPortalNew } from '@/components/tournament/admin-portal-new';
+import { PlayoffsTab } from '@/components/tournament/playoffs-tab';
+import { SimpleNavigation } from '@/components/tournament/simple-navigation';
+import { TournamentCards } from '@/components/tournament/tournament-cards';
 import { useTournamentData } from '@/hooks/use-tournament-data';
-
-// Seed initial data function
-const seedInitialData = async () => {
-  try {
-    const response = await fetch('/api/tournaments');
-    const tournaments = await response.json();
-    
-    if (tournaments.length > 0) return;
-
-    console.log("Seeding new tournament data structure...");
-    
-    const tournamentsToCreate = [
-      { id: 'aug-classic', name: 'Falcons August Classic', date: 'Aug 1-3' },
-      { id: 'provincials', name: '11U Provincials', date: 'Aug 29-31' }
-    ];
-
-    for (const tournament of tournamentsToCreate) {
-      await fetch('/api/tournaments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tournament)
-      });
-    }
-    console.log("Seeding complete.");
-  } catch (error) {
-    console.error('Error seeding initial data:', error);
-  }
-};
 
 export default function TournamentDashboard() {
   const params = useParams();
-  const tournamentId = params.id || 'aug-classic';
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const tournamentId = params.tournamentId as string;
 
-  const { teams, games, pools, tournaments, loading, error } = useTournamentData(tournamentId);
+  const { data: tournament, isLoading: tournamentLoading } = useQuery({
+    queryKey: ['/api/tournaments', tournamentId],
+    enabled: !!tournamentId,
+  });
 
-  useEffect(() => {
-    seedInitialData();
-  }, []);
+  const {
+    tournaments,
+    currentTournament,
+    ageDivisions,
+    pools,
+    teams,
+    games,
+    isLoading,
+    error
+  } = useTournamentData(tournamentId);
 
-  if (loading) {
+  if (tournamentLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-[var(--falcons-green)] animate-spin mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--falcons-green)] mx-auto mb-4" />
           <p className="text-gray-600">Loading tournament data...</p>
         </div>
       </div>
@@ -67,10 +46,30 @@ export default function TournamentDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-500 mb-4">⚠️</div>
-          <p className="text-gray-600">{error}</p>
+          <div className="text-red-600 mb-4">
+            <Trophy className="w-16 h-16 mx-auto mb-2" />
+            <h2 className="text-xl font-semibold">Tournament Not Found</h2>
+          </div>
+          <p className="text-gray-600 mb-4">
+            The tournament "{tournamentId}" could not be found.
+          </p>
+          <Button onClick={() => window.location.href = '/'}>
+            Return to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentTournament) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-700">No Tournament Selected</h2>
+          <p className="text-gray-500">Please select a tournament to view.</p>
         </div>
       </div>
     );
@@ -78,95 +77,105 @@ export default function TournamentDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <SimpleNavigation 
+        currentTournament={currentTournament}
+        tournaments={tournaments}
+        tournamentId={tournamentId}
+      />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'dashboard' && (
-          <>
-            <DashboardHeader />
-            <TournamentCards 
-              tournaments={tournaments}
+      <div className="container mx-auto px-4 py-8">
+        {/* Tournament Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {currentTournament.name}
+              </h1>
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <Calendar className="w-4 h-4 mr-1" />
+                  {currentTournament.date}
+                </div>
+                <div className="flex items-center">
+                  <Users className="w-4 h-4 mr-1" />
+                  {teams.length} Teams
+                </div>
+                <div className="flex items-center">
+                  <Trophy className="w-4 h-4 mr-1" />
+                  {ageDivisions.length} Divisions
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="text-[var(--falcons-green)]">
+                Tournament ID: {tournamentId}
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(`/coach-score-input/${tournamentId}`, '_blank')}
+              >
+                Coach Score Input
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tournament Cards */}
+        <TournamentCards 
+          teams={teams}
+          games={games}
+          ageDivisions={ageDivisions}
+          pools={pools}
+        />
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="standings" className="mt-8">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="standings">Standings</TabsTrigger>
+            <TabsTrigger value="games">Games</TabsTrigger>
+            <TabsTrigger value="teams">Teams</TabsTrigger>
+            <TabsTrigger value="playoffs">Playoffs</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="standings" className="mt-6">
+            <StandingsTable 
               teams={teams}
               games={games}
+              ageDivisions={ageDivisions}
               pools={pools}
             />
-          </>
-        )}
-
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="border-b border-gray-200">
-              <TabsList className="flex space-x-8 px-6 bg-transparent h-auto">
-                <TabsTrigger 
-                  value="standings" 
-                  className="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm data-[state=active]:border-[var(--falcons-green)] data-[state=active]:text-[var(--falcons-green)]"
-                >
-                  Standings
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="games" 
-                  className="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm data-[state=active]:border-[var(--falcons-green)] data-[state=active]:text-[var(--falcons-green)]"
-                >
-                  Games
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="playoffs" 
-                  className="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm data-[state=active]:border-[var(--falcons-green)] data-[state=active]:text-[var(--falcons-green)]"
-                >
-                  Playoffs
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="teams" 
-                  className="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm data-[state=active]:border-[var(--falcons-green)] data-[state=active]:text-[var(--falcons-green)]"
-                >
-                  Teams
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <TabsContent value="standings" className="p-6">
-              <StandingsTable teams={teams} games={games} pools={pools} />
-            </TabsContent>
-
-            <TabsContent value="games">
-              <GamesTab games={games} teams={teams} />
-            </TabsContent>
-
-            <TabsContent value="playoffs">
-              <PlayoffsTab teams={teams} games={games} pools={pools} />
-            </TabsContent>
-
-            <TabsContent value="teams">
-              <TeamsTab teams={teams} pools={pools} />
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Score Submission and Admin Portal */}
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <ScoreSubmissionNew 
-            games={games}
-            teams={teams}
-            pools={pools}
-            tournamentId={tournamentId}
-          />
-          <AdminPortalNew 
-            tournamentId={tournamentId}
-            onImportSuccess={() => {
-              console.log('Import successful, data updated via queries');
-            }}
-          />
-        </div>
-      </main>
-
-      {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <Button 
-          size="lg"
-          className="w-14 h-14 rounded-full shadow-lg bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)] hover:scale-110 transition-all duration-200"
-        >
-          <Plus className="w-6 h-6" />
-        </Button>
+          </TabsContent>
+          
+          <TabsContent value="games" className="mt-6">
+            <GamesTab 
+              games={games}
+              teams={teams}
+              ageDivisions={ageDivisions}
+              pools={pools}
+              tournamentId={tournamentId}
+            />
+          </TabsContent>
+          
+          <TabsContent value="teams" className="mt-6">
+            <TeamsTab 
+              teams={teams}
+              ageDivisions={ageDivisions}
+              pools={pools}
+              tournamentId={tournamentId}
+            />
+          </TabsContent>
+          
+          <TabsContent value="playoffs" className="mt-6">
+            <PlayoffsTab 
+              games={games}
+              teams={teams}
+              ageDivisions={ageDivisions}
+              pools={pools}
+              tournamentId={tournamentId}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
