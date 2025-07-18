@@ -7,9 +7,7 @@ export const DashboardHeader = () => {
             <h2 className="text-3xl font-bold text-[var(--splash-dark-gray)] uppercase tracking-wide" style={{ fontFamily: 'Oswald' }}>
               Tournament Dashboard
             </h2>
-            <p className="text-[var(--text-secondary)] mt-1" style={{ fontFamily: 'Roboto' }}>
-              Manage your baseball tournaments with real-time updates
-            </p>
+            <p className="text-[var(--text-secondary)] mt-1" style={{ fontFamily: 'Roboto' }}>Select Tournament Series - 2025 Events </p>
           </div>
         </div>
       </div>
