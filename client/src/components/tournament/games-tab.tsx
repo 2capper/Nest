@@ -11,30 +11,8 @@ interface GamesTabProps {
   ageDivisions: AgeDivision[];
 }
 
-// Diamond coordinates mapping with complex address
+// All baseball diamonds are located at this complex
 const COMPLEX_ADDRESS = '3215 Forest Glade Dr, Windsor, ON N8R 1W7, Canada';
-
-const DIAMOND_COORDINATES = {
-  // Full names
-  'Bernie Amlin Field': { lat: 42.208056, lng: -83.009443 },
-  'Tom Wilson Field': { lat: 42.209054, lng: -83.008994 },
-  'Optimist 1': { lat: 42.208169, lng: -83.008209 },
-  'Optimist 2': { lat: 42.208594, lng: -83.007789 },
-  'Donna Bombardier': { lat: 42.209259, lng: -83.009798 },
-  'Donna Bombardier Diamond': { lat: 42.209259, lng: -83.009798 },
-  // CSV format names
-  'Bernie Amlin Field (BAF)': { lat: 42.208056, lng: -83.009443 },
-  'Tom Wilson Field (TWF)': { lat: 42.209054, lng: -83.008994 },
-  'Optimist 1 (OPT1)': { lat: 42.208169, lng: -83.008209 },
-  'Optimist 2 (OPT2)': { lat: 42.208594, lng: -83.007789 },
-  'Donna Bombardier Diamond (DBD)': { lat: 42.209259, lng: -83.009798 },
-  // Short codes
-  'BAF': { lat: 42.208056, lng: -83.009443 },
-  'TWF': { lat: 42.209054, lng: -83.008994 },
-  'OPT1': { lat: 42.208169, lng: -83.008209 },
-  'OPT2': { lat: 42.208594, lng: -83.007789 },
-  'DBD': { lat: 42.209259, lng: -83.009798 },
-};
 
 export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) => {
   const [divisionFilter, setDivisionFilter] = useState('');
@@ -175,15 +153,9 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
   };
 
   const getDirectionsUrl = (diamond: string) => {
-    const coords = DIAMOND_COORDINATES[diamond as keyof typeof DIAMOND_COORDINATES];
-    if (!coords || (coords.lat === 0 && coords.lng === 0)) {
-      // If coordinates not set, use the venue name for search
-      return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(diamond)}&travelmode=walking`;
-    }
-    // Use higher precision and ensure proper formatting
-    const lat = coords.lat.toFixed(6);
-    const lng = coords.lng.toFixed(6);
-    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
+    // Use the complex address with field name for accurate directions
+    const destination = `${COMPLEX_ADDRESS} ${diamond}`;
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=walking`;
   };
 
   return (
