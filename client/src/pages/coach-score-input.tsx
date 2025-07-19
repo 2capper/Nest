@@ -31,7 +31,7 @@ export default function CoachScoreInput() {
           <p className="text-red-600 mb-4">Error loading tournament data: {error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="bg-[var(--falcons-green)] text-white px-4 py-2 rounded hover:bg-[var(--falcons-dark-green)]"
+            className="bg-[var(--forest-green)] text-[var(--yellow)] px-4 py-2 rounded hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
           >
             Retry
           </button>

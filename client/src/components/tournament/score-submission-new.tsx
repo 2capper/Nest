@@ -213,7 +213,7 @@ export const ScoreSubmissionNew = ({ games, teams, pools, tournamentId }: ScoreS
           <Button 
             type="submit" 
             disabled={updateGameMutation.isPending || !selectedGameId} 
-            className="w-full bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)]"
+            className="w-full bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
           >
             {updateGameMutation.isPending ? (
               <>

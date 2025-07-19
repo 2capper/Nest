@@ -352,18 +352,16 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
       {/* Division Toggle Buttons */}
       <div className="flex items-center justify-center space-x-4">
         <Button
-          variant={selectedDivision === null ? "default" : "outline"}
           onClick={() => setSelectedDivision(null)}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/90 h-10 px-4 py-2 text-white bg-[#92a1b3]"
+          className={`${selectedDivision === null ? 'bg-[var(--yellow)] text-[var(--forest-green)]' : 'bg-[var(--forest-green)] text-[var(--yellow)]'} hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors`}
         >
           All Divisions
         </Button>
         {targetDivisions.map(division => (
           <Button
             key={division.id}
-            variant={selectedDivision === division.id ? "default" : "outline"}
             onClick={() => setSelectedDivision(division.id)}
-            className={selectedDivision === division.id ? "bg-[var(--falcons-green)] text-white" : ""}
+            className={`${selectedDivision === division.id ? 'bg-[var(--yellow)] text-[var(--forest-green)]' : 'bg-[var(--forest-green)] text-[var(--yellow)]'} hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors`}
           >
             {division.name}
           </Button>
@@ -391,12 +389,11 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
               {poolStandings.map(({ pool }, index) => (
                 <Button
                   key={pool.id}
-                  variant={selectedPool === pool.id || (selectedPool === null && index === 0) ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedPool(pool.id)}
-                  className={selectedPool === pool.id || (selectedPool === null && index === 0) 
-                    ? "bg-[var(--falcons-green)] text-white" 
-                    : ""}
+                  className={`${selectedPool === pool.id || (selectedPool === null && index === 0) 
+                    ? 'bg-[var(--yellow)] text-[var(--forest-green)]' 
+                    : 'bg-[var(--forest-green)] text-[var(--yellow)]'} hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors`}
                 >
                   {pool.name.replace(/^Pool\s*Pool\s*/i, 'Pool ')}
                 </Button>

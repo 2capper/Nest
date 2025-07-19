@@ -35,7 +35,7 @@ export default function Dashboard() {
           <p className="text-red-600 mb-4">Error loading tournament data: {error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="bg-[var(--splash-orange)] text-white px-6 py-3 rounded font-semibold hover:bg-[var(--splash-dark-orange)] transition-colors"
+            className="bg-[var(--forest-green)] text-[var(--yellow)] px-6 py-3 rounded font-semibold hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
           >
             Retry
           </button>
@@ -60,7 +60,7 @@ export default function Dashboard() {
         />
 
         <div className="mt-8">
-          <Tabs defaultValue="standings" className="w-full">
+          <Tabs defaultValue="standings" className="w-full tabs-forest">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="standings">Standings</TabsTrigger>
               <TabsTrigger value="games">Games</TabsTrigger>

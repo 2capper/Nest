@@ -182,14 +182,14 @@ export default function AdminPortal() {
         <div className="grid grid-cols-2 gap-2 mb-4">
           <Button 
             onClick={handleNewTournament}
-            className="bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)] transition-colors text-sm"
+            className="bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors text-sm"
           >
             <Plus className="w-4 h-4 mr-1" />
             New Tournament
           </Button>
           <Button 
             onClick={handleExportData}
-            className="bg-[var(--falcons-gold)] text-white hover:bg-[var(--falcons-dark-gold)] transition-colors text-sm"
+            className="bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors text-sm"
           >
             <Download className="w-4 h-4 mr-1" />
             Export Data
@@ -197,7 +197,7 @@ export default function AdminPortal() {
         </div>
 
         {/* Admin Tabs */}
-        <Tabs defaultValue="tournaments" className="w-full">
+        <Tabs defaultValue="tournaments" className="w-full tabs-forest">
           <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 h-auto">
             <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
             <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>

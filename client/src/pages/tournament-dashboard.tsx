@@ -55,7 +55,10 @@ export default function TournamentDashboard() {
           <p className="text-gray-600 mb-4">
             The tournament "{tournamentId}" could not be found.
           </p>
-          <Button onClick={() => window.location.href = '/'}>
+          <Button 
+            onClick={() => window.location.href = '/'} 
+            className="bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
+          >
             Return to Dashboard
           </Button>
         </div>
@@ -110,10 +113,9 @@ export default function TournamentDashboard() {
                 ID: {tournamentId}
               </Badge>
               <Button
-                variant="outline"
                 size="sm"
                 onClick={() => window.open(`/coach-score-input/${tournamentId}`, '_blank')}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Coach Score Input
@@ -131,7 +133,7 @@ export default function TournamentDashboard() {
         />
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="standings" className="mt-6">
+        <Tabs defaultValue="standings" className="mt-6 tabs-forest">
           <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 h-auto">
             <TabsTrigger value="standings" className="text-xs md:text-sm py-2">Standings</TabsTrigger>
             <TabsTrigger value="games" className="text-xs md:text-sm py-2">Games</TabsTrigger>

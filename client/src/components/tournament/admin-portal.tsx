@@ -262,7 +262,7 @@ export const AdminPortal = ({ tournamentId, onImportSuccess }: AdminPortalProps)
             <Button 
               onClick={handleImport} 
               disabled={!file || isProcessing}
-              className="bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)]"
+              className="bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
             >
               {isProcessing ? (
                 <>

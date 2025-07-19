@@ -207,7 +207,7 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
             </Select>
           )}
 
-          <Button className="bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)]">
+          <Button className="bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors">
             <Plus className="w-4 h-4 mr-2" />
             Add Game
           </Button>

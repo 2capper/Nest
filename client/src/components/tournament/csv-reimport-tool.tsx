@@ -215,9 +215,8 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
             />
             <Button
               type="button"
-              variant="default"
               disabled={isProcessing}
-              className="w-full cursor-pointer"
+              className="w-full cursor-pointer bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
               asChild
             >
               <span>
