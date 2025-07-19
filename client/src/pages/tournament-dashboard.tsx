@@ -1,6 +1,6 @@
 import { useParams } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, Calendar, Users, Trophy, TrendingUp } from 'lucide-react';
+import { Loader2, Calendar, Users, Trophy, TrendingUp, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -82,15 +82,15 @@ export default function TournamentDashboard() {
         currentPage='dashboard'
       />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="px-4 py-4 md:py-8">
         {/* Tournament Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 {currentTournament.name}
               </h1>
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
+              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 mr-1" />
                   {currentTournament.date}
@@ -105,15 +105,17 @@ export default function TournamentDashboard() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="text-[var(--falcons-green)]">
-                Tournament ID: {tournamentId}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Badge variant="outline" className="text-[var(--falcons-green)] text-xs px-2 py-1 w-fit">
+                ID: {tournamentId}
               </Badge>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => window.open(`/coach-score-input/${tournamentId}`, '_blank')}
+                className="w-full sm:w-auto"
               >
+                <FileText className="w-4 h-4 mr-2" />
                 Coach Score Input
               </Button>
             </div>
@@ -129,12 +131,12 @@ export default function TournamentDashboard() {
         />
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="standings" className="mt-8">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="standings">Standings</TabsTrigger>
-            <TabsTrigger value="games">Games</TabsTrigger>
-            <TabsTrigger value="teams">Teams</TabsTrigger>
-            <TabsTrigger value="playoffs">Playoffs</TabsTrigger>
+        <Tabs defaultValue="standings" className="mt-6">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 h-auto">
+            <TabsTrigger value="standings" className="text-xs md:text-sm py-2">Standings</TabsTrigger>
+            <TabsTrigger value="games" className="text-xs md:text-sm py-2">Games</TabsTrigger>
+            <TabsTrigger value="teams" className="text-xs md:text-sm py-2">Teams</TabsTrigger>
+            <TabsTrigger value="playoffs" className="text-xs md:text-sm py-2">Playoffs</TabsTrigger>
           </TabsList>
           
           <TabsContent value="standings" className="mt-6">

@@ -120,92 +120,89 @@ export default function AdminPortal() {
       <SimpleNavigation tournamentId={currentTournamentId} currentPage="admin" />
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 py-4 md:py-8">
         
         {/* Warning Banner */}
-        <Card className="mb-6 border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <Shield className="w-5 h-5 text-red-600 mr-3" />
-              <div>
-                <h3 className="text-lg font-semibold text-red-800">Admin Access Only</h3>
-                <p className="text-red-700">
-                  This portal is restricted to tournament administrators. 
-                  All actions are logged and monitored.
-                </p>
-              </div>
+        <div className="mb-4 p-3 border border-red-200 bg-red-50 rounded-lg">
+          <div className="flex items-start">
+            <Shield className="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-base font-semibold text-red-800">Admin Access Only</h3>
+              <p className="text-sm text-red-700 mt-1">
+                This portal is restricted to tournament administrators.
+              </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="flex items-center p-6">
-              <Database className="h-8 w-8 text-[var(--falcons-green)] mr-4" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <Database className="h-6 w-6 text-[var(--falcons-green)] mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Age Divisions</p>
-                <p className="text-2xl font-bold text-gray-900">{ageDivisions.length}</p>
+                <p className="text-xs text-gray-600">Divisions</p>
+                <p className="text-xl font-bold text-gray-900">{ageDivisions.length}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
           
-          <Card>
-            <CardContent className="flex items-center p-6">
-              <Users className="h-8 w-8 text-[var(--falcons-green)] mr-4" />
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <Users className="h-6 w-6 text-[var(--falcons-green)] mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Teams</p>
-                <p className="text-2xl font-bold text-gray-900">{teams.length}</p>
+                <p className="text-xs text-gray-600">Teams</p>
+                <p className="text-xl font-bold text-gray-900">{teams.length}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
           
-          <Card>
-            <CardContent className="flex items-center p-6">
-              <Calendar className="h-8 w-8 text-[var(--falcons-green)] mr-4" />
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <Calendar className="h-6 w-6 text-[var(--falcons-green)] mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Completed Games</p>
-                <p className="text-2xl font-bold text-gray-900">{completedGames}</p>
+                <p className="text-xs text-gray-600">Completed</p>
+                <p className="text-xl font-bold text-gray-900">{completedGames}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
           
-          <Card>
-            <CardContent className="flex items-center p-6">
-              <Calendar className="h-8 w-8 text-orange-500 mr-4" />
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <Calendar className="h-6 w-6 text-orange-500 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Scheduled Games</p>
-                <p className="text-2xl font-bold text-gray-900">{scheduledGames}</p>
+                <p className="text-xs text-gray-600">Scheduled</p>
+                <p className="text-xl font-bold text-gray-900">{scheduledGames}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Admin Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <div className="grid grid-cols-2 gap-2 mb-4">
           <Button 
             onClick={handleNewTournament}
-            className="bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)] transition-colors flex-1"
+            className="bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)] transition-colors text-sm"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4 mr-1" />
             New Tournament
           </Button>
           <Button 
             onClick={handleExportData}
-            className="bg-[var(--falcons-gold)] text-white hover:bg-[var(--falcons-dark-gold)] transition-colors flex-1"
+            className="bg-[var(--falcons-gold)] text-white hover:bg-[var(--falcons-dark-gold)] transition-colors text-sm"
           >
-            <Download className="w-4 h-4 mr-2" />
+            <Download className="w-4 h-4 mr-1" />
             Export Data
           </Button>
         </div>
 
         {/* Admin Tabs */}
         <Tabs defaultValue="tournaments" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="tournaments">Tournaments</TabsTrigger>
-            <TabsTrigger value="import">Data Import</TabsTrigger>
-            <TabsTrigger value="games">Edit Games</TabsTrigger>
-            <TabsTrigger value="reports">Reports</TabsTrigger>
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 h-auto">
+            <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
+            <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>
+            <TabsTrigger value="games" className="text-xs md:text-sm py-2">Edit Games</TabsTrigger>
+            <TabsTrigger value="reports" className="text-xs md:text-sm py-2">Reports</TabsTrigger>
           </TabsList>
           
           <TabsContent value="tournaments" className="mt-6">

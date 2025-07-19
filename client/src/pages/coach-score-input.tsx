@@ -45,22 +45,15 @@ export default function CoachScoreInput() {
       <SimpleNavigation tournamentId={currentTournamentId} currentPage="coach" />
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-center text-2xl text-gray-900">
-              Game Score Submission
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center text-gray-600 mb-6">
-              <p>Use this form to submit final scores for completed games.</p>
-              <p className="text-sm mt-2">
-                This page is for coaches and tournament officials only.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="max-w-4xl mx-auto px-4 py-4 md:py-8">
+        <div className="mb-4">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 text-center">
+            Game Score Submission
+          </h1>
+          <p className="text-sm text-gray-600 text-center mt-2">
+            Submit final scores for completed games
+          </p>
+        </div>
 
         <HierarchicalScoreInput 
           games={games}
@@ -70,15 +63,15 @@ export default function CoachScoreInput() {
           tournamentId={currentTournamentId}
         />
 
-        {/* Instructions */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Instructions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        {/* Instructions - Collapsible on mobile */}
+        <details className="mt-6 bg-white rounded-lg border border-gray-200 p-4">
+          <summary className="font-semibold text-gray-900 cursor-pointer">
+            Need Help? View Instructions
+          </summary>
+          <div className="mt-4 space-y-4">
             <div>
-              <h4 className="font-semibold text-gray-900">How to Submit Scores:</h4>
-              <ol className="list-decimal list-inside space-y-2 text-gray-700 mt-2">
+              <h4 className="font-semibold text-gray-900 text-sm">How to Submit Scores:</h4>
+              <ol className="list-decimal list-inside space-y-1 text-gray-700 text-sm mt-2">
                 <li>Select your age division (11U or 13U)</li>
                 <li>Choose your team from the division</li>
                 <li>Select the specific pool game to report</li>
@@ -90,16 +83,16 @@ export default function CoachScoreInput() {
             </div>
             
             <div>
-              <h4 className="font-semibold text-gray-900">Important Notes:</h4>
-              <ul className="list-disc list-inside space-y-1 text-gray-700 mt-2">
+              <h4 className="font-semibold text-gray-900 text-sm">Important Notes:</h4>
+              <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm mt-2">
                 <li>Double-check all information before submitting</li>
                 <li>Scores cannot be edited once submitted without admin intervention</li>
                 <li>Contact tournament officials if you encounter any issues</li>
                 <li>Innings should be recorded as whole numbers (e.g., 4, 5) or half innings (e.g., 4.5, 5.5)</li>
               </ul>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </details>
       </div>
     </div>
   );

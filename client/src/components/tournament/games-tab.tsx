@@ -238,28 +238,37 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
                   
                   return (
                     <div key={game.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex flex-col md:flex-row md:items-center gap-4">
-                        {/* Date and Time */}
-                        <div className="flex-shrink-0 w-32">
-                          <p className="font-medium text-gray-900">{formatDate(game.date)}</p>
-                          <p className="text-sm text-gray-600">
-                            {/* Use game.time after reimport, game.location for old data */}
-                            {convertCentralToEastern(game.time || game.location)}
-                          </p>
+                      {/* Mobile optimized layout */}
+                      <div className="flex flex-col space-y-3">
+                        {/* Top row: Date/Time and Status */}
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">{formatDate(game.date)}</p>
+                            <p className="text-xs text-gray-600">
+                              {convertCentralToEastern(game.time || game.location)}
+                            </p>
+                          </div>
+                          {game.status === 'completed' ? (
+                            <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                              FINAL
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                              SCHEDULED
+                            </span>
+                          )}
                         </div>
                         
                         {/* Teams and Score */}
-                        <div className="flex-grow">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{homeTeamName}</span>
-                            {game.status === 'completed' ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-sm truncate mr-2">{homeTeamName}</span>
+                            {game.status === 'completed' && (
                               <span className="font-bold text-lg">{game.homeScore}</span>
-                            ) : (
-                              <span className="text-gray-400">vs</span>
                             )}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{awayTeamName}</span>
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-sm truncate mr-2">{awayTeamName}</span>
                             {game.status === 'completed' && (
                               <span className="font-bold text-lg">{game.awayScore}</span>
                             )}
@@ -267,40 +276,27 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
                         </div>
                         
                         {/* Venue and Directions */}
-                        <div className="flex-shrink-0 text-right">
-                          <div className="text-sm text-gray-600 mb-2">
-                            <div className="flex items-center gap-2 justify-end">
-                              <MapPin className="w-4 h-4" />
-                              <span className="font-medium">{game.subVenue || 'Diamond TBD'}</span>
+                        <div className="pt-2 border-t border-gray-100">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <MapPin className="w-4 h-4 flex-shrink-0" />
+                              <div>
+                                <span className="font-medium">{game.subVenue || 'Diamond TBD'}</span>
+                                <span className="text-xs text-gray-500 block">3215 Forest Glade Dr</span>
+                              </div>
                             </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              3215 Forest Glade Dr
-                            </div>
+                            {game.subVenue && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-blue-600 border-blue-600 hover:bg-blue-50 text-xs px-3"
+                                onClick={() => window.open(getDirectionsUrl(game.subVenue), '_blank')}
+                              >
+                                <Navigation className="w-3 h-3 mr-1" />
+                                Directions
+                              </Button>
+                            )}
                           </div>
-                          {game.subVenue && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                              onClick={() => window.open(getDirectionsUrl(game.subVenue), '_blank')}
-                            >
-                              <Navigation className="w-3 h-3 mr-1" />
-                              Get Directions
-                            </Button>
-                          )}
-                        </div>
-
-                        {/* Status */}
-                        <div className="flex-shrink-0">
-                          {game.status === 'completed' ? (
-                            <span className="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                              FINAL
-                            </span>
-                          ) : (
-                            <span className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                              SCHEDULED
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>

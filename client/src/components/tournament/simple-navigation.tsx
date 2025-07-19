@@ -1,9 +1,13 @@
 import { Link, useLocation } from 'wouter';
-import { Trophy, Home, FileText, Shield } from 'lucide-react';
+import { Trophy, Home, FileText, Shield, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 const NestLogo = () => (
-  <div></div>
+  <div className="flex items-center">
+    <Trophy className="w-6 h-6 text-[var(--splash-orange)] mr-2" />
+    <span className="text-white font-bold text-lg">The Nest</span>
+  </div>
 );
 
 interface SimpleNavigationProps {
@@ -13,22 +17,23 @@ interface SimpleNavigationProps {
 
 export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigationProps) => {
   const [location] = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   return (
     <nav className="bg-[var(--splash-navy)] shadow-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-[#92a1b3]">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <NestLogo />
           </div>
           
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link href={`/dashboard/${tournamentId}`}>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-2">
+            <Link href={`/tournament/${tournamentId}`}>
               <Button 
                 variant={currentPage === 'dashboard' ? 'secondary' : 'ghost'}
                 size="sm"
-                className="justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-secondary/80 h-9 rounded-md px-3 flex items-center hover:text-orange-200 bg-[var(--splash-orange)]/20 text-[#ffffff]"
+                className={`${currentPage === 'dashboard' ? 'bg-[var(--splash-orange)] text-white' : 'text-white/80 hover:text-white hover:bg-white/10'}`}
               >
                 <Home className="w-4 h-4 mr-2" />
                 Dashboard
@@ -39,7 +44,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'coach' ? 'secondary' : 'ghost'}
                 size="sm"
-                className="justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-secondary/80 h-9 rounded-md px-3 flex items-center hover:text-orange-200 bg-[var(--splash-orange)]/20 text-[#ffffff]"
+                className={`${currentPage === 'coach' ? 'bg-[var(--splash-orange)] text-white' : 'text-white/80 hover:text-white hover:bg-white/10'}`}
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Score Input
@@ -50,7 +55,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'admin' ? 'secondary' : 'ghost'}
                 size="sm"
-                className="justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-9 rounded-md px-3 flex items-center hover:text-orange-200 hover:bg-white/10 text-[#212121]"
+                className={`${currentPage === 'admin' ? 'bg-[var(--splash-orange)] text-white' : 'text-white/80 hover:text-white hover:bg-white/10'}`}
               >
                 <Shield className="w-4 h-4 mr-2" />
                 Admin
@@ -58,19 +63,61 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
             </Link>
           </div>
           
-          {/* Mobile Navigation */}
+          {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <select 
-              value={location}
-              onChange={(e) => window.location.href = e.target.value}
-              className="bg-white/10 text-white border-none rounded px-3 py-1 text-sm"
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-white hover:bg-white/10"
             >
-              <option value={`/dashboard/${tournamentId}`}>Dashboard</option>
-              <option value={`/coach-score-input/${tournamentId}`}>Score Input</option>
-              <option value={`/admin-portal/${tournamentId}`}>Admin</option>
-            </select>
+              <Menu className="w-6 h-6" />
+            </Button>
           </div>
         </div>
+        
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden pb-4">
+            <div className="flex flex-col space-y-2">
+              <Link href={`/tournament/${tournamentId}`}>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className={`w-full justify-start ${currentPage === 'dashboard' ? 'bg-[var(--splash-orange)]/20 text-white' : 'text-white/80'}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Home className="w-5 h-5 mr-3" />
+                  Dashboard
+                </Button>
+              </Link>
+              
+              <Link href={`/coach-score-input/${tournamentId}`}>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className={`w-full justify-start ${currentPage === 'coach' ? 'bg-[var(--splash-orange)]/20 text-white' : 'text-white/80'}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <FileText className="w-5 h-5 mr-3" />
+                  Score Input
+                </Button>
+              </Link>
+              
+              <Link href={`/admin-portal/${tournamentId}`}>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className={`w-full justify-start ${currentPage === 'admin' ? 'bg-[var(--splash-orange)]/20 text-white' : 'text-white/80'}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Shield className="w-5 h-5 mr-3" />
+                  Admin
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
