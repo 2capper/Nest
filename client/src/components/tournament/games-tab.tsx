@@ -14,11 +14,11 @@ interface GamesTabProps {
 // Diamond coordinates for precise navigation within the complex
 const DIAMOND_COORDINATES = {
   // CSV format names - these match exactly what's in the database
-  'Bernie Amlin Field (BAF)': { lat: 42.208056, lng: -83.009443 },
+  'Bernie Amlin Field (BAF)': { lat: 42.30489770385658, lng: -82.91714755813497 },
   'Tom Wilson Field (TWF)': { lat: 42.303269, lng: -82.917965 }, // Updated coordinates
-  'Optimist 1 (OPT1)': { lat: 42.208169, lng: -83.008209 },
-  'Optimist 2 (OPT2)': { lat: 42.208594, lng: -83.007789 },
-  'Donna Bombardier Diamond (DBD)': { lat: 42.209259, lng: -83.009798 },
+  'Optimist 1 (OPT1)': { lat: 42.30207094517333, lng: -82.91665552800195 },
+  'Optimist 2 (OPT2)': { lat: 42.301950363777614, lng: -82.91780156559003 },
+  'Donna Bombardier Diamond (DBD)': { lat: 42.30407568467449, lng: -82.91722085822438 },
 };
 
 export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) => {
