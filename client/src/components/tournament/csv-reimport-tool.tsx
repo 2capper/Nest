@@ -84,16 +84,16 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
         // For playoff games with placeholders, use empty team IDs
         const divId = `${tournamentId}_div_${row.Division}`;
         const homeTeamId = row['Team 1'] && !isPlayoffPlaceholder(row['Team 1']) 
-          ? `${tournamentId}_team_${divId}-${row['Team 1']}` 
+          ? `${tournamentId}_team_div_${row.Division}-${row['Team 1']}` 
           : '';
         const awayTeamId = row['Team 2'] && !isPlayoffPlaceholder(row['Team 2'])
-          ? `${tournamentId}_team_${divId}-${row['Team 2']}`
+          ? `${tournamentId}_team_div_${row.Division}-${row['Team 2']}`
           : '';
         
         // Use regular pool or playoff pool for games without pools
         const poolId = row.Pool 
-          ? `${tournamentId}_pool_${divId}-${row.Pool}` 
-          : `${tournamentId}_pool_${divId}-Playoff`;
+          ? `${tournamentId}_pool_div_${row.Division}-${row.Pool}` 
+          : `${tournamentId}_pool_div_${row.Division}-Playoff`;
         
         return {
           id: gameId,
@@ -123,7 +123,7 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
           // Remove "Pool" prefix if already present in poolName
           const cleanPoolName = poolName.replace(/^Pool\s*/i, '');
           return {
-            id: `${tournamentId}_pool_${tournamentId}_div_${division}-${cleanPoolName}`,
+            id: `${tournamentId}_pool_div_${division}-${cleanPoolName}`,
             name: cleanPoolName,
             ageDivisionId: `${tournamentId}_div_${division}`
           };
@@ -138,12 +138,12 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
           );
           
           return {
-            id: `${tournamentId}_team_${tournamentId}_div_${division}-${teamName}`, // Keep spaces in team ID
+            id: `${tournamentId}_team_div_${division}-${teamName}`, // Keep spaces in team ID
             name: teamName,
             ageDivisionId: `${tournamentId}_div_${division}`,
             poolId: poolMatch?.Pool 
-              ? `${tournamentId}_pool_${tournamentId}_div_${division}-${poolMatch.Pool}` 
-              : `${tournamentId}_pool_${tournamentId}_div_${division}-Playoff` // Use playoff pool if no pool found
+              ? `${tournamentId}_pool_div_${division}-${poolMatch.Pool}` 
+              : `${tournamentId}_pool_div_${division}-Playoff` // Use playoff pool if no pool found
           };
         }),
         games
