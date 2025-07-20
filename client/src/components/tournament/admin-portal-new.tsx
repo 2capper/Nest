@@ -188,11 +188,11 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
         const teams: any[] = [];
         const games: any[] = [];
 
-        // Build structure
+        // Build structure with tournament-specific IDs
         for (const row of validData) {
           let divisionId = divisionsMap.get(row.division);
           if (!divisionId) {
-            divisionId = `div_${row.division.replace(/\s+/g, '-')}`;
+            divisionId = `${selectedTournamentId}_div_${row.division.replace(/\s+/g, '-')}`;
             divisionsMap.set(row.division, divisionId);
             ageDivisions.push({ id: divisionId, name: row.division });
           }
@@ -202,21 +202,21 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
           let poolKey = `${divisionId}-${poolName}`;
           let poolId = poolsMap.get(poolKey);
           if (!poolId) {
-            poolId = `pool_${poolKey.replace(/\s+/g, '-')}`;
+            poolId = `${selectedTournamentId}_pool_${poolKey.replace(/\s+/g, '-')}`;
             poolsMap.set(poolKey, poolId);
             pools.push({ id: poolId, name: poolName, ageDivisionId: divisionId });
           }
 
           const homeTeamKey = `${divisionId}-${row.homeTeam}`;
           if (!teamsMap.has(homeTeamKey)) {
-            const teamId = `team_${homeTeamKey.replace(/\s+/g, '-')}`;
+            const teamId = `${selectedTournamentId}_team_${homeTeamKey.replace(/\s+/g, '-')}`;
             teamsMap.set(homeTeamKey, teamId);
             teams.push({ id: teamId, name: row.homeTeam, poolId: poolId });
           }
 
           const awayTeamKey = `${divisionId}-${row.awayTeam}`;
           if (!teamsMap.has(awayTeamKey)) {
-            const teamId = `team_${awayTeamKey.replace(/\s+/g, '-')}`;
+            const teamId = `${selectedTournamentId}_team_${awayTeamKey.replace(/\s+/g, '-')}`;
             teamsMap.set(awayTeamKey, teamId);
             teams.push({ id: teamId, name: row.awayTeam, poolId: poolId });
           }
@@ -233,7 +233,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
 
           if (!homeTeamId || !awayTeamId || !poolId) continue;
 
-          const gameId = `g${row.matchNumber}`;
+          const gameId = `${selectedTournamentId}_g${row.matchNumber}`;
           games.push({
             id: gameId,
             homeTeamId,
