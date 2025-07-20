@@ -17,15 +17,16 @@ export default function AdminPortal() {
   const currentTournamentId = tournamentId || 'aug-classic';
   const { teams, games, pools, tournaments, ageDivisions, loading, error } = useTournamentData(currentTournamentId);
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('tournaments');
 
   const currentTournament = tournaments.find(t => t.id === currentTournamentId);
 
   const handleNewTournament = () => {
-    // TODO: Implement new tournament creation
-    console.log('Create new tournament');
+    // Switch to tournaments tab where the creation form is
+    setActiveTab('tournaments');
     toast({
-      title: "Feature Coming Soon",
-      description: "Tournament creation feature will be available soon.",
+      title: "Create New Tournament",
+      description: "Use the form below to create a new tournament.",
     });
   };
 
@@ -197,7 +198,7 @@ export default function AdminPortal() {
         </div>
 
         {/* Admin Tabs */}
-        <Tabs defaultValue="tournaments" className="w-full tabs-forest">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-forest">
           <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 h-auto">
             <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
             <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>
