@@ -288,7 +288,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
             <SelectContent>
               {tournaments.map((tournament: any) => (
                 <SelectItem key={tournament.id} value={tournament.id}>
-                  {tournament.name} ({tournament.date})
+                  {tournament.name} ({tournament.startDate} - {tournament.endDate})
                 </SelectItem>
               ))}
             </SelectContent>

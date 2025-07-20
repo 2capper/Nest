@@ -96,7 +96,7 @@ export default function TournamentDashboard() {
               <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 mr-1" />
-                  {currentTournament.date}
+                  {currentTournament.startDate} - {currentTournament.endDate}
                 </div>
                 <div className="flex items-center">
                   <Users className="w-4 h-4 mr-1" />

@@ -182,14 +182,7 @@ export default function AdminPortal() {
         </div>
 
         {/* Admin Action Buttons */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <Button 
-            onClick={handleNewTournament}
-            className="bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors text-sm"
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            New Tournament
-          </Button>
+        <div className="flex justify-end mb-4">
           <Button 
             onClick={handleExportData}
             className="bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors text-sm"
@@ -228,7 +221,7 @@ export default function AdminPortal() {
                       <div key={tournament.id} className="flex items-center justify-between p-3 border rounded-lg">
                         <div>
                           <h4 className="font-medium">{tournament.name}</h4>
-                          <p className="text-sm text-gray-500">{tournament.date}</p>
+                          <p className="text-sm text-gray-500">{tournament.startDate} - {tournament.endDate}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <span className="text-sm text-gray-500">ID: {tournament.id}</span>

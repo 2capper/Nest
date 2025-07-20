@@ -17,7 +17,8 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
   const [formData, setFormData] = useState({
     id: '',
     name: '',
-    date: '',
+    startDate: '',
+    endDate: '',
   });
   const [isOpen, setIsOpen] = useState(showForm);
   
@@ -54,7 +55,7 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
         ),
       });
       queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
-      setFormData({ id: '', name: '', date: '' });
+      setFormData({ id: '', name: '', startDate: '', endDate: '' });
       setIsOpen(false);
       if (onSuccess) onSuccess(tournament);
     },
@@ -82,20 +83,16 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
     }
   };
 
-  const generateTournamentId = () => {
-    const name = formData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    const date = formData.date ? new Date(formData.date).toISOString().slice(0, 7) : '';
-    return `${name}-${date}`.replace(/--+/g, '-');
-  };
+
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
-    // Auto-generate ID when name or date changes
-    if (field === 'name' || field === 'date') {
+    // Auto-generate ID when name or startDate changes
+    if (field === 'name' || field === 'startDate') {
       const updatedData = { ...formData, [field]: value };
       const name = updatedData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      const date = updatedData.date ? new Date(updatedData.date).toISOString().slice(0, 7) : '';
+      const date = updatedData.startDate ? new Date(updatedData.startDate).toISOString().slice(0, 7) : '';
       const generatedId = `${name}-${date}`.replace(/--+/g, '-');
       setFormData(prev => ({ ...prev, id: generatedId }));
     }
@@ -137,16 +134,31 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
             />
           </div>
           
-          <div>
-            <Label htmlFor="tournamentDate">Tournament Date</Label>
-            <Input
-              id="tournamentDate"
-              type="date"
-              value={formData.date}
-              onChange={(e) => handleInputChange('date', e.target.value)}
-              required
-              className="mt-1"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="startDate">Start Date</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={formData.startDate}
+                onChange={(e) => handleInputChange('startDate', e.target.value)}
+                required
+                className="mt-1"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="endDate">End Date</Label>
+              <Input
+                id="endDate"
+                type="date"
+                value={formData.endDate}
+                onChange={(e) => handleInputChange('endDate', e.target.value)}
+                required
+                className="mt-1"
+                min={formData.startDate}
+              />
+            </div>
           </div>
           
           <div>
