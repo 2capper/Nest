@@ -387,16 +387,15 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
             {/* Pool Tabs */}
             <div className="flex flex-wrap gap-2 mb-6">
               {poolStandings.map(({ pool }, index) => (
-                <Button
+                <div
                   key={pool.id}
-                  size="sm"
                   onClick={() => setSelectedPool(pool.id)}
-                  className={`${selectedPool === pool.id || (selectedPool === null && index === 0) 
+                  className={`px-3 py-1.5 text-sm font-medium rounded cursor-pointer ${selectedPool === pool.id || (selectedPool === null && index === 0) 
                     ? 'bg-[var(--yellow)] text-[var(--forest-green)]' 
                     : 'bg-[var(--forest-green)] text-[var(--yellow)]'} hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors`}
                 >
                   {pool.name.replace(/^Pool\s*Pool\s*/i, 'Pool ')}
-                </Button>
+                </div>
               ))}
             </div>
             
