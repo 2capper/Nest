@@ -50,7 +50,12 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
       
       // Extract unique divisions and pools
       const ageDivisions = [...new Set(csvData.map(row => row.Division))].filter(Boolean);
-      const pools = [...new Set(csvData.map(row => row.Pool ? `${row.Division}-${row.Pool}` : null))]
+      // Strip "Pool" prefix from pool names to match main import format
+      const pools = [...new Set(csvData.map(row => {
+        if (!row.Pool) return null;
+        const cleanPoolName = row.Pool.replace(/^Pool\s+/i, '');
+        return `${row.Division}-${cleanPoolName}`;
+      }))]
         .filter(p => p && p.includes('-'));
       
       // Add playoff pools for each division (for playoff games without pools)
@@ -91,8 +96,10 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
           : '';
         
         // Use regular pool or playoff pool for games without pools
-        const poolId = row.Pool 
-          ? `${tournamentId}_pool_div_${row.Division}-${row.Pool}` 
+        // Strip "Pool" prefix from pool name to match main import format
+        const poolName = row.Pool ? row.Pool.replace(/^Pool\s+/i, '') : '';
+        const poolId = poolName 
+          ? `${tournamentId}_pool_div_${row.Division}-${poolName}` 
           : `${tournamentId}_pool_div_${row.Division}-Playoff`;
         
         return {
@@ -119,9 +126,10 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
           sortOrder: div === '11U' ? 1 : 2
         })),
         pools: pools.filter(p => p.split('-')[1]).map(pool => {
-          const [division, poolName] = pool.split('-');
-          // Remove "Pool" prefix if already present in poolName
-          const cleanPoolName = poolName.replace(/^Pool\s*/i, '');
+          const [division, ...poolParts] = pool.split('-');
+          const poolName = poolParts.join('-');
+          // Remove "Pool" prefix to match main import format
+          const cleanPoolName = poolName.replace(/^Pool\s+/i, '');
           return {
             id: `${tournamentId}_pool_div_${division}-${cleanPoolName}`,
             name: cleanPoolName,
@@ -142,7 +150,7 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
             name: teamName,
             ageDivisionId: `${tournamentId}_div_${division}`,
             poolId: poolMatch?.Pool 
-              ? `${tournamentId}_pool_div_${division}-${poolMatch.Pool}` 
+              ? `${tournamentId}_pool_div_${division}-${poolMatch.Pool.replace(/^Pool\s+/i, '')}` 
               : `${tournamentId}_pool_div_${division}-Playoff` // Use playoff pool if no pool found
           };
         }),
