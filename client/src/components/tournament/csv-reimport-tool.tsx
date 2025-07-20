@@ -75,7 +75,7 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
       
       // Transform games data with proper column mapping
       const games = csvData.map(row => {
-        const gameId = `g${row['Game #']}`;
+        const gameId = `${tournamentId}_g${row['Game #']}`;
         
         // Check if this is a playoff game with placeholder teams
         const isPlayoffPlaceholder = (team: string) => 
@@ -83,16 +83,16 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
         
         // For playoff games with placeholders, use empty team IDs
         const homeTeamId = row['Team 1'] && !isPlayoffPlaceholder(row['Team 1']) 
-          ? `team_div_${row.Division}-${row['Team 1']}` 
+          ? `${tournamentId}_team_${tournamentId}_div_${row.Division}-${row['Team 1']}` 
           : '';
         const awayTeamId = row['Team 2'] && !isPlayoffPlaceholder(row['Team 2'])
-          ? `team_div_${row.Division}-${row['Team 2']}`
+          ? `${tournamentId}_team_${tournamentId}_div_${row.Division}-${row['Team 2']}`
           : '';
         
         // Use regular pool or playoff pool for games without pools
         const poolId = row.Pool 
-          ? `pool_div_${row.Division}-Pool-${row.Pool}` 
-          : `pool_div_${row.Division}-Pool-Playoff`;
+          ? `${tournamentId}_pool_${tournamentId}_div_${row.Division}-Pool-${row.Pool}` 
+          : `${tournamentId}_pool_${tournamentId}_div_${row.Division}-Pool-Playoff`;
         
         return {
           id: gameId,
@@ -113,7 +113,7 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
       // Prepare the data for bulk import
       const importData = {
         ageDivisions: ageDivisions.map(div => ({
-          id: `div_${div}`,
+          id: `${tournamentId}_div_${div}`,
           name: div,
           sortOrder: div === '11U' ? 1 : 2
         })),
@@ -122,9 +122,9 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
           // Remove "Pool" prefix if already present in poolName
           const cleanPoolName = poolName.replace(/^Pool\s*/i, '');
           return {
-            id: `pool_div_${division}-Pool-${cleanPoolName}`,
+            id: `${tournamentId}_pool_${tournamentId}_div_${division}-Pool-${cleanPoolName}`,
             name: cleanPoolName,
-            ageDivisionId: `div_${division}`
+            ageDivisionId: `${tournamentId}_div_${division}`
           };
         }),
         teams: Array.from(teams).map(team => {
@@ -137,12 +137,12 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
           );
           
           return {
-            id: `team_div_${division}-${teamName}`, // Keep spaces in team ID
+            id: `${tournamentId}_team_${tournamentId}_div_${division}-${teamName}`, // Keep spaces in team ID
             name: teamName,
-            ageDivisionId: `div_${division}`,
+            ageDivisionId: `${tournamentId}_div_${division}`,
             poolId: poolMatch?.Pool 
-              ? `pool_div_${division}-Pool-${poolMatch.Pool}` 
-              : `pool_div_${division}-Pool-Playoff` // Use playoff pool if no pool found
+              ? `${tournamentId}_pool_${tournamentId}_div_${division}-Pool-${poolMatch.Pool}` 
+              : `${tournamentId}_pool_${tournamentId}_div_${division}-Pool-Playoff` // Use playoff pool if no pool found
           };
         }),
         games
