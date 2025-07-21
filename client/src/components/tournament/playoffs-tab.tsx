@@ -251,38 +251,40 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions }: PlayoffsTabPr
               </div>
 
               {/* Playoff Bracket */}
-              <div className="bg-gray-50 rounded-xl p-6">
+              <div className="bg-gray-800 rounded-xl p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   {/* Quarterfinals */}
                   <div className="space-y-6">
-                    <h4 className="text-lg font-semibold text-gray-900 text-center">Quarterfinals</h4>
+                    <h4 className="text-lg font-bold text-white text-center uppercase tracking-wider">Quarterfinals</h4>
                     
                     {/* QF Game 1 */}
-                    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-                      <div className="text-center text-sm text-gray-500 mb-3">QF1</div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between bg-[var(--falcons-green)] text-white p-2 rounded">
-                          <span className="font-medium">3. {seed3.name}</span>
-                          <span className="font-bold">-</span>
+                    <div className="bg-gray-900 rounded-lg shadow-lg p-4 border-2 border-gray-700">
+                      <div className="text-center text-xs font-bold text-yellow-400 uppercase mb-3">Game 1</div>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between bg-gray-700 text-white p-3 rounded border border-gray-600 hover:bg-gray-600 transition-colors">
+                          <span className="font-bold">3. {seed3.name}</span>
+                          <span className="font-bold text-xl">-</span>
                         </div>
-                        <div className="flex items-center justify-between bg-gray-100 p-2 rounded">
-                          <span className="font-medium">6. {seed6.name}</span>
-                          <span className="font-bold">-</span>
+                        <div className="text-center text-gray-400 text-xs">VS</div>
+                        <div className="flex items-center justify-between bg-gray-700 text-white p-3 rounded border border-gray-600 hover:bg-gray-600 transition-colors">
+                          <span className="font-bold">6. {seed6.name}</span>
+                          <span className="font-bold text-xl">-</span>
                         </div>
                       </div>
                     </div>
 
                     {/* QF Game 2 */}
-                    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-                      <div className="text-center text-sm text-gray-500 mb-3">QF2</div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between bg-[var(--falcons-green)] text-white p-2 rounded">
-                          <span className="font-medium">4. {seed4.name}</span>
-                          <span className="font-bold">-</span>
+                    <div className="bg-gray-900 rounded-lg shadow-lg p-4 border-2 border-gray-700">
+                      <div className="text-center text-xs font-bold text-yellow-400 uppercase mb-3">Game 2</div>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between bg-gray-700 text-white p-3 rounded border border-gray-600 hover:bg-gray-600 transition-colors">
+                          <span className="font-bold">4. {seed4.name}</span>
+                          <span className="font-bold text-xl">-</span>
                         </div>
-                        <div className="flex items-center justify-between bg-gray-100 p-2 rounded">
-                          <span className="font-medium">5. {seed5.name}</span>
-                          <span className="font-bold">-</span>
+                        <div className="text-center text-gray-400 text-xs">VS</div>
+                        <div className="flex items-center justify-between bg-gray-700 text-white p-3 rounded border border-gray-600 hover:bg-gray-600 transition-colors">
+                          <span className="font-bold">5. {seed5.name}</span>
+                          <span className="font-bold text-xl">-</span>
                         </div>
                       </div>
                     </div>
@@ -290,34 +292,36 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions }: PlayoffsTabPr
 
                   {/* Semifinals */}
                   <div className="space-y-6">
-                    <h4 className="text-lg font-semibold text-gray-900 text-center">Semifinals</h4>
+                    <h4 className="text-lg font-bold text-white text-center uppercase tracking-wider">Semifinals</h4>
                     
                     {/* SF Game 1 */}
-                    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-                      <div className="text-center text-sm text-gray-500 mb-3">SF1</div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between bg-blue-100 border border-blue-300 p-2 rounded">
-                          <span className="font-medium">2. {seed2.name}</span>
-                          <span className="font-bold">-</span>
+                    <div className="bg-gray-900 rounded-lg shadow-lg p-4 border-2 border-blue-600">
+                      <div className="text-center text-xs font-bold text-blue-400 uppercase mb-3">Semi 1</div>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between bg-blue-900 text-white p-3 rounded border border-blue-700 hover:bg-blue-800 transition-colors">
+                          <span className="font-bold">2. {seed2.name}</span>
+                          <span className="font-bold text-xl">-</span>
                         </div>
-                        <div className="flex items-center justify-between bg-blue-100 border border-blue-300 p-2 rounded">
-                          <span className="font-medium">Winner QF1</span>
-                          <span className="font-bold">-</span>
+                        <div className="text-center text-gray-400 text-xs">VS</div>
+                        <div className="flex items-center justify-between bg-gray-700 text-gray-300 p-3 rounded border border-gray-600">
+                          <span className="font-medium italic">Winner Game 1</span>
+                          <span className="font-bold text-xl">-</span>
                         </div>
                       </div>
                     </div>
 
                     {/* SF Game 2 */}
-                    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-                      <div className="text-center text-sm text-gray-500 mb-3">SF2</div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between bg-blue-100 border border-blue-300 p-2 rounded">
-                          <span className="font-medium">1. {seed1.name}</span>
-                          <span className="font-bold">-</span>
+                    <div className="bg-gray-900 rounded-lg shadow-lg p-4 border-2 border-blue-600">
+                      <div className="text-center text-xs font-bold text-blue-400 uppercase mb-3">Semi 2</div>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between bg-blue-900 text-white p-3 rounded border border-blue-700 hover:bg-blue-800 transition-colors">
+                          <span className="font-bold">1. {seed1.name}</span>
+                          <span className="font-bold text-xl">-</span>
                         </div>
-                        <div className="flex items-center justify-between bg-blue-100 border border-blue-300 p-2 rounded">
-                          <span className="font-medium">Winner QF2</span>
-                          <span className="font-bold">-</span>
+                        <div className="text-center text-gray-400 text-xs">VS</div>
+                        <div className="flex items-center justify-between bg-gray-700 text-gray-300 p-3 rounded border border-gray-600">
+                          <span className="font-medium italic">Winner Game 2</span>
+                          <span className="font-bold text-xl">-</span>
                         </div>
                       </div>
                     </div>
@@ -325,28 +329,29 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions }: PlayoffsTabPr
 
                   {/* Finals */}
                   <div className="space-y-6">
-                    <h4 className="text-lg font-semibold text-gray-900 text-center">Championship</h4>
+                    <h4 className="text-lg font-bold text-white text-center uppercase tracking-wider">Championship</h4>
                     
                     {/* Championship Game */}
-                    <div className="bg-gradient-to-br from-[var(--falcons-gold)] to-[var(--falcons-dark-gold)] rounded-lg shadow-lg p-4 border border-amber-300">
-                      <div className="text-center text-sm text-amber-100 mb-3">Championship</div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between bg-white/20 backdrop-blur-sm text-white p-2 rounded">
-                          <span className="font-medium">Winner SF1</span>
-                          <span className="font-bold">-</span>
+                    <div className="bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg shadow-xl p-4 border-2 border-yellow-500">
+                      <div className="text-center text-xs font-bold text-white uppercase mb-3">Final</div>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between bg-gray-900/80 backdrop-blur-sm text-white p-3 rounded border border-yellow-600">
+                          <span className="font-medium italic">Winner Semi 1</span>
+                          <span className="font-bold text-xl">-</span>
                         </div>
-                        <div className="flex items-center justify-between bg-white/20 backdrop-blur-sm text-white p-2 rounded">
-                          <span className="font-medium">Winner SF2</span>
-                          <span className="font-bold">-</span>
+                        <div className="text-center text-white text-xs font-bold">VS</div>
+                        <div className="flex items-center justify-between bg-gray-900/80 backdrop-blur-sm text-white p-3 rounded border border-yellow-600">
+                          <span className="font-medium italic">Winner Semi 2</span>
+                          <span className="font-bold text-xl">-</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Championship Trophy */}
                     <div className="text-center">
-                      <Trophy className="w-16 h-16 text-[var(--falcons-gold)] mx-auto mb-4" />
-                      <h5 className="text-lg font-semibold text-gray-900">Tournament Champion</h5>
-                      <p className="text-sm text-gray-500">To be determined</p>
+                      <Trophy className="w-20 h-20 text-yellow-400 mx-auto mb-4 drop-shadow-lg" />
+                      <h5 className="text-xl font-bold text-white uppercase">Champion</h5>
+                      <p className="text-sm text-gray-400">To be determined</p>
                     </div>
                   </div>
                 </div>
