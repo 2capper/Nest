@@ -119,8 +119,44 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
           return;
         }
 
+        // Function to properly parse CSV row handling quoted values
+        const parseCSVRow = (row: string): string[] => {
+          const result: string[] = [];
+          let current = '';
+          let inQuotes = false;
+          
+          for (let i = 0; i < row.length; i++) {
+            const char = row[i];
+            const nextChar = row[i + 1];
+            
+            if (char === '"' && (i === 0 || row[i - 1] === ',')) {
+              // Start of quoted value
+              inQuotes = true;
+            } else if (char === '"' && nextChar === ',' && inQuotes) {
+              // End of quoted value
+              inQuotes = false;
+            } else if (char === '"' && i === row.length - 1 && inQuotes) {
+              // End of quoted value at end of line
+              inQuotes = false;
+            } else if (char === ',' && !inQuotes) {
+              // End of field
+              result.push(current);
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+          
+          // Add the last field
+          if (current || row.endsWith(',')) {
+            result.push(current);
+          }
+          
+          return result;
+        };
+
         const normalizeHeader = (h: string) => h.trim().replace(/^\uFEFF/, '').toLowerCase().replace(/[^a-z0-9]/gi, '');
-        const rawHeaders = lines[0].split(',').map(h => h.trim());
+        const rawHeaders = parseCSVRow(lines[0]).map(h => h.trim().replace(/^"|"$/g, ''));
 
         const headerMapping: Record<string, string[]> = {
           matchNumber: ['game', 'match', 'matchno', 'game#'],
@@ -161,7 +197,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
         }
 
         const data = lines.slice(1).map(line => {
-          const values = line.split(',');
+          const values = parseCSVRow(line);
           const rowData: Record<string, string> = {};
           for (const key in columnIndexMap) {
             rowData[key] = values[columnIndexMap[key]]?.trim().replace(/^"|"$/g, '') || '';
@@ -313,11 +349,14 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
           
           // Log venue data for debugging
           if (row.matchNumber === '1' || row.matchNumber === '40') {
-            console.log(`Game ${row.matchNumber} venue data:`, {
+            console.log(`Game ${row.matchNumber} data:`, {
               venue: row.venue,
               subVenue: row.subVenue,
               date: row.date,
-              parsedDate: new Date(row.date).toDateString()
+              parsedDate: new Date(row.date).toDateString(),
+              time: row.time,
+              division: row.division,
+              pool: row.pool
             });
           }
           
