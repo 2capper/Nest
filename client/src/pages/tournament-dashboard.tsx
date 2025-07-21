@@ -108,18 +108,10 @@ export default function TournamentDashboard() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div>
               <Badge variant="outline" className="text-[var(--falcons-green)] text-xs px-2 py-1 w-fit">
                 ID: {tournamentId}
               </Badge>
-              <Button
-                size="sm"
-                onClick={() => window.open(`/coach-score-input/${tournamentId}`, '_blank')}
-                className="w-full sm:w-auto bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                Coach Score Input
-              </Button>
             </div>
           </div>
         </div>
