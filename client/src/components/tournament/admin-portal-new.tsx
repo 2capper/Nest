@@ -130,6 +130,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
           subVenue: ['subvenue'],
           division: ['division'],
           pool: ['pool'],
+          matchType: ['matchtype', 'gametype', 'type'],
           homeTeam: ['hometeam', 'home', 'team1'],
           awayTeam: ['awayteam', 'visitor', 'away', 'team2']
         };
@@ -168,7 +169,34 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
           return rowData;
         });
 
-        const validData = data.filter(row => row.division && row.pool && row.homeTeam && row.awayTeam);
+        // Check if a team name is a playoff placeholder
+        const isPlayoffPlaceholder = (team: string) => {
+          if (!team) return false;
+          return team.includes('TBD') || 
+                 team.includes('Seed #') || 
+                 team.includes('Winner of') ||
+                 team.includes('Loser of') ||
+                 team.toLowerCase().includes('tbd');
+        };
+
+        // Validate data - playoff games can have placeholder teams
+        const validData = data.filter(row => {
+          // Must have division
+          if (!row.division) return false;
+          
+          // Playoff games identified by matchType or placeholder teams
+          const isPlayoffGame = row.matchType?.toLowerCase() === 'playoff' ||
+                               isPlayoffPlaceholder(row.homeTeam) || 
+                               isPlayoffPlaceholder(row.awayTeam);
+          
+          // Pool games must have pool and actual team names
+          if (!isPlayoffGame) {
+            return row.pool && row.homeTeam && row.awayTeam;
+          }
+          
+          // Playoff games must have at least placeholder team names
+          return row.homeTeam && row.awayTeam;
+        });
 
         if (validData.length === 0) {
           setMessage({ 
@@ -197,41 +225,96 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
             ageDivisions.push({ id: divisionId, name: row.division });
           }
 
-          let poolName = row.pool.replace(row.division, '').trim();
-          if (!poolName) poolName = row.pool;
-          let poolKey = `${divisionId}-${poolName}`;
-          let poolId = poolsMap.get(poolKey);
-          if (!poolId) {
-            poolId = `${selectedTournamentId}_pool_${poolKey.replace(/\s+/g, '-')}`;
-            poolsMap.set(poolKey, poolId);
-            pools.push({ id: poolId, name: poolName, ageDivisionId: divisionId });
+          // Check if this is a playoff game
+          const isPlayoffGame = row.matchType?.toLowerCase() === 'playoff' ||
+                               isPlayoffPlaceholder(row.homeTeam) || 
+                               isPlayoffPlaceholder(row.awayTeam);
+
+          let poolId;
+          if (isPlayoffGame) {
+            // Create or get playoff pool for this division
+            const playoffPoolKey = `${divisionId}-Playoff`;
+            poolId = poolsMap.get(playoffPoolKey);
+            if (!poolId) {
+              poolId = `${selectedTournamentId}_pool_${playoffPoolKey.replace(/\s+/g, '-')}`;
+              poolsMap.set(playoffPoolKey, poolId);
+              pools.push({ id: poolId, name: 'Playoff', ageDivisionId: divisionId });
+            }
+          } else {
+            // Regular pool game
+            let poolName = row.pool.replace(row.division, '').trim();
+            if (!poolName) poolName = row.pool;
+            let poolKey = `${divisionId}-${poolName}`;
+            poolId = poolsMap.get(poolKey);
+            if (!poolId) {
+              poolId = `${selectedTournamentId}_pool_${poolKey.replace(/\s+/g, '-')}`;
+              poolsMap.set(poolKey, poolId);
+              pools.push({ id: poolId, name: poolName, ageDivisionId: divisionId });
+            }
           }
 
-          const homeTeamKey = `${divisionId}-${row.homeTeam}`;
-          if (!teamsMap.has(homeTeamKey)) {
-            const teamId = `${selectedTournamentId}_team_${homeTeamKey.replace(/\s+/g, '-')}`;
-            teamsMap.set(homeTeamKey, teamId);
-            teams.push({ id: teamId, name: row.homeTeam, poolId: poolId });
+          // Only create teams if they're not placeholder teams
+          if (!isPlayoffPlaceholder(row.homeTeam)) {
+            const homeTeamKey = `${divisionId}-${row.homeTeam}`;
+            if (!teamsMap.has(homeTeamKey)) {
+              const teamId = `${selectedTournamentId}_team_${homeTeamKey.replace(/\s+/g, '-')}`;
+              teamsMap.set(homeTeamKey, teamId);
+              teams.push({ id: teamId, name: row.homeTeam, poolId: poolId });
+            }
           }
 
-          const awayTeamKey = `${divisionId}-${row.awayTeam}`;
-          if (!teamsMap.has(awayTeamKey)) {
-            const teamId = `${selectedTournamentId}_team_${awayTeamKey.replace(/\s+/g, '-')}`;
-            teamsMap.set(awayTeamKey, teamId);
-            teams.push({ id: teamId, name: row.awayTeam, poolId: poolId });
+          if (!isPlayoffPlaceholder(row.awayTeam)) {
+            const awayTeamKey = `${divisionId}-${row.awayTeam}`;
+            if (!teamsMap.has(awayTeamKey)) {
+              const teamId = `${selectedTournamentId}_team_${awayTeamKey.replace(/\s+/g, '-')}`;
+              teamsMap.set(awayTeamKey, teamId);
+              teams.push({ id: teamId, name: row.awayTeam, poolId: poolId });
+            }
           }
         }
 
         // Create games
         for (const row of validData) {
           const divisionId = divisionsMap.get(row.division);
-          const poolName = row.pool.replace(row.division, '').trim();
-          const poolKey = `${divisionId}-${poolName}`;
-          const poolId = poolsMap.get(poolKey);
-          const homeTeamId = teamsMap.get(`${divisionId}-${row.homeTeam}`);
-          const awayTeamId = teamsMap.get(`${divisionId}-${row.awayTeam}`);
+          
+          // Check if this is a playoff game
+          const isPlayoffGame = row.matchType?.toLowerCase() === 'playoff' ||
+                               isPlayoffPlaceholder(row.homeTeam) || 
+                               isPlayoffPlaceholder(row.awayTeam);
 
-          if (!homeTeamId || !awayTeamId || !poolId) continue;
+          // Get appropriate pool ID
+          let poolId;
+          if (isPlayoffGame) {
+            const playoffPoolKey = `${divisionId}-Playoff`;
+            poolId = poolsMap.get(playoffPoolKey);
+          } else {
+            const poolName = row.pool.replace(row.division, '').trim();
+            const poolKey = `${divisionId}-${poolName}`;
+            poolId = poolsMap.get(poolKey);
+          }
+
+          if (!poolId) continue;
+
+          // Get team IDs - for playoff games with placeholders, use empty string
+          let homeTeamId = '';
+          let awayTeamId = '';
+          
+          if (!isPlayoffPlaceholder(row.homeTeam)) {
+            homeTeamId = teamsMap.get(`${divisionId}-${row.homeTeam}`) || '';
+          }
+          
+          if (!isPlayoffPlaceholder(row.awayTeam)) {
+            awayTeamId = teamsMap.get(`${divisionId}-${row.awayTeam}`) || '';
+          }
+
+          // For pool games, both teams must exist
+          if (!isPlayoffGame && (!homeTeamId || !awayTeamId)) continue;
+
+          // Skip playoff games with empty teams for now since DB requires team IDs
+          if (!homeTeamId || !awayTeamId) {
+            console.log(`Skipping game ${row.matchNumber} - missing team IDs (playoff game with TBD teams)`);
+            continue;
+          }
 
           const gameId = `${selectedTournamentId}_g${row.matchNumber}`;
           games.push({
@@ -248,9 +331,31 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
             date: row.date,
             time: adjustTimeToET(row.time),
             location: row.location,
-            subVenue: row.subVenue || ''
+            subVenue: row.subVenue || '',
+            tournamentId: selectedTournamentId
           });
         }
+
+        // Count skipped playoff games
+        let skippedPlayoffGames = 0;
+        for (const row of validData) {
+          const isPlayoffGame = row.matchType?.toLowerCase() === 'playoff' ||
+                               isPlayoffPlaceholder(row.homeTeam) || 
+                               isPlayoffPlaceholder(row.awayTeam);
+          if (isPlayoffGame) {
+            skippedPlayoffGames++;
+          }
+        }
+
+        // Log import details for debugging
+        console.log('CSV Import Summary:');
+        console.log(`- Total rows in CSV: ${data.length}`);
+        console.log(`- Valid data rows: ${validData.length}`);
+        console.log(`- Games imported: ${games.length}`);
+        console.log(`- Playoff games skipped (TBD teams): ${skippedPlayoffGames}`);
+        console.log(`- Divisions: ${ageDivisions.length}`);
+        console.log(`- Pools: ${pools.length} (including playoff pools)`);
+        console.log(`- Teams: ${teams.length}`);
 
         bulkImportMutation.mutate({
           ageDivisions,
@@ -259,7 +364,14 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
           games
         });
 
-        setMessage({ type: 'success', text: `Successfully processed ${validData.length} games!` });
+        const warningText = skippedPlayoffGames > 0 
+          ? ` Note: ${skippedPlayoffGames} playoff games with TBD teams were not imported.`
+          : '';
+        
+        setMessage({ 
+          type: 'success', 
+          text: `Successfully imported ${games.length} games!${warningText}` 
+        });
 
       } catch (error) {
         console.error("Error importing CSV:", error);
