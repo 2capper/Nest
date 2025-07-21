@@ -269,7 +269,7 @@ export const HierarchicalScoreInput = ({
                 </div>
                 
                 <div>
-                  <Label htmlFor="homeInnings" className="text-sm font-medium">Home Innings</Label>
+                  <Label htmlFor="homeInnings" className="text-sm font-medium">Home Innings Batted</Label>
                   <Input
                     id="homeInnings"
                     type="number"
@@ -282,7 +282,7 @@ export const HierarchicalScoreInput = ({
                 </div>
                 
                 <div>
-                  <Label htmlFor="awayInnings" className="text-sm font-medium">Visitor Innings</Label>
+                  <Label htmlFor="awayInnings" className="text-sm font-medium">Away Innings Batted</Label>
                   <Input
                     id="awayInnings"
                     type="number"
