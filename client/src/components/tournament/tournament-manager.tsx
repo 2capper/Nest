@@ -78,8 +78,8 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
   // Delete tournament mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest('DELETE', `/api/tournaments/${id}`);
-      return response.json();
+      await apiRequest('DELETE', `/api/tournaments/${id}`);
+      return { success: true };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
