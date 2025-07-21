@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Calendar, Plus, MapPin, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Team, Game, Pool, AgeDivision } from '@shared/schema';
 
 interface GamesTabProps {
@@ -22,7 +23,7 @@ const DIAMOND_COORDINATES = {
 };
 
 export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) => {
-  const [divisionFilter, setDivisionFilter] = useState('');
+  const [divisionFilter, setDivisionFilter] = useState('all');
   const [teamFilter, setTeamFilter] = useState('all');
 
   const getTeamName = (teamId: string) => teams.find(t => t.id === teamId)?.name || 'Unknown';
@@ -42,7 +43,7 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
 
   // Get teams for selected division
   const divisionTeams = useMemo(() => {
-    if (!divisionFilter) return [];
+    if (divisionFilter === 'all') return teams.sort((a, b) => a.name.localeCompare(b.name));
     
     // Get all teams in the selected division
     const divisionPools = pools.filter(p => p.ageDivisionId === divisionFilter);
@@ -74,15 +75,12 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
   const filteredAndSortedGames = useMemo(() => {
     let filtered = games;
 
-    // Filter by division (required)
-    if (divisionFilter) {
+    // Filter by division
+    if (divisionFilter !== 'all') {
       filtered = filtered.filter(game => {
         const division = getGameDivision(game);
         return division?.id === divisionFilter;
       });
-    } else {
-      // No division selected, show no games
-      return [];
     }
 
     // Filter by team (optional)
@@ -170,68 +168,65 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
     return `https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}&travelmode=walking`;
   };
 
+  // Filter to only show 11U and 13U divisions
+  const targetDivisions = ageDivisions.filter(div => 
+    div.name === '11U' || div.name === '13U'
+  );
+
   return (
     <div className="p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <h3 className="text-2xl font-bold text-gray-900 mb-4 md:mb-0">Game Schedule</h3>
         <div className="flex flex-col sm:flex-row gap-3">
-          <Select value={divisionFilter} onValueChange={(value) => {
-            setDivisionFilter(value);
-            setTeamFilter('all'); // Reset team filter when division changes
-          }}>
+          <Select value={teamFilter} onValueChange={setTeamFilter}>
             <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select Division" />
+              <SelectValue placeholder="All Teams" />
             </SelectTrigger>
             <SelectContent>
-              {ageDivisions.map(division => (
-                <SelectItem key={division.id} value={division.id}>
-                  {division.name}
+              <SelectItem value="all">All Teams</SelectItem>
+              {divisionTeams.map(team => (
+                <SelectItem key={team!.id} value={team!.id}>
+                  {team!.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          
-          {divisionFilter && (
-            <Select value={teamFilter} onValueChange={setTeamFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="All Teams" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Teams</SelectItem>
-                {divisionTeams.map(team => (
-                  <SelectItem key={team!.id} value={team!.id}>
-                    {team!.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-
-          
         </div>
       </div>
 
-      {!divisionFilter ? (
-        <div className="text-center py-12">
-          <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">Please select a division to view games.</p>
-        </div>
-      ) : gamesByDivision.length === 0 ? (
-        <div className="text-center py-12">
-          <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No games found for the selected filters.</p>
-        </div>
-      ) : (
-        <div className="space-y-8">
-          {gamesByDivision.map(({ division, games }) => (
-            <div key={division.id}>
-              <h4 className="text-lg font-semibold text-gray-900 mb-4 bg-gray-50 p-3 rounded-lg">
-                {division.name} Division
-              </h4>
-              <div className="space-y-2">
-                {games.map(game => {
-                  const homeTeamName = getTeamName(game.homeTeamId);
-                  const awayTeamName = getTeamName(game.awayTeamId);
+      {/* Division Tabs */}
+      <Tabs defaultValue="all" value={divisionFilter} onValueChange={(value) => {
+        setDivisionFilter(value);
+        setTeamFilter('all'); // Reset team filter when division changes
+      }} className="w-full">
+        <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${targetDivisions.length + 1}, minmax(0, 1fr))` }}>
+          <TabsTrigger value="all" className="text-sm md:text-base">
+            All Divisions
+          </TabsTrigger>
+          {targetDivisions.map((division) => (
+            <TabsTrigger key={division.id} value={division.id} className="text-sm md:text-base">
+              {division.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        
+        <TabsContent value={divisionFilter} className="mt-6">
+          {gamesByDivision.length === 0 ? (
+            <div className="text-center py-12">
+              <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">No games found for the selected filters.</p>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {gamesByDivision.map(({ division, games }) => (
+                <div key={division.id}>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 bg-gray-50 p-3 rounded-lg">
+                    {division.name} Division
+                  </h4>
+                  <div className="space-y-2">
+                    {games.map(game => {
+                      const homeTeamName = getTeamName(game.homeTeamId);
+                      const awayTeamName = getTeamName(game.awayTeamId);
                   
                   return (
                     <div key={game.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -304,6 +299,8 @@ export const GamesTab = ({ games, teams, pools, ageDivisions }: GamesTabProps) =
           ))}
         </div>
       )}
-    </div>
-  );
+    </TabsContent>
+  </Tabs>
+</div>
+);
 };
