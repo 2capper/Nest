@@ -20,7 +20,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   return (
-    <nav className="bg-[var(--splash-navy)] shadow-lg sticky top-0 z-50">
+    <nav className="bg-[var(--forest-green)] shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
@@ -33,7 +33,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'dashboard' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`${currentPage === 'dashboard' ? 'bg-[var(--splash-orange)] text-white' : 'text-white/80 hover:text-white hover:bg-white/10'}`}
+                className={`${currentPage === 'dashboard' ? 'bg-[var(--yellow)] text-[var(--forest-green)] font-semibold' : 'text-[var(--yellow)] hover:text-white hover:bg-[var(--yellow)]/20'}`}
               >
                 <Home className="w-4 h-4 mr-2" />
                 Dashboard
@@ -44,7 +44,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'coach' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`${currentPage === 'coach' ? 'bg-[var(--splash-orange)] text-white' : 'text-white/80 hover:text-white hover:bg-white/10'}`}
+                className={`${currentPage === 'coach' ? 'bg-[var(--yellow)] text-[var(--forest-green)] font-semibold' : 'text-[var(--yellow)] hover:text-white hover:bg-[var(--yellow)]/20'}`}
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Score Input
@@ -55,7 +55,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'admin' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`${currentPage === 'admin' ? 'bg-[var(--splash-orange)] text-white' : 'text-white/80 hover:text-white hover:bg-white/10'}`}
+                className={`${currentPage === 'admin' ? 'bg-[var(--yellow)] text-[var(--forest-green)] font-semibold' : 'text-[var(--yellow)] hover:text-white hover:bg-[var(--yellow)]/20'}`}
               >
                 <Shield className="w-4 h-4 mr-2" />
                 Admin
@@ -69,7 +69,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               variant="ghost"
               size="sm"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white hover:bg-white/10"
+              className="text-[var(--yellow)] hover:bg-[var(--yellow)]/20"
             >
               <Menu className="w-6 h-6" />
             </Button>
@@ -84,7 +84,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
                 <Button
                   variant="ghost"
                   size="lg"
-                  className={`w-full justify-start ${currentPage === 'dashboard' ? 'bg-[var(--splash-orange)]/20 text-white' : 'text-white/80'}`}
+                  className={`w-full justify-start ${currentPage === 'dashboard' ? 'bg-[var(--yellow)] text-[var(--forest-green)] font-semibold' : 'text-[var(--yellow)]'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Home className="w-5 h-5 mr-3" />
@@ -96,7 +96,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
                 <Button
                   variant="ghost"
                   size="lg"
-                  className={`w-full justify-start ${currentPage === 'coach' ? 'bg-[var(--splash-orange)]/20 text-white' : 'text-white/80'}`}
+                  className={`w-full justify-start ${currentPage === 'coach' ? 'bg-[var(--yellow)] text-[var(--forest-green)] font-semibold' : 'text-[var(--yellow)]'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <FileText className="w-5 h-5 mr-3" />
@@ -108,7 +108,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
                 <Button
                   variant="ghost"
                   size="lg"
-                  className={`w-full justify-start ${currentPage === 'admin' ? 'bg-[var(--splash-orange)]/20 text-white' : 'text-white/80'}`}
+                  className={`w-full justify-start ${currentPage === 'admin' ? 'bg-[var(--yellow)] text-[var(--forest-green)] font-semibold' : 'text-[var(--yellow)]'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Shield className="w-5 h-5 mr-3" />
