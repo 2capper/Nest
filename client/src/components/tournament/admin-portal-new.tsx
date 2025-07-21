@@ -372,7 +372,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
             poolId,
             forfeitStatus: 'none',
             date: row.date,
-            time: adjustTimeToET(row.time),
+            time: row.time, // Store in Central Time, will be converted to ET on display
             location: row.venue || '3215 Forest Glade Dr',
             subVenue: row.subVenue || '',
             tournamentId: selectedTournamentId,

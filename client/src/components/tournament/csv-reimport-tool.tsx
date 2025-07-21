@@ -208,7 +208,7 @@ export function CSVReimportTool({ tournamentId }: CSVReimportToolProps) {
             <li>Match Type, Date, Time, Venue, SubVenue</li>
           </ul>
           <p className="text-xs text-blue-600 mt-2">
-            <strong>Note:</strong> Times in CSV should be in Central Time. They will be automatically converted to Eastern Time for display (+1 hour).
+            <strong>Note:</strong> Times in CSV should be in Central Time. They will be displayed in Eastern Time (+1 hour).
           </p>
         </div>
         
