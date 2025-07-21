@@ -1,13 +1,22 @@
 import bcrypt from "bcrypt";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 import { storage } from "./storage";
 import type { Request, Response, NextFunction } from "express";
+
+// Create PostgreSQL session store
+const PgSession = connectPgSimple(session);
 
 // Session configuration
 export const sessionConfig = session({
   secret: process.env.SESSION_SECRET || "tournament-admin-secret-key-change-in-production",
   resave: false,
   saveUninitialized: false,
+  store: process.env.DATABASE_URL ? new PgSession({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: true,
+    tableName: 'sessions'
+  }) : undefined,
   cookie: {
     secure: process.env.NODE_ENV === "production" && process.env.REPLIT_DOMAINS !== undefined,
     httpOnly: true,
