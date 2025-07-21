@@ -154,6 +154,10 @@ Preferred communication style: Simple, everyday language.
 - Fixed venue/subVenue data mapping to properly import diamond information on first import (January 2025)
 - Corrected CSV column mapping to use 'venue' instead of 'location' to match actual CSV headers (January 2025)
 - Implemented proper CSV parsing that handles quoted values containing commas (January 2025)
+- Added comprehensive tournament management UI with edit and delete functionality (January 2025)
+- Integrated TournamentManager component with dropdown menus for each tournament (January 2025)
+- Implemented edit dialog for updating tournament names and dates (January 2025)
+- Added delete confirmation dialog with cascade warning for safe tournament removal (January 2025)
 
 ## Key Architectural Decisions
 
