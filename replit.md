@@ -44,11 +44,12 @@ Preferred communication style: Simple, everyday language.
 - **Admin Portal Enhancement**: Moved new tournament and export functionality to admin portal
 - **Access Control**: Separated admin functions from public dashboard for better security
 - **StyleMix Baseball Theme**: Applied professional baseball styling with authentic colors and fonts
-  - Colors: Orange (#E55720) and Navy (#3A5998) from StyleMix Baseball website
+  - Colors: Forest Green (#177e0e) and Yellow (#fbbf24) throughout the app
   - Fonts: Oswald for headings, Roboto for body text
   - Typography: Uppercase headings with letter spacing for professional sports look
   - Background: Light gray (#F5F5F5) for subtle contrast
-  - Navigation: Navy header with orange accent highlights
+  - Navigation: White header with forest green accents and F logo
+- **UI Label Updates**: Changed innings labels to "Home/Away Innings Batted" for clarity
 
 ### Frontend Components
 - **Tournament Dashboard**: Main interface for tournament management
