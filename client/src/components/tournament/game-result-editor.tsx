@@ -9,6 +9,36 @@ import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import type { Game, Team } from '@shared/schema';
 
+// Convert Central Time to Eastern Time
+const convertCentralToEastern = (timeStr: string) => {
+  if (!timeStr) return 'TBD';
+  
+  try {
+    const [time, period] = timeStr.split(' ');
+    const timeParts = time.split(':');
+    const hours = parseInt(timeParts[0]) || 0;
+    const minutes = timeParts[1] ? parseInt(timeParts[1]) : 0;
+    
+    let hour24 = hours;
+    if (period?.toLowerCase() === 'pm' && hours !== 12) {
+      hour24 += 12;
+    } else if (period?.toLowerCase() === 'am' && hours === 12) {
+      hour24 = 0;
+    }
+    
+    // Add 1 hour for Eastern Time (Eastern is 1 hour ahead of Central)
+    hour24 = (hour24 + 1) % 24;
+    
+    // Convert back to 12-hour format
+    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+    const newPeriod = hour24 >= 12 ? 'PM' : 'AM';
+    
+    return `${hour12}:${minutes.toString().padStart(2, '0')} ${newPeriod} ET`;
+  } catch (e) {
+    return timeStr; // Return original if parsing fails
+  }
+};
+
 interface GameResultEditorProps {
   games: Game[];
   teams: Team[];
@@ -225,7 +255,7 @@ export const GameResultEditor = ({ games, teams, tournamentId }: GameResultEdito
                         {getTeamName(game.homeTeamId)} vs {getTeamName(game.awayTeamId)}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {game.date} at {game.time}
+                        {game.date} at {convertCentralToEastern(game.time)}
                       </div>
                       <div className="text-sm text-gray-500">
                         {game.location}
