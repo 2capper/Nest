@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Team, Game, Pool, AgeDivision } from '@shared/schema';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface StandingsTableProps {
   teams: Team[];
@@ -384,14 +385,19 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
 
           {/* Pool Standings with Tabs */}
           <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Pool Standings</h4>
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">{division.name} Pool Standings</h4>
             
-            
-            
-            {/* All Pool Standings */}
-            <div className="space-y-6">
+            <Tabs defaultValue={poolStandings[0]?.pool.id} className="w-full">
+              <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${poolStandings.length}, minmax(0, 1fr))` }}>
+                {poolStandings.map(({ pool }) => (
+                  <TabsTrigger key={pool.id} value={pool.id} className="text-xs md:text-sm">
+                    {pool.name.replace(/^Pool\s*Pool\s*/i, 'Pool ')}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              
               {poolStandings.map(({ pool, teams: poolTeams }) => (
-                <div key={pool.id}>
+                <TabsContent key={pool.id} value={pool.id} className="mt-4">
                   <div className="flex items-center justify-between mb-4">
                     <h5 className="text-md font-semibold text-gray-700">
                       {pool.name.replace(/^Pool\s*Pool\s*/i, 'Pool ')}
@@ -401,9 +407,9 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
                     </div>
                   </div>
                   {renderStandingsTable(poolTeams, pool.name)}
-                </div>
+                </TabsContent>
               ))}
-            </div>
+            </Tabs>
           </div>
         </div>
       ))}

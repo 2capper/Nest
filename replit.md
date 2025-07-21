@@ -144,6 +144,8 @@ Preferred communication style: Simple, everyday language.
 - Fixed CSV reimport ID generation to match main import format, stripping "Pool" prefix for consistency (January 2025)
 - Simplified tournament dashboard UI by removing Total Teams, Games Progress, and Divisions cards (January 2025)
 - Removed pool selection buttons from standings display - now shows all pools simultaneously (January 2025)
+- Restored pool tabs in standings display for better navigation between pools (January 2025)
+- Removed Coach Score Input button from tournament dashboard (January 2025)
 
 ## Key Architectural Decisions
 

@@ -10,7 +10,6 @@ import { GamesTab } from '@/components/tournament/games-tab';
 import { TeamsTab } from '@/components/tournament/teams-tab';
 import { PlayoffsTab } from '@/components/tournament/playoffs-tab';
 import { SimpleNavigation } from '@/components/tournament/simple-navigation';
-import { TournamentCards } from '@/components/tournament/tournament-cards';
 import { useTournamentData } from '@/hooks/use-tournament-data';
 
 export default function TournamentDashboard() {
@@ -116,13 +115,7 @@ export default function TournamentDashboard() {
           </div>
         </div>
 
-        {/* Tournament Cards */}
-        <TournamentCards 
-          teams={teams}
-          games={games}
-          ageDivisions={ageDivisions}
-          pools={pools}
-        />
+
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="standings" className="mt-6 tabs-forest">
@@ -154,9 +147,7 @@ export default function TournamentDashboard() {
           <TabsContent value="teams" className="mt-6">
             <TeamsTab 
               teams={teams}
-              ageDivisions={ageDivisions}
               pools={pools}
-              tournamentId={tournamentId}
             />
           </TabsContent>
           
@@ -164,9 +155,7 @@ export default function TournamentDashboard() {
             <PlayoffsTab 
               games={games}
               teams={teams}
-              ageDivisions={ageDivisions}
               pools={pools}
-              tournamentId={tournamentId}
             />
           </TabsContent>
         </Tabs>
