@@ -31,6 +31,8 @@ export interface IStorage {
   getTournaments(): Promise<Tournament[]>;
   getTournament(id: string): Promise<Tournament | undefined>;
   createTournament(tournament: InsertTournament): Promise<Tournament>;
+  updateTournament(id: string, tournament: Partial<InsertTournament>): Promise<Tournament>;
+  deleteTournament(id: string): Promise<void>;
   
   // Age Division methods
   getAgeDivisions(tournamentId: string): Promise<AgeDivision[]>;
@@ -88,6 +90,15 @@ export class DatabaseStorage implements IStorage {
   async createTournament(tournament: InsertTournament): Promise<Tournament> {
     const [result] = await db.insert(tournaments).values(tournament).returning();
     return result;
+  }
+
+  async updateTournament(id: string, tournament: Partial<InsertTournament>): Promise<Tournament> {
+    const [result] = await db.update(tournaments).set(tournament).where(eq(tournaments.id, id)).returning();
+    return result;
+  }
+
+  async deleteTournament(id: string): Promise<void> {
+    await db.delete(tournaments).where(eq(tournaments.id, id));
   }
 
   // Age Division methods

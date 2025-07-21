@@ -45,6 +45,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/tournaments/:id", async (req, res) => {
+    try {
+      const validatedData = insertTournamentSchema.partial().parse(req.body);
+      const tournament = await storage.updateTournament(req.params.id, validatedData);
+      res.json(tournament);
+    } catch (error) {
+      console.error("Error updating tournament:", error);
+      res.status(400).json({ error: "Invalid tournament data" });
+    }
+  });
+
+  app.delete("/api/tournaments/:id", async (req, res) => {
+    try {
+      await storage.deleteTournament(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting tournament:", error);
+      res.status(500).json({ error: "Failed to delete tournament" });
+    }
+  });
+
   // Age Division routes
   app.get("/api/tournaments/:tournamentId/age-divisions", async (req, res) => {
     try {

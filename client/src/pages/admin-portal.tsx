@@ -8,6 +8,7 @@ import { useTournamentData } from '@/hooks/use-tournament-data';
 import { AdminPortalNew } from '@/components/tournament/admin-portal-new';
 import { SimpleNavigation } from '@/components/tournament/simple-navigation';
 import { TournamentCreationForm } from '@/components/tournament/tournament-creation-form';
+import { TournamentManager } from '@/components/tournament/tournament-manager';
 import { GameResultEditor } from '@/components/tournament/game-result-editor';
 import { CSVReimportTool } from '@/components/tournament/csv-reimport-tool';
 import { useToast } from '@/hooks/use-toast';
@@ -216,26 +217,7 @@ export default function AdminPortal() {
                   <CardTitle>Existing Tournaments</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {tournaments.map((tournament) => (
-                      <div key={tournament.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <h4 className="font-medium">{tournament.name}</h4>
-                          <p className="text-sm text-gray-500">{tournament.startDate} - {tournament.endDate}</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-gray-500">ID: {tournament.id}</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(`/tournament/${tournament.id}`, '_blank')}
-                          >
-                            View Tournament
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <TournamentManager tournaments={tournaments} />
                 </CardContent>
               </Card>
             </div>
