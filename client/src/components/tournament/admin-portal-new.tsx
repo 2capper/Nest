@@ -45,7 +45,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
     onSuccess: () => {
       toast({
         title: "Import Successful",
-        description: `Tournament data has been successfully imported to ${tournaments.find(t => t.id === selectedTournamentId)?.name || selectedTournamentId}.`,
+        description: `Tournament data has been successfully imported to ${tournaments.find((t: any) => t.id === selectedTournamentId)?.name || selectedTournamentId}.`,
       });
       queryClient.invalidateQueries({ queryKey: ['/api/tournaments', selectedTournamentId] });
       queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
@@ -126,7 +126,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
           matchNumber: ['game', 'match', 'matchno', 'game#'],
           date: ['date'],
           time: ['time'],
-          location: ['location', 'diamond', 'venue'],
+          venue: ['venue', 'location', 'diamond'],
           subVenue: ['subvenue', 'sub-venue'],
           division: ['division'],
           pool: ['pool'],
@@ -149,7 +149,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
           }
         });
 
-        const requiredCanonicalHeaders = ['matchNumber', 'date', 'time', 'location', 'division', 'pool', 'homeTeam', 'awayTeam'];
+        const requiredCanonicalHeaders = ['matchNumber', 'date', 'time', 'venue', 'division', 'pool', 'homeTeam', 'awayTeam'];
         const missingHeaders = requiredCanonicalHeaders.filter(h => !foundHeaders.has(h));
 
         if (missingHeaders.length > 0) {
@@ -314,8 +314,10 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
           // Log venue data for debugging
           if (row.matchNumber === '1' || row.matchNumber === '40') {
             console.log(`Game ${row.matchNumber} venue data:`, {
-              location: row.location,
-              subVenue: row.subVenue
+              venue: row.venue,
+              subVenue: row.subVenue,
+              date: row.date,
+              parsedDate: new Date(row.date).toDateString()
             });
           }
           
@@ -332,7 +334,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
             forfeitStatus: 'none',
             date: row.date,
             time: adjustTimeToET(row.time),
-            location: row.location || '3215 Forest Glade Dr',
+            location: row.venue || '3215 Forest Glade Dr',
             subVenue: row.subVenue || '',
             tournamentId: selectedTournamentId,
             isPlayoff: isPlayoffGame

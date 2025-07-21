@@ -152,6 +152,7 @@ Preferred communication style: Simple, everyday language.
 - Added isPlayoff boolean field to games table for proper game type identification (January 2025)
 - Enhanced CSV header mapping to handle multiple column name variations (January 2025)
 - Fixed venue/subVenue data mapping to properly import diamond information on first import (January 2025)
+- Corrected CSV column mapping to use 'venue' instead of 'location' to match actual CSV headers (January 2025)
 
 ## Key Architectural Decisions
 
