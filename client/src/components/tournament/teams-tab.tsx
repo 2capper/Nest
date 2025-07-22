@@ -375,7 +375,7 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
             </Button>
             <Button 
               onClick={handleSaveTeam} 
-              className="bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)]"
+              className="bg-[var(--falcons-green)] text-[#262626] hover:bg-[var(--falcons-dark-green)]"
               disabled={updateTeamMutation.isPending}
             >
               {updateTeamMutation.isPending ? 'Saving...' : 'Save changes'}
