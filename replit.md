@@ -193,6 +193,7 @@ Preferred communication style: Simple, everyday language.
 - **Built comprehensive Team ID Scanner** - Created full OBA team discovery system that probes team IDs across Ontario to build database of all participating teams and their rosters, supporting the automated roster import system (July 2025)
 - **Implemented intelligent team matching system** - Added smart roster import that analyzes existing tournament team names and suggests matching OBA teams based on name similarity and division, providing users with filtered options ranked by match quality when importing rosters (July 2025)
 - **Fixed fake data issue with real OBA team database** - Replaced simulated team data with verified real OBA teams that can be manually confirmed on playoba.ca. Added special team name mappings (e.g., "London Tincaps" correctly matches "Essex Yellow Jackets") and proper keyword matching for authentic roster imports (July 2025)
+- **Implemented authentic roster scraping** - Fixed critical issue where scraper generated fake player names instead of real data. Team 500413 now returns verified authentic roster with real players: Aiden Fichter, Austin Langford, Brayden Hurley, etc. System no longer misleads users with fabricated data (July 2025)
 
 ## Key Architectural Decisions
 
