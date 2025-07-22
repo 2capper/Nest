@@ -10,6 +10,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 import type { Team, Pool, AgeDivision } from '@shared/schema';
 
 interface TeamsTabProps {
@@ -21,6 +34,19 @@ interface TeamsTabProps {
 export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [divisionFilter, setDivisionFilter] = useState<string>('all');
+  const [formData, setFormData] = useState({
+    name: '',
+    city: '',
+    coach: '',
+    phone: '',
+    rosterLink: '',
+    pitchCountAppName: '',
+    pitchCountName: '',
+    gameChangerName: ''
+  });
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const getPoolName = (poolId: string) => pools.find(p => p.id === poolId)?.name || 'Unknown Pool';
 
@@ -57,8 +83,52 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
     console.log('Add new team');
   };
 
+  // Update team mutation
+  const updateTeamMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Team> }) => {
+      await apiRequest(`/api/teams/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
+      toast({
+        title: "Success",
+        description: "Team updated successfully",
+      });
+      setEditingTeam(null);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update team",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleEditTeam = (team: Team) => {
     setEditingTeam(team);
+    setFormData({
+      name: team.name,
+      city: team.city || '',
+      coach: team.coach || '',
+      phone: team.phone || '',
+      rosterLink: team.rosterLink || '',
+      pitchCountAppName: team.pitchCountAppName || '',
+      pitchCountName: team.pitchCountName || '',
+      gameChangerName: team.gameChangerName || ''
+    });
+  };
+
+  const handleSaveTeam = () => {
+    if (!editingTeam) return;
+    
+    updateTeamMutation.mutate({
+      id: editingTeam.id,
+      data: formData
+    });
   };
 
   const handleDeleteTeam = (teamId: string) => {
@@ -208,6 +278,121 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* Edit Team Dialog */}
+      <Dialog open={!!editingTeam} onOpenChange={(open) => !open && setEditingTeam(null)}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Team</DialogTitle>
+            <DialogDescription>
+              Update the team information below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Team Name
+              </Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="city" className="text-right">
+                City
+              </Label>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="coach" className="text-right">
+                Coach
+              </Label>
+              <Input
+                id="coach"
+                value={formData.coach}
+                onChange={(e) => setFormData({ ...formData, coach: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="phone" className="text-right">
+                Phone
+              </Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="rosterLink" className="text-right">
+                Roster Link
+              </Label>
+              <Input
+                id="rosterLink"
+                value={formData.rosterLink}
+                onChange={(e) => setFormData({ ...formData, rosterLink: e.target.value })}
+                className="col-span-3"
+                placeholder="https://playoba.ca/stats/team-name"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="pitchCountAppName" className="text-right">
+                Pitch Count App
+              </Label>
+              <Input
+                id="pitchCountAppName"
+                value={formData.pitchCountAppName}
+                onChange={(e) => setFormData({ ...formData, pitchCountAppName: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="pitchCountName" className="text-right">
+                Pitch Count Name
+              </Label>
+              <Input
+                id="pitchCountName"
+                value={formData.pitchCountName}
+                onChange={(e) => setFormData({ ...formData, pitchCountName: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="gameChangerName" className="text-right">
+                Game Changer
+              </Label>
+              <Input
+                id="gameChangerName"
+                value={formData.gameChangerName}
+                onChange={(e) => setFormData({ ...formData, gameChangerName: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingTeam(null)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSaveTeam} 
+              className="bg-[var(--falcons-green)] text-white hover:bg-[var(--falcons-dark-green)]"
+              disabled={updateTeamMutation.isPending}
+            >
+              {updateTeamMutation.isPending ? 'Saving...' : 'Save changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
