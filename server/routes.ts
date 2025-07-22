@@ -26,13 +26,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Username and password required" });
       }
       
+      console.log("Looking for user:", username);
       const user = await storage.getUserByUsername(username);
       if (!user) {
+        console.log("User not found:", username);
+        // Check if any users exist at all
+        const userCount = await storage.getUserCount();
+        console.log("Total users in database:", userCount);
         return res.status(401).json({ error: "Invalid credentials" });
       }
       
+      console.log("User found, verifying password");
       const isValid = await verifyPassword(password, user.password);
       if (!isValid) {
+        console.log("Password verification failed");
         return res.status(401).json({ error: "Invalid credentials" });
       }
       
@@ -108,6 +115,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Setup error:", error);
       res.status(500).json({ error: "Setup failed" });
+    }
+  });
+
+  // Diagnostic route to check user status
+  app.get("/api/auth/diagnostic", async (req, res) => {
+    try {
+      const userCount = await storage.getUserCount();
+      const adminExists = await checkAdminExists();
+      
+      res.json({
+        userCount,
+        adminExists,
+        sessionStore: process.env.DATABASE_URL ? "PostgreSQL" : "Memory",
+        environment: process.env.NODE_ENV || "development"
+      });
+    } catch (error) {
+      console.error("Diagnostic error:", error);
+      res.status(500).json({ error: "Diagnostic check failed" });
     }
   });
   // Tournament routes
