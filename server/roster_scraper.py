@@ -18,10 +18,28 @@ class OBARosterScraper:
         
         # Map affiliate names to their OBA numbers
         self.affiliate_map = {
+            "York Simcoe": "0100",
+            "Kawartha": "0200",
+            "Durham Region": "0301",
+            "Eastern Ontario": "0400",
+            "Hamilton": "0500",
+            "Toronto": "0600",
+            "London": "0700",
+            "Mississauga North Halton": "0800",
+            "South Counties": "0900",
+            "Waterloo": "1000",
+            "Grey Bruce": "1100",
+            "Huron Perth": "1201",
+            "Niagara": "1301",
+            "Thunder Bay": "1401",
+            "Central Ontario": "1501",
+            "Burlington": "1601",
+            "Northumberland": "1701",
+            "Georgian Bay": "1801",
+            "Lambton": "1901",
+            "North Bay": "2001",
             "Sun Parlour": "2111",
-            "SPBA": "2111",  # Alternative name
-            # Add more affiliates as needed - there are 21 total
-            # Each affiliate has a unique number used in URLs
+            "SPBA": "2111"  # Alternative name for Sun Parlour
         }
     
     def get_affiliate_number(self, affiliate: str) -> str:
@@ -135,65 +153,114 @@ class OBARosterScraper:
             # Get the affiliate number for URL construction
             affiliate_number = self.get_affiliate_number(affiliate)
             
-            # Map division names to appropriate test teams with actual OBA URL structure
+            # Map division names to appropriate test teams based on affiliate
             # Including all classification levels: AAA, AA, A, B, C, D, DS, HS
             # Organizations can have multiple teams in same age group with different classifications
             if "11U" in division:
-                teams = {
-                    # House Select (HS) teams
-                    "11U HS Belle River": f"{self.base_url}#/{affiliate_number}/team/500719/roster",
-                    "11U HS Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500718/roster",
-                    "11U HS Kingsville": f"{self.base_url}#/{affiliate_number}/team/500720/roster",
-                    "11U HS Ottawa Petro Canada": f"{self.base_url}#/{affiliate_number}/team/500721/roster",
-                    "11U HS Pickering": f"{self.base_url}#/{affiliate_number}/team/500722/roster",
-                    "11U HS Niagara Falls": f"{self.base_url}#/{affiliate_number}/team/500723/roster",
-                    "11U HS Chatham-Kent": f"{self.base_url}#/{affiliate_number}/team/500724/roster",
-                    "11U HS Mississauga": f"{self.base_url}#/{affiliate_number}/team/500725/roster",
-                    "11U HS The Park 9": f"{self.base_url}#/{affiliate_number}/team/500726/roster",
-                    "11U HS Guelph": f"{self.base_url}#/{affiliate_number}/team/500727/roster",
-                    # Additional teams from your tournament
-                    "11U HS Sarnia Brigade": f"{self.base_url}#/{affiliate_number}/team/500730/roster",
-                    "11U HS London Scorpions": f"{self.base_url}#/{affiliate_number}/team/500731/roster",
-                    "11U HS London Scripions": f"{self.base_url}#/{affiliate_number}/team/500731/roster",  # Common misspelling
-                    "11U HS Royals": f"{self.base_url}#/{affiliate_number}/team/500732/roster",
-                    "11U HS London Nationals": f"{self.base_url}#/{affiliate_number}/team/500733/roster",
-                    # Alternative formats
-                    "Sarnia Brigade U11": f"{self.base_url}#/{affiliate_number}/team/500730/roster",
-                    "Royals U11": f"{self.base_url}#/{affiliate_number}/team/500732/roster",
-                    "London Nationals 11U": f"{self.base_url}#/{affiliate_number}/team/500733/roster",
-                    # Different classification examples for Forest Glade
-                    "11U AAA Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500740/roster",
-                    "11U AA Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500741/roster",
-                    "11U A Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500742/roster",
-                    "11U B Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500743/roster",
-                    "11U C Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500744/roster",
-                    "11U D Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500745/roster",
-                    "11U DS Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500746/roster",
-                    # Alternative classification format
-                    "Forest Glade 11U AAA": f"{self.base_url}#/{affiliate_number}/team/500740/roster",
-                    "Forest Glade 11U AA": f"{self.base_url}#/{affiliate_number}/team/500741/roster",
-                    "Forest Glade 11U A": f"{self.base_url}#/{affiliate_number}/team/500742/roster",
-                    "Forest Glade Falcons 11U HS": f"{self.base_url}#/{affiliate_number}/team/500718/roster"
-                }
+                # Different teams based on affiliate
+                if affiliate == "Sun Parlour" or affiliate_number == "2111":
+                    teams = {
+                        # Sun Parlour teams
+                        "11U HS Belle River": f"{self.base_url}#/{affiliate_number}/team/500719/roster",
+                        "11U HS Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500718/roster",
+                        "11U HS Kingsville": f"{self.base_url}#/{affiliate_number}/team/500720/roster",
+                        "11U HS Chatham-Kent": f"{self.base_url}#/{affiliate_number}/team/500724/roster",
+                        "11U HS South Woodslee": f"{self.base_url}#/{affiliate_number}/team/500760/roster",
+                        "11U HS Lakeshore": f"{self.base_url}#/{affiliate_number}/team/500761/roster",
+                        "11U HS Windsor": f"{self.base_url}#/{affiliate_number}/team/500762/roster"
+                    }
+                elif affiliate == "London" or affiliate_number == "0700":
+                    teams = {
+                        # London teams
+                        "11U HS London Scorpions": f"{self.base_url}#/{affiliate_number}/team/500731/roster",
+                        "11U HS London Nationals": f"{self.base_url}#/{affiliate_number}/team/500733/roster",
+                        "11U AAA London Badgers": f"{self.base_url}#/{affiliate_number}/team/500750/roster",
+                        "11U AA London Cubs": f"{self.base_url}#/{affiliate_number}/team/500751/roster",
+                        "11U A London Knights": f"{self.base_url}#/{affiliate_number}/team/500752/roster",
+                        "London Nationals 11U": f"{self.base_url}#/{affiliate_number}/team/500733/roster"
+                    }
+                elif affiliate == "Durham Region" or affiliate_number == "0301":
+                    teams = {
+                        # Durham teams
+                        "11U HS Pickering": f"{self.base_url}#/{affiliate_number}/team/500722/roster",
+                        "11U AAA Durham Crushers": f"{self.base_url}#/{affiliate_number}/team/500763/roster",
+                        "11U AA Durham Storm": f"{self.base_url}#/{affiliate_number}/team/500764/roster",
+                        "11U A Ajax Athletics": f"{self.base_url}#/{affiliate_number}/team/500765/roster",
+                        "11U HS Whitby Warriors": f"{self.base_url}#/{affiliate_number}/team/500766/roster"
+                    }
+                elif affiliate == "Lambton" or affiliate_number == "1901":
+                    teams = {
+                        # Lambton teams
+                        "11U HS Sarnia Brigade": f"{self.base_url}#/{affiliate_number}/team/500730/roster",
+                        "11U HS Wyoming Wranglers": f"{self.base_url}#/{affiliate_number}/team/500767/roster",
+                        "11U A Petrolia Panthers": f"{self.base_url}#/{affiliate_number}/team/500768/roster",
+                        "Sarnia Brigade U11": f"{self.base_url}#/{affiliate_number}/team/500730/roster"
+                    }
+                elif affiliate == "Eastern Ontario" or affiliate_number == "0400":
+                    teams = {
+                        # Eastern Ontario teams
+                        "11U HS Ottawa Petro Canada": f"{self.base_url}#/{affiliate_number}/team/500721/roster",
+                        "11U AAA Ottawa Cardinals": f"{self.base_url}#/{affiliate_number}/team/500769/roster",
+                        "11U AA Ottawa Valley": f"{self.base_url}#/{affiliate_number}/team/500770/roster",
+                        "11U A Nepean Eagles": f"{self.base_url}#/{affiliate_number}/team/500771/roster"
+                    }
+                else:
+                    # Default teams for other affiliates
+                    teams = {
+                        "11U HS Team 1": f"{self.base_url}#/{affiliate_number}/team/500800/roster",
+                        "11U AAA Team 1": f"{self.base_url}#/{affiliate_number}/team/500801/roster",
+                        "11U AA Team 1": f"{self.base_url}#/{affiliate_number}/team/500802/roster",
+                        "11U A Team 1": f"{self.base_url}#/{affiliate_number}/team/500803/roster",
+                        "11U B Team 1": f"{self.base_url}#/{affiliate_number}/team/500804/roster"
+                    }
             elif "13U" in division:
-                teams = {
-                    # Original format teams
-                    "Durham Crushers - 13U": f"{self.base_url}#/{affiliate_number}/team/500800/roster",
-                    "Etobicoke Rangers - 13U": f"{self.base_url}#/{affiliate_number}/team/500801/roster",
-                    "Forest Glade Falcons - 13U Rep": f"{self.base_url}#/{affiliate_number}/team/500802/roster",
-                    "Milton Mets - 13U": f"{self.base_url}#/{affiliate_number}/team/500803/roster",
-                    "Mississauga Twins - 13U": f"{self.base_url}#/{affiliate_number}/team/500804/roster",
-                    "East Mountain Cobras - 13U": f"{self.base_url}#/{affiliate_number}/team/500805/roster",
-                    "Toronto Blues - 13U": f"{self.base_url}#/{affiliate_number}/team/500806/roster",
-                    "London Tecumsehs - 13U": f"{self.base_url}#/{affiliate_number}/team/500807/roster",
-                    "Ottawa Valley Crushers - 13U": f"{self.base_url}#/{affiliate_number}/team/500808/roster",
-                    "Burlington Bulls - 13U": f"{self.base_url}#/{affiliate_number}/team/500809/roster",
-                    # Additional teams and variations
-                    "13U HS South Woodslee Orioles": f"{self.base_url}#/{affiliate_number}/team/500810/roster",
-                    "13U HS East Mountain Cobras": f"{self.base_url}#/{affiliate_number}/team/500805/roster",
-                    "South Woodslee Orioles 13U": f"{self.base_url}#/{affiliate_number}/team/500810/roster",
-                    "East Mountain Cobras U13": f"{self.base_url}#/{affiliate_number}/team/500805/roster"
-                }
+                # Different teams based on affiliate
+                if affiliate == "Sun Parlour" or affiliate_number == "2111":
+                    teams = {
+                        # Sun Parlour 13U teams
+                        "13U HS Forest Glade Falcons": f"{self.base_url}#/{affiliate_number}/team/500802/roster",
+                        "13U HS South Woodslee Orioles": f"{self.base_url}#/{affiliate_number}/team/500810/roster",
+                        "13U Rep Forest Glade Falcons": f"{self.base_url}#/{affiliate_number}/team/500802/roster",
+                        "Forest Glade Falcons - 13U Rep": f"{self.base_url}#/{affiliate_number}/team/500802/roster",
+                        "South Woodslee Orioles 13U": f"{self.base_url}#/{affiliate_number}/team/500810/roster"
+                    }
+                elif affiliate == "London" or affiliate_number == "0700":
+                    teams = {
+                        # London 13U teams
+                        "13U HS London Tecumsehs": f"{self.base_url}#/{affiliate_number}/team/500807/roster",
+                        "13U AAA London Badgers": f"{self.base_url}#/{affiliate_number}/team/500850/roster",
+                        "13U AA London Mustangs": f"{self.base_url}#/{affiliate_number}/team/500851/roster",
+                        "London Tecumsehs - 13U": f"{self.base_url}#/{affiliate_number}/team/500807/roster"
+                    }
+                elif affiliate == "Durham Region" or affiliate_number == "0301":
+                    teams = {
+                        # Durham 13U teams
+                        "Durham Crushers - 13U": f"{self.base_url}#/{affiliate_number}/team/500800/roster",
+                        "13U AAA Durham Crushers": f"{self.base_url}#/{affiliate_number}/team/500800/roster",
+                        "13U HS Ajax Warriors": f"{self.base_url}#/{affiliate_number}/team/500852/roster"
+                    }
+                elif affiliate == "Toronto" or affiliate_number == "0600":
+                    teams = {
+                        # Toronto 13U teams
+                        "Toronto Blues - 13U": f"{self.base_url}#/{affiliate_number}/team/500806/roster",
+                        "Etobicoke Rangers - 13U": f"{self.base_url}#/{affiliate_number}/team/500801/roster",
+                        "13U AAA Toronto Mets": f"{self.base_url}#/{affiliate_number}/team/500853/roster"
+                    }
+                elif affiliate == "Hamilton" or affiliate_number == "0500":
+                    teams = {
+                        # Hamilton 13U teams
+                        "East Mountain Cobras - 13U": f"{self.base_url}#/{affiliate_number}/team/500805/roster",
+                        "13U HS East Mountain Cobras": f"{self.base_url}#/{affiliate_number}/team/500805/roster",
+                        "East Mountain Cobras U13": f"{self.base_url}#/{affiliate_number}/team/500805/roster"
+                    }
+                else:
+                    # Default 13U teams
+                    teams = {
+                        "13U HS Team 1": f"{self.base_url}#/{affiliate_number}/team/500900/roster",
+                        "13U AAA Team 1": f"{self.base_url}#/{affiliate_number}/team/500901/roster",
+                        "13U AA Team 1": f"{self.base_url}#/{affiliate_number}/team/500902/roster",
+                        "13U A Team 1": f"{self.base_url}#/{affiliate_number}/team/500903/roster"
+                    }
             else:
                 teams = {
                     "Tecumseh Eagles - Minor Bantam": f"{self.base_url}/tecumseh-eagles-15u",
@@ -331,9 +398,100 @@ class OBARosterScraper:
                 unique_variations.append(v_clean)
         
         return unique_variations
+    
+    def detect_affiliate_from_team_name(self, team_name: str) -> Optional[str]:
+        """Detect the affiliate from the team name"""
+        # Map of team locations to their likely affiliates
+        team_location_affiliates = {
+            # York Simcoe affiliate (0100)
+            "newmarket": "York Simcoe", "aurora": "York Simcoe", "bradford": "York Simcoe",
+            "georgina": "York Simcoe", "innisfil": "York Simcoe", "markham": "York Simcoe",
+            
+            # Kawartha affiliate (0200)
+            "peterborough": "Kawartha", "lindsay": "Kawartha", "cobourg": "Kawartha",
+            
+            # Durham Region affiliate (0301)
+            "durham": "Durham Region", "oshawa": "Durham Region", "whitby": "Durham Region",
+            "ajax": "Durham Region", "pickering": "Durham Region", "bowmanville": "Durham Region",
+            
+            # Eastern Ontario affiliate (0400)
+            "ottawa": "Eastern Ontario", "cornwall": "Eastern Ontario", "kingston": "Eastern Ontario",
+            
+            # Hamilton affiliate (0500)
+            "hamilton": "Hamilton", "stoney creek": "Hamilton", "dundas": "Hamilton",
+            
+            # Toronto affiliate (0600)
+            "toronto": "Toronto", "etobicoke": "Toronto", "scarborough": "Toronto",
+            "north york": "Toronto", "east york": "Toronto",
+            
+            # London affiliate (0700)
+            "london": "London", "st. thomas": "London", "strathroy": "London",
+            
+            # Mississauga North Halton affiliate (0800)
+            "mississauga": "Mississauga North Halton", "halton": "Mississauga North Halton",
+            "milton": "Mississauga North Halton", "georgetown": "Mississauga North Halton",
+            
+            # South Counties affiliate (0900)
+            "brantford": "South Counties", "simcoe": "South Counties", "caledonia": "South Counties",
+            
+            # Waterloo affiliate (1000)
+            "waterloo": "Waterloo", "kitchener": "Waterloo", "cambridge": "Waterloo",
+            "guelph": "Waterloo",
+            
+            # Grey Bruce affiliate (1100)
+            "owen sound": "Grey Bruce", "collingwood": "Grey Bruce", "meaford": "Grey Bruce",
+            
+            # Huron Perth affiliate (1201)
+            "stratford": "Huron Perth", "goderich": "Huron Perth", "listowel": "Huron Perth",
+            
+            # Niagara affiliate (1301)
+            "niagara": "Niagara", "st. catharines": "Niagara", "welland": "Niagara",
+            "fort erie": "Niagara",
+            
+            # Thunder Bay affiliate (1401)
+            "thunder bay": "Thunder Bay",
+            
+            # Central Ontario affiliate (1501)
+            "barrie": "Central Ontario", "orillia": "Central Ontario", "midland": "Central Ontario",
+            
+            # Burlington affiliate (1601)
+            "burlington": "Burlington", "oakville": "Burlington",
+            
+            # Northumberland affiliate (1701)
+            "northumberland": "Northumberland", "port hope": "Northumberland",
+            
+            # Georgian Bay affiliate (1801)
+            "parry sound": "Georgian Bay", "bracebridge": "Georgian Bay",
+            
+            # Lambton affiliate (1901)
+            "sarnia": "Lambton", "petrolia": "Lambton", "wyoming": "Lambton",
+            
+            # North Bay affiliate (2001)
+            "north bay": "North Bay",
+            
+            # Sun Parlour affiliate (2111)
+            "windsor": "Sun Parlour", "essex": "Sun Parlour", "kingsville": "Sun Parlour",
+            "leamington": "Sun Parlour", "belle river": "Sun Parlour", "forest glade": "Sun Parlour",
+            "chatham": "Sun Parlour", "wallaceburg": "Sun Parlour", "lakeshore": "Sun Parlour",
+            "south woodslee": "Sun Parlour"
+        }
+        
+        team_lower = team_name.lower()
+        
+        # Check each location keyword
+        for location, affiliate in team_location_affiliates.items():
+            if location in team_lower:
+                return affiliate
+        
+        return None
 
     def get_roster_with_fuzzy_match(self, affiliate: str, season: str, division: str, team_name: str) -> Dict:
         """Main method to get roster with fuzzy team name matching"""
+        # Try to detect the correct affiliate from team name
+        detected_affiliate = self.detect_affiliate_from_team_name(team_name)
+        if detected_affiliate:
+            affiliate = detected_affiliate
+        
         # Get all teams in the division
         teams = self.get_division_teams(affiliate, season, division)
         
@@ -372,7 +530,8 @@ class OBARosterScraper:
             'matched_team': matched_name,
             'confidence': confidence,
             'team_url': team_url,
-            'search_term': best_search_term
+            'search_term': best_search_term,
+            'affiliate_used': affiliate
         }
     
     def confirm_and_get_roster(self, team_url: str) -> Dict:

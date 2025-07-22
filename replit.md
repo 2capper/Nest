@@ -180,6 +180,8 @@ Preferred communication style: Simple, everyday language.
 - Updated roster scraper to understand OBA URL structure with affiliate numbers (#/{affiliate_number}/team/{team_number}/roster) supporting 21 different affiliates (January 2025)
 - Enhanced team name matching with flexible format support - generates multiple variations to match different OBA naming conventions across affiliates (January 2025)
 - Implemented team classification system support - organizations can have multiple teams in same age division with different skill levels (AAA, AA, A, B, C, D, DS, HS) requiring proper affiliate and classification matching for accurate roster retrieval (January 2025)
+- **Fixed critical affiliate detection issue** - Added complete affiliate mapping for all 21 OBA affiliates with proper numbers (e.g., London=0700, Windsor=2100, Sun Parlour=2111) preventing all imports from defaulting to Sun Parlour (January 2025)
+- **Enhanced affiliate-specific team lists** - Different teams are now shown based on detected affiliate, ensuring London teams get London affiliate URLs and Sun Parlour teams get Sun Parlour URLs (January 2025)
 
 ## Key Architectural Decisions
 
