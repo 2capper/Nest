@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Plus, Edit, Trash2, Download, ExternalLink, Users, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,6 +20,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -31,12 +38,23 @@ interface TeamsTabProps {
   ageDivisions: AgeDivision[];
 }
 
+interface Affiliate {
+  name: string;
+  number: string;
+  organizations: Record<string, string[]>;
+}
+
 export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [divisionFilter, setDivisionFilter] = useState<string>('all');
   const [importingRosterTeam, setImportingRosterTeam] = useState<Team | null>(null);
   const [rosterSearchResult, setRosterSearchResult] = useState<any>(null);
   const [searchingRoster, setSearchingRoster] = useState(false);
+  const [showOrganizationSelect, setShowOrganizationSelect] = useState(false);
+  const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
+  const [selectedAffiliate, setSelectedAffiliate] = useState<string>('');
+  const [selectedOrganization, setSelectedOrganization] = useState<string>('');
+  const [organizationTeams, setOrganizationTeams] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     name: '',
     city: '',
@@ -50,6 +68,22 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch affiliates on component mount
+  useEffect(() => {
+    const fetchAffiliates = async () => {
+      try {
+        const response = await apiRequest('GET', '/api/affiliates');
+        const data = await response.json();
+        if (data.affiliates) {
+          setAffiliates(data.affiliates);
+        }
+      } catch (error) {
+        console.error('Failed to fetch affiliates:', error);
+      }
+    };
+    fetchAffiliates();
+  }, []);
 
   const getPoolName = (poolId: string) => pools.find(p => p.id === poolId)?.name || 'Unknown Pool';
 
@@ -144,51 +178,78 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
   // Roster import functions
   const handleImportRoster = async (team: Team) => {
     setImportingRosterTeam(team);
-    setSearchingRoster(true);
+    setShowOrganizationSelect(true);
+    setSelectedAffiliate('');
+    setSelectedOrganization('');
+    setOrganizationTeams({});
     setRosterSearchResult(null);
+  };
+
+  const handleAffiliateChange = async (affiliateNumber: string) => {
+    setSelectedAffiliate(affiliateNumber);
+    setSelectedOrganization('');
+    setOrganizationTeams({});
+  };
+
+  const handleOrganizationChange = async (organization: string) => {
+    setSelectedOrganization(organization);
+    
+    if (!selectedAffiliate || !importingRosterTeam) return;
 
     try {
-      const response = await apiRequest('POST', `/api/teams/${team.id}/roster/search`, {
-        affiliate: 'Sun Parlour', // TODO: Make this configurable
-        season: '2025',
-        division: getDivisionName(team),
-        teamName: team.name
+      const division = getDivisionName(importingRosterTeam);
+      const response = await apiRequest('POST', `/api/organizations/${encodeURIComponent(organization)}/teams`, {
+        affiliateNumber: selectedAffiliate,
+        division: division
       });
 
-      const result = await response.json();
-      setRosterSearchResult(result);
+      const data = await response.json();
+      if (data.teams) {
+        setOrganizationTeams(data.teams);
+      }
     } catch (error) {
+      console.error('Failed to fetch organization teams:', error);
       toast({
         title: "Error",
-        description: "Failed to search for team roster",
+        description: "Failed to get organization teams",
         variant: "destructive",
       });
-      setImportingRosterTeam(null);
-    } finally {
-      setSearchingRoster(false);
     }
   };
 
-  const handleConfirmRosterImport = async () => {
-    if (!importingRosterTeam || !rosterSearchResult?.team_url) return;
+  const handleSelectOBATeam = async (obaTeamName: string, obaTeamUrl: string) => {
+    if (!importingRosterTeam) return;
+    
+    setSearchingRoster(true);
+    setShowOrganizationSelect(false);
 
     try {
       const response = await apiRequest('POST', `/api/teams/${importingRosterTeam.id}/roster/import`, {
-        teamUrl: rosterSearchResult.team_url
+        team_url: obaTeamUrl
       });
 
       const result = await response.json();
-      
       if (result.success) {
         toast({
           title: "Success",
-          description: `Roster imported successfully for ${importingRosterTeam.name}`,
+          description: `Imported ${result.player_count} players from ${obaTeamName}`,
         });
-        queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
+        
+        // Update the team with the roster data
+        updateTeamMutation.mutate({
+          id: importingRosterTeam.id,
+          data: {
+            rosterData: JSON.stringify(result.players)
+          }
+        });
+        
         setImportingRosterTeam(null);
-        setRosterSearchResult(null);
       } else {
-        throw new Error(result.error || 'Failed to import roster');
+        toast({
+          title: "Error",
+          description: result.error || "Failed to import roster",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({
@@ -196,8 +257,13 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
         description: "Failed to import roster",
         variant: "destructive",
       });
+    } finally {
+      setSearchingRoster(false);
+      setImportingRosterTeam(null);
     }
   };
+
+
 
   const getDivisionName = (team: Team) => {
     const pool = pools.find(p => p.id === team.poolId);
@@ -468,12 +534,22 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
       </Dialog>
 
       {/* Roster Import Dialog */}
-      <Dialog open={!!importingRosterTeam} onOpenChange={(open) => !open && setImportingRosterTeam(null)}>
-        <DialogContent className="sm:max-w-[500px]">
+      <Dialog open={!!importingRosterTeam} onOpenChange={(open) => {
+        if (!open) {
+          setImportingRosterTeam(null);
+          setShowOrganizationSelect(false);
+          setSelectedAffiliate('');
+          setSelectedOrganization('');
+          setOrganizationTeams({});
+          setRosterSearchResult(null);
+        }
+      }}>
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Import Roster from OBA</DialogTitle>
             <DialogDescription>
-              {searchingRoster ? 'Searching for team roster...' : 
+              {searchingRoster ? 'Importing team roster...' : 
+               showOrganizationSelect ? 'Select the affiliate and organization for your team' :
                rosterSearchResult ? 'Review the match below and confirm to import.' :
                'Search for team roster on playoba.ca'}
             </DialogDescription>
@@ -483,63 +559,97 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-                <p className="text-sm text-gray-600">Searching for {importingRosterTeam?.name}...</p>
+                <p className="text-sm text-gray-600">Importing roster...</p>
               </div>
             </div>
           )}
           
-          {rosterSearchResult && !searchingRoster && (
+          {showOrganizationSelect && !searchingRoster && (
             <div className="space-y-4">
-              {rosterSearchResult.success && rosterSearchResult.needs_confirmation ? (
-                <>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-sm font-medium mb-2">Found a match:</p>
-                    <p className="text-base font-semibold">{rosterSearchResult.matched_team}</p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Confidence: {Math.round(rosterSearchResult.confidence)}%
-                    </p>
-                  </div>
-                  
-                  <div className="text-sm text-gray-600">
-                    <p className="mb-1">Search term: "{rosterSearchResult.search_term}"</p>
-                    <p>Is this the correct team?</p>
-                  </div>
-                </>
-              ) : (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-sm font-medium text-red-800">
-                    {rosterSearchResult.error || 'No matching team found'}
-                  </p>
-                  {rosterSearchResult.available_teams && (
-                    <div className="mt-2">
-                      <p className="text-xs text-gray-600">Available teams in this division:</p>
-                      <ul className="text-xs text-gray-600 mt-1 max-h-32 overflow-y-auto">
-                        {rosterSearchResult.available_teams.map((team: string, idx: number) => (
-                          <li key={idx}>• {team}</li>
+              <div className="space-y-2">
+                <Label htmlFor="affiliate">Select Affiliate</Label>
+                <Select value={selectedAffiliate} onValueChange={handleAffiliateChange}>
+                  <SelectTrigger id="affiliate">
+                    <SelectValue placeholder="Choose an affiliate..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {affiliates.map((affiliate) => (
+                      <SelectItem key={affiliate.number} value={affiliate.number}>
+                        {affiliate.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {selectedAffiliate && (
+                <div className="space-y-2">
+                  <Label htmlFor="organization">Select Organization</Label>
+                  <Select value={selectedOrganization} onValueChange={handleOrganizationChange}>
+                    <SelectTrigger id="organization">
+                      <SelectValue placeholder="Choose an organization..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {affiliates
+                        .find(a => a.number === selectedAffiliate)
+                        ?.organizations &&
+                        Object.entries(
+                          affiliates.find(a => a.number === selectedAffiliate)!.organizations
+                        )
+                        .filter(([org, divisions]) => 
+                          divisions.includes(getDivisionName(importingRosterTeam!))
+                        )
+                        .map(([org, divisions]) => (
+                          <SelectItem key={org} value={org}>
+                            {org}
+                          </SelectItem>
                         ))}
-                      </ul>
-                    </div>
-                  )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
+              {selectedOrganization && Object.keys(organizationTeams).length > 0 && (
+                <div className="space-y-2">
+                  <Label>Select the correct team</Label>
+                  <div className="border rounded-lg max-h-48 overflow-y-auto">
+                    {Object.entries(organizationTeams).map(([teamName, teamUrl]) => (
+                      <button
+                        key={teamUrl}
+                        onClick={() => handleSelectOBATeam(teamName, teamUrl as string)}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b last:border-b-0 transition-colors"
+                      >
+                        <div className="font-medium">{teamName}</div>
+                        <div className="text-sm text-gray-500 mt-1">{teamUrl}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {selectedOrganization && Object.keys(organizationTeams).length === 0 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-sm text-yellow-800">
+                    No teams found for {selectedOrganization} in {getDivisionName(importingRosterTeam!)} division.
+                  </p>
                 </div>
               )}
             </div>
           )}
           
+
+          
           <DialogFooter>
             <Button variant="outline" onClick={() => {
               setImportingRosterTeam(null);
+              setShowOrganizationSelect(false);
+              setSelectedAffiliate('');
+              setSelectedOrganization('');
+              setOrganizationTeams({});
               setRosterSearchResult(null);
             }}>
               Cancel
             </Button>
-            {rosterSearchResult?.success && rosterSearchResult?.needs_confirmation && (
-              <Button 
-                onClick={handleConfirmRosterImport}
-                className="bg-[var(--falcons-green)] hover:bg-[var(--falcons-dark-green)] text-[#262626]"
-              >
-                Yes, Import Roster
-              </Button>
-            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

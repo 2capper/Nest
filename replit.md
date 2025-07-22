@@ -182,6 +182,8 @@ Preferred communication style: Simple, everyday language.
 - Implemented team classification system support - organizations can have multiple teams in same age division with different skill levels (AAA, AA, A, B, C, D, DS, HS) requiring proper affiliate and classification matching for accurate roster retrieval (January 2025)
 - **Fixed critical affiliate detection issue** - Added complete affiliate mapping for all 21 OBA affiliates with proper numbers (e.g., London=0700, Windsor=2100, Sun Parlour=2111) preventing all imports from defaulting to Sun Parlour (January 2025)
 - **Enhanced affiliate-specific team lists** - Different teams are now shown based on detected affiliate, ensuring London teams get London affiliate URLs and Sun Parlour teams get Sun Parlour URLs (January 2025)
+- **Implemented organization-based roster import** - Replaced guessing approach with structured affiliate → organization → team selection flow, mapping organizations to their correct affiliates for accurate roster retrieval (January 2025)
+- **Added hierarchical roster import UI** - Users now select affiliate, then organization, then specific team from a filtered list based on the tournament division, ensuring accurate team-to-affiliate mapping (January 2025)
 
 ## Key Architectural Decisions
 

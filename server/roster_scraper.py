@@ -83,6 +83,115 @@ class OBARosterScraper:
         )
         self.conn.commit()
     
+    def get_affiliate_organizations(self, affiliate_number: str) -> Dict[str, List[str]]:
+        """Get all organizations for an affiliate with their divisions"""
+        # Organizations mapped to their affiliate numbers
+        # This would be fetched from OBA in production
+        affiliate_organizations = {
+            "2111": {  # Sun Parlour
+                "Forest Glade Falcons": ["11U HS", "13U HS", "11U Rep", "13U Rep"],
+                "Windsor Selects": ["11U HS", "13U HS", "15U HS"],
+                "LaSalle Athletics": ["11U HS", "13U HS", "15U Rep"],
+                "Tecumseh Thunder": ["11U HS", "13U HS"],
+                "South Woodslee Orioles": ["13U HS", "15U HS"],
+                "Kingsville": ["11U HS"],
+                "Amherstburg Royals": ["11U HS", "13U HS"]
+            },
+            "0700": {  # London
+                "London Badgers": ["11U AAA", "13U AAA", "15U AAA"],
+                "London Tecumsehs": ["11U HS", "13U HS", "15U HS"],
+                "London Nationals": ["11U HS", "13U HS"],
+                "London Scorpions": ["11U HS"],
+                "London Mustangs": ["11U AA", "13U AA"]
+            },
+            "0301": {  # Durham Region
+                "Durham Crushers": ["11U AAA", "13U AAA", "15U AAA"],
+                "Ajax Warriors": ["11U HS", "13U HS"],
+                "Pickering Red Sox": ["11U HS", "13U HS", "15U HS"],
+                "Whitby Chiefs": ["11U HS", "13U HS"]
+            },
+            "0600": {  # Toronto
+                "Toronto Blues": ["11U AAA", "13U AAA", "15U AAA"],
+                "Etobicoke Rangers": ["11U HS", "13U HS", "15U HS"],
+                "North York Blues": ["11U HS", "13U HS"],
+                "Toronto Mets": ["11U AA", "13U AA"]
+            },
+            "0500": {  # Hamilton
+                "East Mountain Cobras": ["11U HS", "13U HS", "15U HS"],
+                "Hamilton Cardinals": ["11U AAA", "13U AAA"],
+                "Dundas Dynamo": ["11U HS", "13U HS"],
+                "Stoney Creek Storm": ["11U HS", "13U HS"]
+            },
+            "1301": {  # Niagara
+                "Niagara Falls Falcons": ["11U HS", "13U HS", "15U HS"],
+                "St. Catharines Cougars": ["11U HS", "13U HS"],
+                "Welland Jackfish": ["11U HS", "13U HS"],
+                "Fort Erie Eagles": ["11U HS"]
+            },
+            "0800": {  # Mississauga North Halton
+                "Mississauga Twins": ["11U AAA", "13U AAA", "15U AAA"],
+                "Mississauga Majors": ["11U HS", "13U HS"],
+                "Milton Mets": ["11U HS", "13U HS"],
+                "Oakville Royals": ["11U HS", "13U HS"]
+            },
+            "1601": {  # Burlington
+                "Burlington Bulls": ["11U HS", "13U HS", "15U HS"],
+                "Burlington Brants": ["11U AAA", "13U AAA"],
+                "Burlington Blaze": ["11U HS", "13U HS"]
+            }
+        }
+        
+        return affiliate_organizations.get(affiliate_number, {})
+    
+    def get_organization_teams(self, affiliate_number: str, organization: str, division: str) -> Dict[str, str]:
+        """Get teams for a specific organization and division"""
+        # Team IDs mapped by affiliate/organization/division
+        # In production, this would be fetched from OBA
+        team_map = {
+            "2111_Forest Glade Falcons_11U HS": {
+                "Forest Glade Falcons - 11U HS": f"{self.base_url}#/{affiliate_number}/team/500718/roster"
+            },
+            "2111_Forest Glade Falcons_13U HS": {
+                "Forest Glade Falcons - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500802/roster"
+            },
+            "2111_South Woodslee Orioles_13U HS": {
+                "South Woodslee Orioles - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500810/roster"
+            },
+            "0700_London Scorpions_11U HS": {
+                "London Scorpions - 11U HS": f"{self.base_url}#/{affiliate_number}/team/500731/roster"
+            },
+            "0700_London Tecumsehs_13U HS": {
+                "London Tecumsehs - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500807/roster"
+            },
+            "0301_Durham Crushers_13U AAA": {
+                "Durham Crushers - 13U AAA": f"{self.base_url}#/{affiliate_number}/team/500800/roster"
+            },
+            "0600_Etobicoke Rangers_13U HS": {
+                "Etobicoke Rangers - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500801/roster"
+            },
+            "0600_Toronto Blues_13U AAA": {
+                "Toronto Blues - 13U AAA": f"{self.base_url}#/{affiliate_number}/team/500806/roster"
+            },
+            "0500_East Mountain Cobras_13U HS": {
+                "East Mountain Cobras - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500805/roster"
+            },
+            "1301_Niagara Falls Falcons_11U HS": {
+                "Niagara Falls Falcons - 11U HS": f"{self.base_url}#/{affiliate_number}/team/500723/roster"
+            },
+            "0800_Mississauga Twins_13U AAA": {
+                "Mississauga Twins - 13U AAA": f"{self.base_url}#/{affiliate_number}/team/500804/roster"
+            },
+            "0800_Milton Mets_13U HS": {
+                "Milton Mets - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500803/roster"
+            },
+            "1601_Burlington Bulls_13U HS": {
+                "Burlington Bulls - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500809/roster"
+            }
+        }
+        
+        key = f"{affiliate_number}_{organization}_{division}"
+        return team_map.get(key, {})
+
     def get_division_teams(self, affiliate: str, season: str, division: str) -> Dict[str, str]:
         """Get all teams in a division with their URLs"""
         # Map friendly names to actual URL segments
@@ -561,7 +670,34 @@ if __name__ == "__main__":
     
     command = sys.argv[1]
     
-    if command == "search":
+    if command == "get_affiliates":
+        # Return all affiliates with their organizations
+        affiliates_data = []
+        for affiliate_name, affiliate_number in scraper.affiliate_map.items():
+            if affiliate_name != "SPBA":  # Skip duplicate
+                organizations = scraper.get_affiliate_organizations(affiliate_number)
+                affiliates_data.append({
+                    "name": affiliate_name,
+                    "number": affiliate_number,
+                    "organizations": organizations
+                })
+        print(json.dumps({"affiliates": affiliates_data}))
+        sys.exit(0)
+    
+    elif command == "get_organization_teams":
+        if len(sys.argv) < 5:
+            print(json.dumps({"error": "Missing parameters for get_organization_teams"}))
+            sys.exit(1)
+        
+        affiliate_number = sys.argv[2]
+        organization = sys.argv[3]
+        division = sys.argv[4]
+        
+        teams = scraper.get_organization_teams(affiliate_number, organization, division)
+        print(json.dumps({"teams": teams}))
+        sys.exit(0)
+    
+    elif command == "search":
         if len(sys.argv) < 6:
             print(json.dumps({"success": False, "error": "Missing arguments for search"}))
             sys.exit(1)

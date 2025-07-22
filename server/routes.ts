@@ -277,6 +277,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Roster import endpoints
+  // Get all affiliates with their organizations
+  app.get("/api/affiliates", requireAdmin, async (req, res) => {
+    try {
+      const { spawn } = await import("child_process");
+      const python = spawn("python", [
+        "server/roster_scraper.py",
+        "get_affiliates"
+      ]);
+
+      let result = "";
+      let error = "";
+
+      python.stdout.on("data", (data) => {
+        result += data.toString();
+      });
+
+      python.stderr.on("data", (data) => {
+        error += data.toString();
+      });
+
+      python.on("close", (code) => {
+        if (code !== 0) {
+          console.error("Python script error:", error);
+          return res.status(500).json({ error: "Failed to get affiliates" });
+        }
+        
+        try {
+          const data = JSON.parse(result.trim());
+          res.json(data);
+        } catch (e) {
+          console.error("Failed to parse affiliates:", e);
+          res.status(500).json({ error: "Failed to process affiliates" });
+        }
+      });
+    } catch (error) {
+      console.error("Error getting affiliates:", error);
+      res.status(500).json({ error: "Failed to get affiliates" });
+    }
+  });
+
+  // Get teams for a specific organization and division
+  app.post("/api/organizations/:organization/teams", requireAdmin, async (req, res) => {
+    try {
+      const { organization } = req.params;
+      const { affiliateNumber, division } = req.body;
+      
+      if (!affiliateNumber || !division) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const { spawn } = await import("child_process");
+      const python = spawn("python", [
+        "server/roster_scraper.py",
+        "get_organization_teams",
+        affiliateNumber,
+        organization,
+        division
+      ]);
+
+      let result = "";
+      let error = "";
+
+      python.stdout.on("data", (data) => {
+        result += data.toString();
+      });
+
+      python.stderr.on("data", (data) => {
+        error += data.toString();
+      });
+
+      python.on("close", (code) => {
+        if (code !== 0) {
+          console.error("Python script error:", error);
+          return res.status(500).json({ error: "Failed to get organization teams" });
+        }
+        
+        try {
+          const data = JSON.parse(result.trim());
+          res.json(data);
+        } catch (e) {
+          console.error("Failed to parse organization teams:", e);
+          res.status(500).json({ error: "Failed to process organization teams" });
+        }
+      });
+    } catch (error) {
+      console.error("Error getting organization teams:", error);
+      res.status(500).json({ error: "Failed to get organization teams" });
+    }
+  });
+
   app.post("/api/teams/:teamId/roster/search", requireAdmin, async (req, res) => {
     try {
       const { affiliate, season, division, teamName } = req.body;
