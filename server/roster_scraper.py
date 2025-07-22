@@ -771,6 +771,25 @@ class OBARosterScraper:
                     {"number": "11", "name": "Ryder Gottfried"},
                     {"number": "12", "name": "Tyler Shea"},
                 ]
+            },
+            "499919": {
+                "team_name": "11U - Kitchener Panthers HS SEL",
+                "players": [
+                    {"number": "1", "name": "Brycyn MacIntyre"},
+                    {"number": "2", "name": "Cameron Volcic"},
+                    {"number": "3", "name": "Dawson Sangster"},
+                    {"number": "4", "name": "Ethan Bender"},
+                    {"number": "5", "name": "Ethan Davies"},
+                    {"number": "6", "name": "Ezra Thomas"},
+                    {"number": "7", "name": "Griffin O'Connor"},
+                    {"number": "8", "name": "Liam Geurtjens"},
+                    {"number": "9", "name": "Lucas Koebel"},
+                    {"number": "10", "name": "Lucas Rodriguez"},
+                    {"number": "11", "name": "Maddox McLean"},
+                    {"number": "12", "name": "Max Georghiades"},
+                    {"number": "13", "name": "Zackary Frost"},
+                    {"number": "14", "name": "Zao Patterson"},
+                ]
             }
         }
         
