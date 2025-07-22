@@ -136,10 +136,11 @@ class OBARosterScraper:
             affiliate_number = self.get_affiliate_number(affiliate)
             
             # Map division names to appropriate test teams with actual OBA URL structure
-            # Using actual OBA team naming format: "11U HS Team Name"
+            # Including all classification levels: AAA, AA, A, B, C, D, DS, HS
+            # Organizations can have multiple teams in same age group with different classifications
             if "11U" in division:
                 teams = {
-                    # Original format teams
+                    # House Select (HS) teams
                     "11U HS Belle River": f"{self.base_url}#/{affiliate_number}/team/500719/roster",
                     "11U HS Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500718/roster",
                     "11U HS Kingsville": f"{self.base_url}#/{affiliate_number}/team/500720/roster",
@@ -159,7 +160,20 @@ class OBARosterScraper:
                     # Alternative formats
                     "Sarnia Brigade U11": f"{self.base_url}#/{affiliate_number}/team/500730/roster",
                     "Royals U11": f"{self.base_url}#/{affiliate_number}/team/500732/roster",
-                    "London Nationals 11U": f"{self.base_url}#/{affiliate_number}/team/500733/roster"
+                    "London Nationals 11U": f"{self.base_url}#/{affiliate_number}/team/500733/roster",
+                    # Different classification examples for Forest Glade
+                    "11U AAA Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500740/roster",
+                    "11U AA Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500741/roster",
+                    "11U A Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500742/roster",
+                    "11U B Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500743/roster",
+                    "11U C Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500744/roster",
+                    "11U D Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500745/roster",
+                    "11U DS Forest Glade": f"{self.base_url}#/{affiliate_number}/team/500746/roster",
+                    # Alternative classification format
+                    "Forest Glade 11U AAA": f"{self.base_url}#/{affiliate_number}/team/500740/roster",
+                    "Forest Glade 11U AA": f"{self.base_url}#/{affiliate_number}/team/500741/roster",
+                    "Forest Glade 11U A": f"{self.base_url}#/{affiliate_number}/team/500742/roster",
+                    "Forest Glade Falcons 11U HS": f"{self.base_url}#/{affiliate_number}/team/500718/roster"
                 }
             elif "13U" in division:
                 teams = {
@@ -252,6 +266,9 @@ class OBARosterScraper:
         # Add original name
         variations.append(team_name)
         
+        # All possible classifications
+        classifications = ['AAA', 'AA', 'A', 'B', 'C', 'D', 'DS', 'HS', 'Rep', 'Select']
+        
         # Extract base team name (before the dash if exists)
         base_name = team_name.split(' - ')[0]
         variations.append(base_name)
@@ -265,29 +282,53 @@ class OBARosterScraper:
                 variations.append(clean_name)
                 break
         
+        # Extract any existing classification from the original name
+        existing_classification = None
+        for classification in classifications:
+            if re.search(rf'\b{classification}\b', team_name, flags=re.IGNORECASE):
+                existing_classification = classification
+                break
+        
         # Common OBA formats
         if "11U" in division or "13U" in division:
-            # Format: "11U HS Team Name"
-            variations.append(f"{division} HS {clean_name}")
-            variations.append(f"{division} {clean_name}")
+            # If we found a classification in the team name, prioritize it
+            if existing_classification:
+                variations.append(f"{division} {existing_classification} {clean_name}")
+                variations.append(f"{clean_name} {division} {existing_classification}")
+                variations.append(f"{existing_classification} {clean_name} {division}")
             
-            # Format: "Team Name 11U HS"
-            variations.append(f"{clean_name} {division} HS")
+            # Try all classification formats
+            for classification in ['HS', 'AAA', 'AA', 'A', 'B', 'C', 'D', 'DS']:
+                # Format: "11U HS Team Name"
+                variations.append(f"{division} {classification} {clean_name}")
+                # Format: "Team Name 11U HS"
+                variations.append(f"{clean_name} {division} {classification}")
+                # Format: "HS Team Name 11U"
+                variations.append(f"{classification} {clean_name} {division}")
+            
+            # Basic formats without classification
+            variations.append(f"{division} {clean_name}")
             variations.append(f"{clean_name} {division}")
-            
-            # Format: "11U Team Name"
-            variations.append(f"{division} {clean_name}")
             
             # Just the location name
             variations.append(clean_name)
+            
+            # With "Falcons" variations
+            if 'Falcons' not in clean_name and 'Forest Glade' in clean_name:
+                with_falcons = f"{clean_name} Falcons"
+                variations.append(with_falcons)
+                variations.append(f"{division} {with_falcons}")
+                if existing_classification:
+                    variations.append(f"{division} {existing_classification} {with_falcons}")
         
         # Remove duplicates while preserving order
         seen = set()
         unique_variations = []
         for v in variations:
-            if v not in seen:
-                seen.add(v)
-                unique_variations.append(v)
+            v_clean = re.sub(r'\s+', ' ', v).strip()  # Normalize spaces
+            if v_clean and v_clean not in seen:
+                seen.add(v_clean)
+                unique_variations.append(v_clean)
         
         return unique_variations
 
