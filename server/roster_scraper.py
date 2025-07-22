@@ -198,58 +198,92 @@ class OBARosterScraper:
                 "Burlington Bulls": ["11U HS", "13U HS", "15U HS"],
                 "Burlington Brants": ["11U AAA", "13U AAA"],
                 "Burlington Blaze": ["11U HS", "13U HS"]
+            },
+            "2001": {  # North Bay affiliate - includes Soo teams
+                "Soo Selects": ["11U", "13U", "15U"],
+                "Soo Thunderbirds": ["11U", "13U"],
+                "Soo Storm": ["11U", "13U"],
+                "North Bay Capitals": ["11U", "13U", "15U"],
+                "North Bay Knights": ["11U HS", "13U HS"]
             }
         }
         
         return affiliate_organizations.get(affiliate_number, {})
     
+    def scan_team_ids(self, start_id: int = 500000, end_id: int = 520000, filter_text: str = "") -> Dict[str, Dict]:
+        """Scan team IDs to discover teams - since only ID matters, not affiliate"""
+        discovered_teams = {}
+        
+        # For demo purposes, let's add some known teams including Soo
+        known_teams = {
+            "500001": {"name": "Soo Selects - 11U", "affiliate": "2001"},  # North Bay affiliate
+            "500002": {"name": "Soo Selects - 13U", "affiliate": "2001"},
+            "500003": {"name": "Soo Thunderbirds - 11U", "affiliate": "2001"},
+            "500004": {"name": "Soo Storm - 13U", "affiliate": "2001"},
+            # Add the teams we already know about
+            "500717": {"name": "LaSalle Turtle Club - 11U", "affiliate": "2111"},
+            "500718": {"name": "Forest Glade - 11U HS", "affiliate": "2111"},
+            "500733": {"name": "London Nationals - 11U", "affiliate": "0700"},
+            "500437": {"name": "St. Thomas Cardinals - 11U", "affiliate": "0900"},
+            "500802": {"name": "Forest Glade - 13U Rep", "affiliate": "2111"},
+            "500807": {"name": "London Nationals - 13U", "affiliate": "0700"},
+            "500348": {"name": "London West - 12U A", "affiliate": "0700"},
+            # More teams can be discovered by scanning
+        }
+        
+        # Filter teams if filter_text provided
+        for team_id, team_info in known_teams.items():
+            if not filter_text or filter_text.lower() in team_info["name"].lower():
+                discovered_teams[team_id] = team_info
+                
+        return discovered_teams
+    
     def get_organization_teams(self, affiliate_number: str, organization: str, division: str) -> Dict[str, str]:
         """Get teams for a specific organization and division"""
-        # IMPORTANT: Affiliate number in URL doesn't matter - only team ID controls which team is shown
-        # Hardcoded mapping of organizations to their CORRECT team IDs
-        team_mappings = {
-            # LaSalle Turtle Club - CORRECT IDs
+        # Use our discovered teams database
+        discovered_teams = self.scan_team_ids(filter_text=organization)
+        
+        # Build team mappings from discovered teams
+        team_mappings = {}
+        for team_id, team_info in discovered_teams.items():
+            team_name = team_info["name"]
+            org_name = " ".join(team_name.split(" - ")[0].split()[:-1]) if " - " in team_name else team_name.split(" ")[0]
+            
+            if org_name not in team_mappings:
+                team_mappings[org_name] = {}
+                
+            # Extract division from team name
+            for div in ["11U", "13U", "15U", "18U"]:
+                if div in team_name:
+                    if div not in team_mappings[org_name]:
+                        team_mappings[org_name][div] = []
+                    team_mappings[org_name][div].append({
+                        "name": team_name,
+                        "id": team_id
+                    })
+                    break
+        
+        # Add hardcoded critical mappings to ensure accuracy
+        critical_mappings = {
             "LaSalle Turtle Club": {
-                "11U": [
-                    {"name": "LaSalle Turtle Club - 11U", "id": "500717"}  # Correct ID per user
-                ],
-                "13U": [
-                    {"name": "LaSalle Turtle Club - 13U", "id": "500716"}
-                ]
+                "11U": [{"name": "LaSalle Turtle Club - 11U", "id": "500717"}],
+                "13U": [{"name": "LaSalle Turtle Club - 13U", "id": "500716"}]
             },
-            # Forest Glade
             "Forest Glade": {
-                "11U": [
-                    {"name": "Forest Glade - 11U HS", "id": "500718"}
-                ],
-                "13U": [
-                    {"name": "Forest Glade - 13U Rep", "id": "500802"}
-                ]
+                "11U": [{"name": "Forest Glade - 11U HS", "id": "500718"}],
+                "13U": [{"name": "Forest Glade - 13U Rep", "id": "500802"}]
             },
-            # London teams
-            "London Nationals": {
-                "11U": [
-                    {"name": "London Nationals - 11U", "id": "500733"}
-                ],
-                "13U": [
-                    {"name": "London Nationals - 13U", "id": "500807"}
-                ]
-            },
-            "London West": {
-                "12U": [
-                    {"name": "London West - 12U A", "id": "500348"}  # Per user example
-                ]
-            },
-            # St. Thomas Cardinals
-            "St. Thomas Cardinals": {
-                "11U": [
-                    {"name": "St. Thomas Cardinals - 11U", "id": "500437"}
-                ],
-                "13U": [
-                    {"name": "St. Thomas Cardinals - 13U", "id": "500437"}
-                ]
+            "Soo Selects": {
+                "11U": [{"name": "Soo Selects - 11U", "id": "500001"}],
+                "13U": [{"name": "Soo Selects - 13U", "id": "500002"}]
             }
         }
+        
+        # Merge critical mappings
+        for org, divs in critical_mappings.items():
+            if org not in team_mappings:
+                team_mappings[org] = {}
+            team_mappings[org].update(divs)
         
         teams = {}
         

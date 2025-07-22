@@ -285,6 +285,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Direct team ID import endpoint
+  app.post("/api/teams/:id/roster/import-by-team-id", requireAdmin, async (req, res) => {
+    const { teamId, obaTeamId } = req.body;
+    
+    if (!teamId || !obaTeamId) {
+      return res.status(400).json({ error: "Missing teamId or obaTeamId" });
+    }
+    
+    try {
+      const { spawn } = await import("child_process");
+      // Use any affiliate number since it doesn't matter
+      const teamUrl = `https://www.playoba.ca/stats#/2111/team/${obaTeamId}/roster`;
+      
+      const python = spawn("python", [
+        "server/roster_scraper.py",
+        "import",
+        teamUrl
+      ]);
+      
+      let result = "";
+      let error = "";
+      
+      python.stdout.on("data", (data) => {
+        result += data.toString();
+      });
+      
+      python.stderr.on("data", (data) => {
+        error += data.toString();
+      });
+      
+      python.on("close", async (code) => {
+        if (code !== 0) {
+          console.error("Python script error:", error);
+          return res.status(500).json({ error: "Failed to import roster" });
+        }
+        
+        try {
+          const data = JSON.parse(result);
+          console.log("Team ID import data:", data);
+          
+          if (data.success && data.roster) {
+            const players = data.roster.players || [];
+            
+            const updateData: any = {};
+            updateData.rosterLink = teamUrl;
+            if (players.length > 0) {
+              updateData.rosterData = JSON.stringify(players);
+            }
+            
+            if (Object.keys(updateData).length > 0) {
+              const team = await storage.updateTeam(teamId, updateData);
+              res.json({ 
+                success: true, 
+                team, 
+                roster: data.roster,
+                player_count: players.length 
+              });
+            } else {
+              res.status(400).json({ error: "No data to update" });
+            }
+          } else {
+            res.status(400).json({ error: data.error || "Failed to import roster" });
+          }
+        } catch (e) {
+          console.error("Failed to parse result:", e);
+          res.status(500).json({ error: "Failed to process import results" });
+        }
+      });
+    } catch (error) {
+      console.error("Error importing roster by team ID:", error);
+      res.status(500).json({ error: "Failed to import roster" });
+    }
+  });
+
   // Roster import endpoints
   // Get all affiliates with their organizations
   app.get("/api/affiliates", requireAdmin, async (req, res) => {
