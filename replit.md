@@ -167,6 +167,8 @@ Preferred communication style: Simple, everyday language.
 - Protected admin routes with requireAdmin middleware for secure access control (January 2025)
 - Created setup page for initial admin user creation with username "admin" (January 2025)
 - Added logout functionality in admin portal with session destruction (January 2025)
+- Fixed production authentication issue by implementing PostgreSQL session storage (January 2025)
+- Added placeholder team filtering to exclude "seed", "Winner Pool X", "TBD" etc. from standings and dropdowns (January 2025)
 
 ## Key Architectural Decisions
 

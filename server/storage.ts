@@ -139,7 +139,9 @@ export class DatabaseStorage implements IStorage {
       /^Loser\s+of/i,
       /^Runner-up\s+of/i,
       /^TBD/i,
-      /^To\s+be\s+determined/i
+      /^To\s+be\s+determined/i,
+      /^seed$/i,
+      /\bseed\b/i
     ];
     
     return allTeams.filter(team => {
