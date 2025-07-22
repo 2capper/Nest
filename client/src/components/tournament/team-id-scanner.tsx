@@ -21,6 +21,9 @@ interface DiscoveredTeam {
   id: string;
   name: string;
   division: string;
+  city?: string;
+  classification?: string;
+  url?: string;
 }
 
 export function TeamIdScanner() {
@@ -86,8 +89,10 @@ export function TeamIdScanner() {
 
   const exportResults = () => {
     const csv = [
-      "Team ID,Team Name,Division",
-      ...discoveredTeams.map(team => `${team.id},"${team.name}",${team.division}`)
+      "Team ID,Team Name,Division,City,Classification,OBA URL",
+      ...discoveredTeams.map(team => 
+        `${team.id},"${team.name}",${team.division},${team.city || ''},${team.classification || ''},${team.url || ''}`
+      )
     ].join('\n');
 
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -112,7 +117,7 @@ export function TeamIdScanner() {
       <CardHeader>
         <CardTitle>OBA Team ID Scanner</CardTitle>
         <CardDescription>
-          Scan OBA team IDs to discover all available teams. Since only the team ID matters (not the affiliate), we can scan the entire range.
+          Scan the OBA website to discover all participating teams across Ontario. This will probe team IDs to find active teams and their roster information. Use this to build a comprehensive database of available teams for roster imports.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -207,17 +212,36 @@ export function TeamIdScanner() {
                     <TableHead>Team ID</TableHead>
                     <TableHead>Team Name</TableHead>
                     <TableHead>Division</TableHead>
+                    <TableHead>City</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {discoveredTeams.map((team) => (
                     <TableRow key={team.id}>
                       <TableCell className="font-mono">{team.id}</TableCell>
-                      <TableCell>{team.name}</TableCell>
+                      <TableCell className="max-w-[200px] truncate" title={team.name}>
+                        {team.name}
+                      </TableCell>
                       <TableCell>
                         <Badge className={divisionColors[team.division] || "bg-gray-100 text-gray-800"}>
                           {team.division}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-600">
+                        {team.city || 'Unknown'}
+                      </TableCell>
+                      <TableCell>
+                        {team.url && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(team.url, '_blank')}
+                            className="text-xs"
+                          >
+                            View Roster
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}

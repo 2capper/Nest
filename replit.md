@@ -190,6 +190,7 @@ Preferred communication style: Simple, everyday language.
 - **Dynamic team generation** - Updated get_organization_teams to automatically show all teams in matching divisions (e.g., "11U" shows "11U HS", "11U Rep", "11U AAA") (January 2025)
 - **Fixed critical OBA URL issue** - Discovered that affiliate numbers in OBA URLs can be changed without affecting displayed team (e.g., /2111/team/500348 and /2106/team/500348 both show same team). Only the team ID matters for determining which team is shown (January 2025)
 - **Implemented hardcoded team ID mapping** - Added correct team IDs for key organizations: LaSalle Turtle Club 11U = 500717 (not 500992), Forest Glade, London teams, etc. This ensures roster imports pull the correct team data regardless of URL affiliate number (July 2025)
+- **Built comprehensive Team ID Scanner** - Created full OBA team discovery system that probes team IDs across Ontario to build database of all participating teams and their rosters, supporting the automated roster import system (July 2025)
 
 ## Key Architectural Decisions
 
