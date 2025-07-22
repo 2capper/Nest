@@ -310,6 +310,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       python.on("close", (code) => {
         if (code !== 0) {
           console.error("Python script error:", error);
+          console.error("Python script output:", result);
           return res.status(500).json({ error: "Failed to search for team" });
         }
         
@@ -318,6 +319,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           res.json(data);
         } catch (e) {
           console.error("Failed to parse result:", e);
+          console.error("Raw output:", result);
+          console.error("Error output:", error);
           res.status(500).json({ error: "Failed to process search results" });
         }
       });
