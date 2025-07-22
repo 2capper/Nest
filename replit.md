@@ -184,6 +184,10 @@ Preferred communication style: Simple, everyday language.
 - **Enhanced affiliate-specific team lists** - Different teams are now shown based on detected affiliate, ensuring London teams get London affiliate URLs and Sun Parlour teams get Sun Parlour URLs (January 2025)
 - **Implemented organization-based roster import** - Replaced guessing approach with structured affiliate → organization → team selection flow, mapping organizations to their correct affiliates for accurate roster retrieval (January 2025)
 - **Added hierarchical roster import UI** - Users now select affiliate, then organization, then specific team from a filtered list based on the tournament division, ensuring accurate team-to-affiliate mapping (January 2025)
+- **Simplified roster import to auto-detect affiliates** - Removed need to know affiliate by showing all organizations across Ontario that have teams in the tournament's division (January 2025)
+- **Fixed SPBA organizations not appearing** - Removed filter that was excluding Sun Parlour teams; added Forest Glade, Turtle Club, and 15+ more SPBA organizations (January 2025)
+- **Expanded organization coverage** - Added complete organization mappings for all 18 active OBA affiliates including EBLO, HDBA, ICBA, NBBA, NCBA, SCBA, and WOBA (January 2025)
+- **Dynamic team generation** - Updated get_organization_teams to automatically show all teams in matching divisions (e.g., "11U" shows "11U HS", "11U Rep", "11U AAA") (January 2025)
 
 ## Key Architectural Decisions
 

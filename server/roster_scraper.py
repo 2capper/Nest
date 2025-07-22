@@ -151,6 +151,53 @@ class OBARosterScraper:
             "0400": {  # EOBA - Eastern Ontario
                 "Ottawa Knights": ["11U HS", "13U HS"],
                 "Cornwall River Rats": ["11U HS", "13U HS"]
+            },
+            "0900": {  # EBLO - Elgin
+                "St. Thomas Cardinals": ["11U HS", "13U HS", "15U HS"],
+                "Aylmer Express": ["11U HS", "13U HS"],
+                "Port Stanley Pirates": ["11U HS", "13U HS"],
+                "Tillsonburg Thunder": ["11U HS", "13U HS", "15U HS"]
+            },
+            "1201": {  # HDBA - Huron-Perth
+                "Stratford Warriors": ["11U HS", "13U HS", "15U HS"],
+                "Goderich Lakers": ["11U HS", "13U HS"],
+                "Listowel Legionnaires": ["11U HS", "13U HS"],
+                "Mitchell Astros": ["11U HS", "13U HS"]
+            },
+            "0200": {  # ICBA - Interlake/Kawartha
+                "Peterborough Tigers": ["11U HS", "13U HS", "15U HS"],
+                "Lindsay Lightning": ["11U HS", "13U HS"],
+                "Cobourg Angels": ["11U HS", "13U HS"],
+                "Port Hope Braves": ["11U HS", "13U HS"]
+            },
+            "2001": {  # NBBA - North Bay
+                "North Bay Bulldogs": ["11U HS", "13U HS"],
+                "Mattawa Voyageurs": ["11U HS", "13U HS"],
+                "West Nipissing Warriors": ["11U HS"],
+                "Sturgeon Falls Storm": ["11U HS", "13U HS"]
+            },
+            "1701": {  # NCBA - Northumberland
+                "Clarington Orioles": ["11U HS", "13U HS", "15U HS"],
+                "Northumberland Angels": ["11U HS", "13U HS"],
+                "Brighton Braves": ["11U HS", "13U HS"],
+                "Campbellford Rebels": ["11U HS"]
+            },
+            "1901": {  # SCBA - Sarnia/South County
+                "Sarnia Braves": ["11U HS", "13U HS", "15U HS"],
+                "Petrolia Pirates": ["11U HS", "13U HS"],
+                "Wyoming Wildcats": ["11U HS", "13U HS"],
+                "Corunna Cardinals": ["11U HS", "13U HS"]
+            },
+            "1100": {  # WOBA - Western Ontario/Grey Bruce
+                "Owen Sound Jr. Attack": ["11U HS", "13U HS"],
+                "Collingwood Cardinals": ["11U HS", "13U HS"],
+                "Meaford Knights": ["11U HS", "13U HS"],
+                "Hanover Hawks": ["11U HS", "13U HS"]
+            },
+            "1601": {  # Burlington (not in the original list but referenced)
+                "Burlington Bulls": ["11U HS", "13U HS", "15U HS"],
+                "Burlington Brants": ["11U AAA", "13U AAA"],
+                "Burlington Blaze": ["11U HS", "13U HS"]
             }
         }
         
@@ -158,52 +205,30 @@ class OBARosterScraper:
     
     def get_organization_teams(self, affiliate_number: str, organization: str, division: str) -> Dict[str, str]:
         """Get teams for a specific organization and division"""
-        # Team IDs mapped by affiliate/organization/division
-        # In production, this would be fetched from OBA
-        team_map = {
-            "2111_Forest Glade Falcons_11U HS": {
-                "Forest Glade Falcons - 11U HS": f"{self.base_url}#/{affiliate_number}/team/500718/roster"
-            },
-            "2111_Forest Glade Falcons_13U HS": {
-                "Forest Glade Falcons - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500802/roster"
-            },
-            "2111_South Woodslee Orioles_13U HS": {
-                "South Woodslee Orioles - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500810/roster"
-            },
-            "0700_London Scorpions_11U HS": {
-                "London Scorpions - 11U HS": f"{self.base_url}#/{affiliate_number}/team/500731/roster"
-            },
-            "0700_London Tecumsehs_13U HS": {
-                "London Tecumsehs - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500807/roster"
-            },
-            "0301_Durham Crushers_13U AAA": {
-                "Durham Crushers - 13U AAA": f"{self.base_url}#/{affiliate_number}/team/500800/roster"
-            },
-            "0600_Etobicoke Rangers_13U HS": {
-                "Etobicoke Rangers - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500801/roster"
-            },
-            "0600_Toronto Blues_13U AAA": {
-                "Toronto Blues - 13U AAA": f"{self.base_url}#/{affiliate_number}/team/500806/roster"
-            },
-            "0500_East Mountain Cobras_13U HS": {
-                "East Mountain Cobras - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500805/roster"
-            },
-            "1301_Niagara Falls Falcons_11U HS": {
-                "Niagara Falls Falcons - 11U HS": f"{self.base_url}#/{affiliate_number}/team/500723/roster"
-            },
-            "0800_Mississauga Twins_13U AAA": {
-                "Mississauga Twins - 13U AAA": f"{self.base_url}#/{affiliate_number}/team/500804/roster"
-            },
-            "0800_Milton Mets_13U HS": {
-                "Milton Mets - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500803/roster"
-            },
-            "1601_Burlington Bulls_13U HS": {
-                "Burlington Bulls - 13U HS": f"{self.base_url}#/{affiliate_number}/team/500809/roster"
-            }
-        }
+        # Get all divisions for this organization
+        org_divisions = self.get_affiliate_organizations(affiliate_number).get(organization, [])
         
-        key = f"{affiliate_number}_{organization}_{division}"
-        return team_map.get(key, {})
+        teams = {}
+        # Find all matching divisions that start with the base division
+        # e.g., if division is "11U", match "11U HS", "11U Rep", "11U AAA", etc.
+        for org_div in org_divisions:
+            if org_div.startswith(division):
+                # Generate team name in OBA format
+                team_name = f"{organization} - {org_div}"
+                # Generate a placeholder team ID (in production, would come from OBA)
+                # Using a hash of the team name to generate consistent IDs
+                team_id = str(500000 + abs(hash(team_name)) % 1000)
+                team_url = f"{self.base_url}#/{affiliate_number}/team/{team_id}/roster"
+                teams[team_name] = team_url
+        
+        # If no specific division teams found, check if the base division matches any
+        if not teams and division in org_divisions:
+            team_name = f"{organization} - {division}"
+            team_id = str(500000 + abs(hash(team_name)) % 1000)
+            team_url = f"{self.base_url}#/{affiliate_number}/team/{team_id}/roster"
+            teams[team_name] = team_url
+            
+        return teams
 
     def get_division_teams(self, affiliate: str, season: str, division: str) -> Dict[str, str]:
         """Get all teams in a division with their URLs"""
