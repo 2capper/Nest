@@ -91,16 +91,22 @@ export const SmartRosterImport = ({ team, onClose }: SmartRosterImportProps) => 
   useEffect(() => {
     const findMatches = async () => {
       try {
+        console.log('Starting smart roster import for team:', team.name, team.id);
+        setLoading(true);
+        
         const response = await fetch(`/api/teams/${team.id}/find-oba-matches`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' }
         });
         
+        console.log('API response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to find matches');
+          throw new Error(`API returned ${response.status}: ${response.statusText}`);
         }
         
         const data = await response.json();
+        console.log('API response data:', data);
         
         setMatches(data.matches || []);
         setLoading(false);
@@ -111,13 +117,18 @@ export const SmartRosterImport = ({ team, onClose }: SmartRosterImportProps) => 
             description: `No OBA teams found matching "${team.name}".`,
             variant: "destructive",
           });
+        } else {
+          toast({
+            title: "Matches Found",
+            description: `Found ${data.total_found} matching OBA teams for "${team.name}".`,
+          });
         }
       } catch (error) {
         console.error('Error finding matches:', error);
         setLoading(false);
         toast({
           title: "Search Failed",
-          description: "Failed to search for matching OBA teams.",
+          description: "Failed to search for matching OBA teams. Check console for details.",
           variant: "destructive",
         });
       }

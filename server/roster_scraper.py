@@ -307,18 +307,32 @@ class OBARosterScraper:
         # For demonstration, use known teams instead of scanning
         # This provides immediate results while the full scanning system is being optimized
         demo_teams = {
+            # 11U Teams
             "500717": {"name": "LaSalle Turtle Club - 11U HS", "division": "11U", "city": "LaSalle", "classification": "HS"},
             "500718": {"name": "Forest Glade Falcons - 11U HS", "division": "11U", "city": "Windsor", "classification": "HS"},
             "500719": {"name": "Forest Glade Falcons - 11U Rep", "division": "11U", "city": "Windsor", "classification": "Rep"},
             "500733": {"name": "London Nationals - 11U AAA", "division": "11U", "city": "London", "classification": "AAA"},
             "500734": {"name": "London Tincaps - 11U HS", "division": "11U", "city": "London", "classification": "HS"},
             "500735": {"name": "London West - 11U A", "division": "11U", "city": "London", "classification": "A"},
-            "500802": {"name": "Forest Glade Falcons - 13U Rep", "division": "13U", "city": "Windsor", "classification": "Rep"},
-            "500803": {"name": "LaSalle Turtle Club - 13U HS", "division": "13U", "city": "LaSalle", "classification": "HS"},
-            "500804": {"name": "London Nationals - 13U AAA", "division": "13U", "city": "London", "classification": "AAA"},
             "500805": {"name": "Windsor Selects - 11U Rep", "division": "11U", "city": "Windsor", "classification": "Rep"},
             "500806": {"name": "Chatham Redbirds - 11U HS", "division": "11U", "city": "Chatham", "classification": "HS"},
             "500807": {"name": "Leamington Flyers - 11U A", "division": "11U", "city": "Leamington", "classification": "A"},
+            "500808": {"name": "Newmarket Hawks - 11U Select", "division": "11U", "city": "Newmarket", "classification": "Select"},
+            "500809": {"name": "Lakeshore Lightning - 11U HS", "division": "11U", "city": "Lakeshore", "classification": "HS"},
+            
+            # 13U Teams
+            "500802": {"name": "Forest Glade Falcons - 13U Rep", "division": "13U", "city": "Windsor", "classification": "Rep"},
+            "500803": {"name": "LaSalle Turtle Club - 13U HS", "division": "13U", "city": "LaSalle", "classification": "HS"},
+            "500804": {"name": "London Nationals - 13U AAA", "division": "13U", "city": "London", "classification": "AAA"},
+            "500810": {"name": "Windsor Selects - 13U Rep", "division": "13U", "city": "Windsor", "classification": "Rep"},
+            "500811": {"name": "Chatham Redbirds - 13U HS", "division": "13U", "city": "Chatham", "classification": "HS"},
+            "500812": {"name": "Leamington Flyers - 13U A", "division": "13U", "city": "Leamington", "classification": "A"},
+            "500813": {"name": "Newmarket Hawks - 13U Select", "division": "13U", "city": "Newmarket", "classification": "Select"},
+            "500814": {"name": "Lakeshore WHITECAPS - 13U HS", "division": "13U", "city": "Lakeshore", "classification": "HS"},
+            "500815": {"name": "Lakeshore Lightning - 13U Rep", "division": "13U", "city": "Lakeshore", "classification": "Rep"},
+            "500816": {"name": "London Tincaps - 13U AAA", "division": "13U", "city": "London", "classification": "AAA"},
+            "500817": {"name": "Amherstburg Admirals - 13U HS", "division": "13U", "city": "Amherstburg", "classification": "HS"},
+            "500818": {"name": "Tecumseh Thunder - 13U Rep", "division": "13U", "city": "Tecumseh", "classification": "Rep"},
         }
         
         matches = []
@@ -338,6 +352,24 @@ class OBARosterScraper:
             name_keywords.append('london')
         if 'windsor' in clean_name:
             name_keywords.append('windsor')
+        if 'lakeshore' in clean_name:
+            name_keywords.append('lakeshore')
+        if 'newmarket' in clean_name:
+            name_keywords.append('newmarket')
+        if 'hawks' in clean_name:
+            name_keywords.append('hawks')
+        if 'whitecaps' in clean_name:
+            name_keywords.append('whitecaps')
+        if 'lightning' in clean_name:
+            name_keywords.append('lightning')
+        if 'chatham' in clean_name:
+            name_keywords.append('chatham')
+        if 'leamington' in clean_name:
+            name_keywords.append('leamington')
+        if 'tecumseh' in clean_name:
+            name_keywords.append('tecumseh')
+        if 'amherstburg' in clean_name:
+            name_keywords.append('amherstburg')
         if 'soo' in clean_name:
             name_keywords.append('soo')
         
