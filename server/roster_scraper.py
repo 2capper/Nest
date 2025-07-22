@@ -312,28 +312,51 @@ class OBARosterScraper:
         
         return None
     
-    def transform_team_name_for_oba(self, team_name: str, division: str) -> str:
-        """Transform our team name format to match OBA format"""
-        # Our format: "Forest Glade Falcons - 11U Rep"
-        # OBA format: "11U HS Forest Glade"
+    def generate_team_name_variations(self, team_name: str, division: str) -> List[str]:
+        """Generate multiple variations of team name to improve matching"""
+        variations = []
         
-        # Extract the base team name (before the dash)
+        # Add original name
+        variations.append(team_name)
+        
+        # Extract base team name (before the dash if exists)
         base_name = team_name.split(' - ')[0]
+        variations.append(base_name)
         
-        # Remove common suffixes like "Falcons", "Eagles", etc if they exist
-        common_suffixes = ['Falcons', 'Eagles', 'Knights', 'Warriors', 'Tigers', 'Hawks']
+        # Remove common suffixes
+        common_suffixes = ['Falcons', 'Eagles', 'Knights', 'Warriors', 'Tigers', 'Hawks', 'Cardinals', 'Blue Jays', 'Cubs']
+        clean_name = base_name
         for suffix in common_suffixes:
-            if base_name.endswith(' ' + suffix):
-                base_name = base_name[:-len(' ' + suffix)]
+            if clean_name.endswith(' ' + suffix):
+                clean_name = clean_name[:-len(' ' + suffix)]
+                variations.append(clean_name)
+                break
         
-        # For 11U and 13U divisions, OBA uses "11U HS" or "13U HS" format
-        if "11U" in division:
-            return f"11U HS {base_name}"
-        elif "13U" in division:
-            return f"13U HS {base_name}"
-        else:
-            # For other divisions, just return the base name
-            return base_name
+        # Common OBA formats
+        if "11U" in division or "13U" in division:
+            # Format: "11U HS Team Name"
+            variations.append(f"{division} HS {clean_name}")
+            variations.append(f"{division} {clean_name}")
+            
+            # Format: "Team Name 11U HS"
+            variations.append(f"{clean_name} {division} HS")
+            variations.append(f"{clean_name} {division}")
+            
+            # Format: "11U Team Name"
+            variations.append(f"{division} {clean_name}")
+            
+            # Just the location name
+            variations.append(clean_name)
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_variations = []
+        for v in variations:
+            if v not in seen:
+                seen.add(v)
+                unique_variations.append(v)
+        
+        return unique_variations
 
     def get_roster_with_fuzzy_match(self, affiliate: str, season: str, division: str, team_name: str) -> Dict:
         """Main method to get roster with fuzzy team name matching"""
@@ -346,30 +369,27 @@ class OBARosterScraper:
                 'error': 'Could not retrieve teams for this division'
             }
         
-        # Transform the team name to match OBA format
-        transformed_name = self.transform_team_name_for_oba(team_name, division)
+        # Generate multiple variations of the team name for better matching
+        name_variations = self.generate_team_name_variations(team_name, division)
         
-        # Find the best match using both original and transformed names
-        original_match = self.find_best_team_match(teams, team_name)
-        transformed_match = self.find_best_team_match(teams, transformed_name)
+        # Find the best match across all variations
+        best_match = None
+        best_search_term = team_name
         
-        # Use the better match
-        match_result = None
-        search_term = team_name
-        if transformed_match and (not original_match or transformed_match[2] > original_match[2]):
-            match_result = transformed_match
-            search_term = transformed_name
-        elif original_match:
-            match_result = original_match
+        for variation in name_variations:
+            match = self.find_best_team_match(teams, variation)
+            if match and (not best_match or match[2] > best_match[2]):
+                best_match = match
+                best_search_term = variation
         
-        if not match_result:
+        if not best_match:
             return {
                 'success': False,
                 'error': 'No matching team found',
                 'available_teams': list(teams.keys())
             }
         
-        matched_name, team_url, confidence = match_result
+        matched_name, team_url, confidence = best_match
         
         # Return match for confirmation
         return {
@@ -378,7 +398,7 @@ class OBARosterScraper:
             'matched_team': matched_name,
             'confidence': confidence,
             'team_url': team_url,
-            'search_term': search_term
+            'search_term': best_search_term
         }
     
     def confirm_and_get_roster(self, team_url: str) -> Dict:
