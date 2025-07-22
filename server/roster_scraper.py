@@ -10,8 +10,8 @@ import urllib.parse
 
 class OBARosterScraper:
     def __init__(self):
-        self.base_url = "https://playoba.ca/stats"
-        self.teams_url = "https://playoba.ca/stats/teams"
+        self.base_url = "https://www.playoba.ca/stats"
+        self.teams_url = "https://www.playoba.ca/stats/teams"
         self.cache_duration_hours = 24
         self.init_database()
     
@@ -125,7 +125,12 @@ class OBARosterScraper:
                     "Forest Glade Falcons - 11U Rep": f"{self.base_url}/forest-glade-falcons-11u",
                     "Kingsville Kings - 11U": f"{self.base_url}/kingsville-kings-11u",
                     "Ottawa Petro Canada - 11U": f"{self.base_url}/ottawa-petro-canada-11u",
-                    "Pickering - 11U": f"{self.base_url}/pickering-11u"
+                    "Pickering - 11U": f"{self.base_url}/pickering-11u",
+                    "Niagara Falls Falcons - 11U": f"{self.base_url}/niagara-falls-falcons-11u",
+                    "Chatham-Kent Capitals - 11U": f"{self.base_url}/chatham-kent-capitals-11u",
+                    "Mississauga Blue Jays - 11U": f"{self.base_url}/mississauga-blue-jays-11u",
+                    "The Park 9 Orioles - 11U": f"{self.base_url}/park-9-orioles-11u",
+                    "Guelph Giants - 11U": f"{self.base_url}/guelph-giants-11u"
                 }
             elif "13U" in division:
                 teams = {
@@ -133,7 +138,12 @@ class OBARosterScraper:
                     "Etobicoke Rangers - 13U": f"{self.base_url}/etobicoke-rangers-13u",
                     "Forest Glade Falcons - 13U Rep": f"{self.base_url}/forest-glade-falcons-13u",
                     "Milton Mets - 13U": f"{self.base_url}/milton-mets-13u",
-                    "Mississauga Twins - 13U": f"{self.base_url}/mississauga-twins-13u"
+                    "Mississauga Twins - 13U": f"{self.base_url}/mississauga-twins-13u",
+                    "East Mountain Cobras - 13U": f"{self.base_url}/east-mountain-cobras-13u",
+                    "Toronto Blues - 13U": f"{self.base_url}/toronto-blues-13u",
+                    "London Tecumsehs - 13U": f"{self.base_url}/london-tecumsehs-13u",
+                    "Ottawa Valley Crushers - 13U": f"{self.base_url}/ottawa-valley-crushers-13u",
+                    "Burlington Bulls - 13U": f"{self.base_url}/burlington-bulls-13u"
                 }
             else:
                 teams = {
