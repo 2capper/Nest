@@ -121,18 +121,19 @@ class OBARosterScraper:
         # This allows testing the fuzzy matching functionality
         if not teams:
             # Map division names to appropriate test teams with actual OBA URL structure
+            # Using actual OBA team naming format: "11U HS Team Name"
             if "11U" in division:
                 teams = {
-                    "Belle River Lakeshore Whitecaps - 11U": f"{self.base_url}#/2111/team/500719/roster",
-                    "Forest Glade Falcons - 11U Rep": f"{self.base_url}#/2111/team/500718/roster",
-                    "Kingsville Kings - 11U": f"{self.base_url}#/2111/team/500720/roster",
-                    "Ottawa Petro Canada - 11U": f"{self.base_url}#/2111/team/500721/roster",
-                    "Pickering - 11U": f"{self.base_url}#/2111/team/500722/roster",
-                    "Niagara Falls Falcons - 11U": f"{self.base_url}#/2111/team/500723/roster",
-                    "Chatham-Kent Capitals - 11U": f"{self.base_url}#/2111/team/500724/roster",
-                    "Mississauga Blue Jays - 11U": f"{self.base_url}#/2111/team/500725/roster",
-                    "The Park 9 Orioles - 11U": f"{self.base_url}#/2111/team/500726/roster",
-                    "Guelph Giants - 11U": f"{self.base_url}#/2111/team/500727/roster"
+                    "11U HS Belle River": f"{self.base_url}#/2111/team/500719/roster",
+                    "11U HS Forest Glade": f"{self.base_url}#/2111/team/500718/roster",
+                    "11U HS Kingsville": f"{self.base_url}#/2111/team/500720/roster",
+                    "11U HS Ottawa Petro Canada": f"{self.base_url}#/2111/team/500721/roster",
+                    "11U HS Pickering": f"{self.base_url}#/2111/team/500722/roster",
+                    "11U HS Niagara Falls": f"{self.base_url}#/2111/team/500723/roster",
+                    "11U HS Chatham-Kent": f"{self.base_url}#/2111/team/500724/roster",
+                    "11U HS Mississauga": f"{self.base_url}#/2111/team/500725/roster",
+                    "11U HS The Park 9": f"{self.base_url}#/2111/team/500726/roster",
+                    "11U HS Guelph": f"{self.base_url}#/2111/team/500727/roster"
                 }
             elif "13U" in division:
                 teams = {
@@ -296,6 +297,29 @@ class OBARosterScraper:
         
         return None
     
+    def transform_team_name_for_oba(self, team_name: str, division: str) -> str:
+        """Transform our team name format to match OBA format"""
+        # Our format: "Forest Glade Falcons - 11U Rep"
+        # OBA format: "11U HS Forest Glade"
+        
+        # Extract the base team name (before the dash)
+        base_name = team_name.split(' - ')[0]
+        
+        # Remove common suffixes like "Falcons", "Eagles", etc if they exist
+        common_suffixes = ['Falcons', 'Eagles', 'Knights', 'Warriors', 'Tigers', 'Hawks']
+        for suffix in common_suffixes:
+            if base_name.endswith(' ' + suffix):
+                base_name = base_name[:-len(' ' + suffix)]
+        
+        # For 11U and 13U divisions, OBA uses "11U HS" or "13U HS" format
+        if "11U" in division:
+            return f"11U HS {base_name}"
+        elif "13U" in division:
+            return f"13U HS {base_name}"
+        else:
+            # For other divisions, just return the base name
+            return base_name
+
     def get_roster_with_fuzzy_match(self, affiliate: str, season: str, division: str, team_name: str) -> Dict:
         """Main method to get roster with fuzzy team name matching"""
         # Get all teams in the division
@@ -307,8 +331,21 @@ class OBARosterScraper:
                 'error': 'Could not retrieve teams for this division'
             }
         
-        # Find the best match
-        match_result = self.find_best_team_match(teams, team_name)
+        # Transform the team name to match OBA format
+        transformed_name = self.transform_team_name_for_oba(team_name, division)
+        
+        # Find the best match using both original and transformed names
+        original_match = self.find_best_team_match(teams, team_name)
+        transformed_match = self.find_best_team_match(teams, transformed_name)
+        
+        # Use the better match
+        match_result = None
+        search_term = team_name
+        if transformed_match and (not original_match or transformed_match[2] > original_match[2]):
+            match_result = transformed_match
+            search_term = transformed_name
+        elif original_match:
+            match_result = original_match
         
         if not match_result:
             return {
@@ -326,7 +363,7 @@ class OBARosterScraper:
             'matched_team': matched_name,
             'confidence': confidence,
             'team_url': team_url,
-            'search_term': team_name
+            'search_term': search_term
         }
     
     def confirm_and_get_roster(self, team_url: str) -> Dict:
