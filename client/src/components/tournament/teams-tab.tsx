@@ -260,25 +260,32 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
               <TableCell>{team.coach || 'Not specified'}</TableCell>
               <TableCell>{team.phone || 'Not specified'}</TableCell>
               <TableCell>
-                {team.rosterLink ? (
-                  <a 
-                    href={team.rosterLink} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-[var(--falcons-green)] hover:text-[var(--falcons-dark-green)] inline-flex items-center gap-1"
-                  >
-                    View <ExternalLink className="w-3 h-3" />
-                  </a>
-                ) : (
-                  <a 
-                    href={generateRosterLink(team.name)} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-[var(--falcons-green)] hover:text-[var(--falcons-dark-green)] inline-flex items-center gap-1"
-                  >
-                    View <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
+                <div className="flex items-center gap-2">
+                  {team.rosterLink ? (
+                    <a 
+                      href={team.rosterLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-[var(--falcons-green)] hover:text-[var(--falcons-dark-green)] inline-flex items-center gap-1"
+                    >
+                      View <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ) : (
+                    <a 
+                      href={generateRosterLink(team.name)} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-[var(--falcons-green)] hover:text-[var(--falcons-dark-green)] inline-flex items-center gap-1"
+                    >
+                      View <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                  {team.rosterData && (
+                    <span className="text-sm text-gray-600">
+                      ({JSON.parse(team.rosterData).length} players)
+                    </span>
+                  )}
+                </div>
               </TableCell>
               <TableCell>{team.pitchCountAppName || 'Not specified'}</TableCell>
               <TableCell>{team.pitchCountName || 'Not specified'}</TableCell>

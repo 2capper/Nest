@@ -49,6 +49,7 @@ export const teams = pgTable("teams", {
   pitchCountAppName: text("pitch_count_app_name"),
   pitchCountName: text("pitch_count_name"),
   gameChangerName: text("game_changer_name"),
+  rosterData: text("roster_data"), // JSON string of roster players
 });
 
 export const games = pgTable("games", {
