@@ -460,19 +460,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         try {
+          console.log("Python script output:", result);
           const data = JSON.parse(result);
+          console.log("Parsed data:", data);
+          
           if (data.success && data.roster) {
-            // Update team with roster link
-            const team = await storage.updateTeam(teamId, {
-              rosterLink: teamUrl,
-              rosterData: JSON.stringify(data.roster.players)
-            });
-            res.json({ success: true, team, roster: data.roster });
+            // Ensure we have players data
+            const players = data.roster.players || [];
+            console.log(`Found ${players.length} players`);
+            
+            // Update team with roster link and data
+            const updateData: any = {};
+            if (teamUrl) {
+              updateData.rosterLink = teamUrl;
+            }
+            if (players.length > 0) {
+              updateData.rosterData = JSON.stringify(players);
+            }
+            
+            console.log("Update data:", updateData);
+            
+            if (Object.keys(updateData).length > 0) {
+              const team = await storage.updateTeam(teamId, updateData);
+              res.json({ 
+                success: true, 
+                team, 
+                roster: data.roster,
+                player_count: players.length 
+              });
+            } else {
+              res.status(400).json({ error: "No data to update" });
+            }
           } else {
             res.status(400).json({ error: data.error || "Failed to import roster" });
           }
         } catch (e) {
           console.error("Failed to parse result:", e);
+          console.error("Raw result:", result);
           res.status(500).json({ error: "Failed to process import results" });
         }
       });
