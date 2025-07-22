@@ -271,8 +271,31 @@ class OBARosterScraper:
             team_links = soup.find_all('a', href=True)
             
             for link in team_links:
-                href = link.get('href', '')
-                team_name = link.get_text(strip=True)
+                # BeautifulSoup elements - handle different element types safely
+                try:
+                    # Handle BeautifulSoup Tag elements safely
+                    href = ''
+                    team_name = ''
+                    
+                    # Check if it's a BeautifulSoup Tag element with attrs
+                    link_attrs = getattr(link, 'attrs', None)
+                    if link_attrs and isinstance(link_attrs, dict):
+                        href = str(link_attrs.get('href', ''))
+                    
+                    # Get text content safely
+                    if hasattr(link, 'get_text') and callable(getattr(link, 'get_text')):
+                        team_name = str(link.get_text(strip=True))
+                    else:
+                        team_name = str(link).strip()
+                        
+                except Exception:
+                    # Fallback for any unexpected element types
+                    href = ''
+                    team_name = str(link)
+                
+                # Ensure href and team_name are strings
+                href = str(href) if href else ''
+                team_name = str(team_name) if team_name else ''
                 
                 # Filter by division and affiliate if they appear in the team name or URL
                 division_code = division_map.get(division, division)

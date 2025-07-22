@@ -244,7 +244,7 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
 
     try {
       const response = await apiRequest('POST', `/api/teams/${importingRosterTeam.id}/roster/import`, {
-        team_url: obaTeamUrl
+        teamUrl: obaTeamUrl
       });
 
       const result = await response.json();
