@@ -285,6 +285,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Scan team ID range endpoint
+  app.post("/api/roster/scan-range", requireAdmin, async (req, res) => {
+    const { startId, endId, batchSize = 10 } = req.body;
+    
+    if (!startId || !endId) {
+      return res.status(400).json({ error: "Missing startId or endId" });
+    }
+    
+    try {
+      const { spawn } = await import("child_process");
+      
+      const python = spawn("python", [
+        "server/roster_scraper.py",
+        "scan_range",
+        startId.toString(),
+        endId.toString(),
+        batchSize.toString()
+      ]);
+      
+      let result = "";
+      let error = "";
+      
+      python.stdout.on("data", (data) => {
+        result += data.toString();
+      });
+      
+      python.stderr.on("data", (data) => {
+        error += data.toString();
+      });
+      
+      python.on("close", (code) => {
+        if (code !== 0) {
+          console.error("Python script error:", error);
+          return res.status(500).json({ error: "Failed to scan team IDs" });
+        }
+        
+        try {
+          const data = JSON.parse(result);
+          res.json(data);
+        } catch (e) {
+          console.error("Failed to parse scan result:", e);
+          res.status(500).json({ error: "Failed to process scan results" });
+        }
+      });
+    } catch (error) {
+      console.error("Error scanning team IDs:", error);
+      res.status(500).json({ error: "Failed to scan team IDs" });
+    }
+  });
+
   // Direct team ID import endpoint
   app.post("/api/teams/:id/roster/import-by-team-id", requireAdmin, async (req, res) => {
     const { teamId, obaTeamId } = req.body;

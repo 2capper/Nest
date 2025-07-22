@@ -11,6 +11,7 @@ import { TournamentCreationForm } from '@/components/tournament/tournament-creat
 import { TournamentManager } from '@/components/tournament/tournament-manager';
 import { GameResultEditor } from '@/components/tournament/game-result-editor';
 import { CSVReimportTool } from '@/components/tournament/csv-reimport-tool';
+import { TeamIdScanner } from '@/components/tournament/team-id-scanner';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -235,10 +236,11 @@ export default function AdminPortal() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-forest">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 h-auto">
+          <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full gap-1 h-auto">
             <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
             <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>
             <TabsTrigger value="games" className="text-xs md:text-sm py-2">Edit Games</TabsTrigger>
+            <TabsTrigger value="scanner" className="text-xs md:text-sm py-2">Team Scanner</TabsTrigger>
             <TabsTrigger value="reports" className="text-xs md:text-sm py-2">Reports</TabsTrigger>
           </TabsList>
           
@@ -291,6 +293,10 @@ export default function AdminPortal() {
               teams={teams}
               tournamentId={currentTournamentId}
             />
+          </TabsContent>
+          
+          <TabsContent value="scanner" className="mt-6">
+            <TeamIdScanner />
           </TabsContent>
           
           <TabsContent value="manage" className="mt-6">
