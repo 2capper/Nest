@@ -345,17 +345,7 @@ export const TeamsTab = ({ teams, pools, ageDivisions }: TeamsTabProps) => {
                 placeholder="https://playoba.ca/stats/team-name"
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="pitchCountAppName" className="text-right">
-                Pitch Count App
-              </Label>
-              <Input
-                id="pitchCountAppName"
-                value={formData.pitchCountAppName}
-                onChange={(e) => setFormData({ ...formData, pitchCountAppName: e.target.value })}
-                className="col-span-3"
-              />
-            </div>
+            
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="pitchCountName" className="text-right">
                 Pitch Count Name
