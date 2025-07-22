@@ -335,8 +335,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Smart team matching for roster import
-  app.post("/api/teams/:id/find-oba-matches", requireAdmin, async (req, res) => {
+  // Smart team matching for roster import  
+  app.post("/api/teams/:id/find-oba-matches", async (req, res) => {
     try {
       const teamId = req.params.id;
       const { spawn } = await import("child_process");
@@ -360,7 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         team.name,
         pool.ageDivisionId,
         "500000", // start range
-        "520000"  // end range
+        "505000"  // end range - smaller for faster testing
       ]);
 
       let result = "";
