@@ -49,6 +49,27 @@ def get_authentic_roster_data(team_id):
                 {"number": "17", "name": "Ryder Hebert"}
             ]
         },
+        "500726": {
+            "team_name": "18U HS Forest Glade",
+            "players": [
+                {"number": "44", "name": "Aaron Barta"},
+                {"number": "24", "name": "Benjamin Cayea"},
+                {"number": "92", "name": "Cooper Sholomiski"},
+                {"number": "14", "name": "Daxin Hankewitz"},
+                {"number": "31", "name": "Dylan Mayzik"},
+                {"number": "10", "name": "Ethan Mayzik"},
+                {"number": "11", "name": "Hayden Davies"},
+                {"number": "8", "name": "James Parker"},
+                {"number": "31", "name": "Jaxon Heron"},
+                {"number": "9", "name": "Kamiya Davis"},
+                {"number": "21", "name": "Kelton Mayea-Montague"},
+                {"number": "41", "name": "Lane Taylor"},
+                {"number": "34", "name": "Parker Cote"},
+                {"number": "40", "name": "Patrick Donnelly"},
+                {"number": "28", "name": "Reese Bondy"},
+                {"number": "2", "name": "Xavier McGraw"}
+            ]
+        },
         # Team 500802 is actually 9U A Lakeshore (not Forest Glade 13U as previously thought)
         "500802": {
             "team_name": "9U A Lakeshore",
