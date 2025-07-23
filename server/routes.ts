@@ -778,7 +778,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Call Python scraper to get authentic roster data
       const { spawn } = await import("child_process");
       const python = spawn("python", [
-        "server/roster_scraper.py",
+        "server/real_oba_scraper.py",
         "import",
         finalUrl
       ]);
