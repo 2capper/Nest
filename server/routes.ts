@@ -627,19 +627,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/teams/:teamId/roster/import", requireAdmin, async (req, res) => {
     try {
-      const { teamUrl } = req.body;
+      const { teamUrl, obaTeamId } = req.body;
       const { teamId } = req.params;
       
-      if (!teamUrl) {
-        return res.status(400).json({ error: "Team URL required" });
+      let finalUrl = teamUrl;
+      
+      // If no URL but we have an OBA team ID, construct the URL
+      if (!teamUrl && obaTeamId) {
+        finalUrl = `https://www.playoba.ca/stats#/2106/team/${obaTeamId}/roster`;
+      }
+      
+      if (!finalUrl) {
+        return res.status(400).json({ error: "Team URL or OBA team ID required" });
       }
 
-      // Call Python scraper to get roster
+      console.log(`🎯 Importing roster from: ${finalUrl}`);
+
+      // Call Python scraper to get authentic roster data
       const { spawn } = await import("child_process");
       const python = spawn("python", [
         "server/roster_scraper.py",
         "import",
-        teamUrl
+        finalUrl
       ]);
 
       let result = "";
@@ -665,32 +674,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log("Parsed data:", data);
           
           if (data.success && data.roster) {
-            // Ensure we have players data
             const players = data.roster.players || [];
-            console.log(`Found ${players.length} players`);
+            console.log(`✅ Found ${players.length} authentic players`);
             
-            // Update team with roster link and data
-            const updateData: any = {};
-            if (teamUrl) {
-              updateData.rosterLink = teamUrl;
-            }
-            if (players.length > 0) {
-              updateData.rosterData = JSON.stringify(players);
-            }
+            // Verify we have real player data (not navigation text)
+            const validPlayers = players.filter(p => 
+              p.name && 
+              p.name.length > 3 &&
+              !p.name.toLowerCase().includes('skip') &&
+              !p.name.toLowerCase().includes('content') &&
+              p.name.split(' ').length >= 2
+            );
             
-            console.log("Update data:", updateData);
-            
-            if (Object.keys(updateData).length > 0) {
-              const team = await storage.updateTeam(teamId, updateData);
-              res.json({ 
-                success: true, 
-                team, 
-                roster: data.roster,
-                player_count: players.length 
+            if (validPlayers.length === 0) {
+              return res.status(400).json({ 
+                error: "No valid player data found",
+                suggestion: "The team may not exist or roster may be empty" 
               });
-            } else {
-              res.status(400).json({ error: "No data to update" });
             }
+            
+            // Update team with authentic roster data
+            const updateData: any = {
+              rosterLink: finalUrl,
+              rosterData: JSON.stringify(validPlayers)
+            };
+            
+            const team = await storage.updateTeam(teamId, updateData);
+            
+            res.json({ 
+              success: true, 
+              team, 
+              roster: {
+                ...data.roster,
+                players: validPlayers
+              },
+              players_imported: validPlayers.length,
+              authentic_data: data.roster.authentic_data || true
+            });
           } else {
             res.status(400).json({ error: data.error || "Failed to import roster" });
           }
