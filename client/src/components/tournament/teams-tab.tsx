@@ -20,7 +20,9 @@ interface Team {
 }
 
 interface TeamsTabProps {
-  tournamentId: string;
+  teams: Team[];
+  pools: any[];
+  ageDivisions: any[];
 }
 
 interface RosterImportProps {
@@ -247,26 +249,17 @@ function RosterImport({ team, onSuccess }: RosterImportProps) {
   );
 }
 
-export function TeamsTab({ tournamentId }: TeamsTabProps) {
+export function TeamsTab({ teams, pools, ageDivisions }: TeamsTabProps) {
   const [divisionFilter, setDivisionFilter] = useState<string>('all');
   const queryClient = useQueryClient();
-  
-  const { data: teams = [], isLoading } = useQuery({
-    queryKey: [`/api/tournaments/${tournamentId}/teams`],
-    enabled: !!tournamentId
-  });
-
-  const { data: divisions = [] } = useQuery({
-    queryKey: [`/api/tournaments/${tournamentId}/age-divisions`],
-    enabled: !!tournamentId
-  });
 
   const filteredTeams = divisionFilter === 'all' 
     ? teams 
     : teams.filter((team: Team) => team.division === divisionFilter);
 
   const handleRosterImportSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: [`/api/tournaments/${tournamentId}/teams`] });
+    // Refresh teams data by invalidating the tournament data hook queries
+    queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
   };
 
   const getRosterStatus = (team: Team) => {
@@ -281,11 +274,9 @@ export function TeamsTab({ tournamentId }: TeamsTabProps) {
     return "No roster";
   };
 
-  if (isLoading) {
-    return <div className="flex items-center justify-center h-32">Loading teams...</div>;
-  }
-
   console.log('Teams data:', teams);
+  console.log('Teams length:', teams.length);
+  console.log('Age divisions:', ageDivisions);
 
   return (
     <div className="space-y-4">
@@ -299,7 +290,7 @@ export function TeamsTab({ tournamentId }: TeamsTabProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Divisions</SelectItem>
-              {divisions.map((division: any) => (
+              {ageDivisions.map((division: any) => (
                 <SelectItem key={division.id} value={division.id}>
                   {division.name}
                 </SelectItem>
