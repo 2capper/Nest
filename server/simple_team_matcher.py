@@ -70,7 +70,7 @@ def calculate_similarity(search_name, team_name):
     jaccard = len(common_words) / total_words
     
     # Additional boost for key terms
-    key_terms = ['falcons', 'turtle', 'nationals', 'cardinals', 'eagles', 'hawks']
+    key_terms = ['falcons', 'turtle', 'nationals', 'cardinals', 'eagles', 'hawks', 'tincaps']
     for term in key_terms:
         if term in search_normalized and term in team_normalized:
             jaccard += 0.3
