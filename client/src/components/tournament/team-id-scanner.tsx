@@ -32,6 +32,7 @@ export function TeamIdScanner() {
   const [endId, setEndId] = useState("501000");
   const [batchSize, setBatchSize] = useState("100");
   const [scanning, setScanning] = useState(false);
+  const [cobaScanning, setCobaScanning] = useState(false);
   const [discoveredTeams, setDiscoveredTeams] = useState<DiscoveredTeam[]>([]);
   const [currentRange, setCurrentRange] = useState("");
   const [progress, setProgress] = useState(0);
@@ -72,7 +73,7 @@ export function TeamIdScanner() {
       }
 
       toast({
-        title: "Scan Complete",
+        title: "OBA Range Scan Complete",
         description: `Found ${discoveredTeams.length} teams`,
       });
     } catch (error) {
@@ -84,6 +85,42 @@ export function TeamIdScanner() {
     } finally {
       setScanning(false);
       setCurrentRange("");
+    }
+  };
+
+  const handleCobaScan = async () => {
+    setCobaScanning(true);
+    setProgress(0);
+    setCurrentRange("COBA Teams");
+
+    try {
+      const response = await apiRequest('POST', '/api/roster/scan-coba');
+      const result = await response.json();
+
+      if (result.success) {
+        setProgress(100);
+        toast({
+          title: "COBA Scan Complete",
+          description: `Successfully processed ${result.teams_found} COBA teams, ${result.teams_saved} saved to database`,
+        });
+        
+        // Optionally add the teams to the discovered teams list if available
+        if (result.teams) {
+          setDiscoveredTeams(prev => [...prev, ...result.teams]);
+        }
+      } else {
+        throw new Error(result.error || "Failed to scan COBA teams");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to scan COBA teams",
+        variant: "destructive",
+      });
+    } finally {
+      setCobaScanning(false);
+      setCurrentRange("");
+      setProgress(0);
     }
   };
 
@@ -115,9 +152,9 @@ export function TeamIdScanner() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>OBA Team ID Scanner</CardTitle>
+        <CardTitle>Team Discovery Scanner</CardTitle>
         <CardDescription>
-          Scan the OBA website to discover all participating teams across Ontario. This will probe team IDs to find active teams and their roster information. Use this to build a comprehensive database of available teams for roster imports.
+          Discover participating teams across Ontario from multiple sources. Use OBA Range Scan to probe team IDs (500000-520000) or COBA Teams Scan to import all Central Ontario Baseball Association teams. This builds a comprehensive database for accurate roster imports.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -160,10 +197,10 @@ export function TeamIdScanner() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
           <Button
             onClick={handleScan}
-            disabled={scanning}
+            disabled={scanning || cobaScanning}
             className="flex items-center gap-2"
           >
             {scanning ? (
@@ -174,7 +211,26 @@ export function TeamIdScanner() {
             ) : (
               <>
                 <Search className="h-4 w-4" />
-                Start Scan
+                Start OBA Range Scan
+              </>
+            )}
+          </Button>
+
+          <Button
+            onClick={handleCobaScan}
+            disabled={scanning || cobaScanning}
+            variant="secondary"
+            className="flex items-center gap-2"
+          >
+            {cobaScanning ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Scanning COBA Teams...
+              </>
+            ) : (
+              <>
+                <Search className="h-4 w-4" />
+                Scan COBA Teams
               </>
             )}
           </Button>

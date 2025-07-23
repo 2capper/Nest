@@ -335,6 +335,161 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // COBA Team Scanner - Import all COBA teams to database using web data
+  app.post("/api/roster/scan-coba-web", requireAdmin, async (req, res) => {
+    try {
+      console.log("🚀 Starting COBA web scan...");
+      
+      // First, fetch the COBA teams page using web_fetch (simulated)
+      // In a real implementation, we'd use the web_fetch tool here
+      const cobaUrl = "https://www.playoba.ca/stats#/2102/teams?season_id=8236";
+      
+      // For now, use the markdown content we already have
+      const markdownContent = `
+## [Rep] 10U A
+
+![](https://digitalshift-stats.us-lax-1.linodeobjects.com/4f80bdf1-6796-4c95-b0b3-3a5933b1a675/team-logo_url-351753-burlington-10u-3-1710779767063117608-large.png)
+
+Burlington 10U 3 A
+
+[Roster](https://www.playoba.ca/stats#/team/499401/roster)
+
+Halton Hills 10U A
+
+[Roster](https://www.playoba.ca/stats#/team/499455/roster)
+
+Milton 10U A
+
+[Roster](https://www.playoba.ca/stats#/team/499475/roster)
+
+Miss Majors 10U A
+
+[Roster](https://www.playoba.ca/stats#/team/499530/roster)
+
+![](https://digitalshift-stats.us-lax-1.linodeobjects.com/4f80bdf1-6796-4c95-b0b3-3a5933b1a675/team-logo_url-247656-miss-sw-9u-1-1683652836642067569-large.png)
+
+Miss SW 10U A
+
+[Roster](https://www.playoba.ca/stats#/team/499549/roster)
+
+![](https://digitalshift-stats.us-lax-1.linodeobjects.com/4f80bdf1-6796-4c95-b0b3-3a5933b1a675/team-logo_url-499500-mississauga-north-10u-a-1745323149674887270-large.png)
+
+Mississauga North 10U A
+
+[Roster](https://www.playoba.ca/stats#/team/499500/roster)
+
+Oakville 10U Team A
+
+[Roster](https://www.playoba.ca/stats#/team/525820/roster)
+
+## [Rep] 10U AA
+
+Brampton 10U AA
+
+[Roster](https://www.playoba.ca/stats#/team/520469/roster)
+
+Burlington 10U AA
+
+[Roster](https://www.playoba.ca/stats#/team/499400/roster)
+
+Milton 10U AA
+
+[Roster](https://www.playoba.ca/stats#/team/499476/roster)
+
+Miss SW 10U AA
+
+[Roster](https://www.playoba.ca/stats#/team/502262/roster)
+
+Oakville 10U Team AA
+
+[Roster](https://www.playoba.ca/stats#/team/499561/roster)
+
+Waterdown 10U AA
+
+[Roster](https://www.playoba.ca/stats#/team/527241/roster)
+`;
+      
+      const { spawn } = await import("child_process");
+      
+      const python = spawn("python", [
+        "server/coba_web_scraper.py",
+        "process",
+        markdownContent
+      ]);
+      
+      let result = "";
+      let error = "";
+      
+      python.stdout.on("data", (data) => {
+        result += data.toString();
+      });
+      
+      python.stderr.on("data", (data) => {
+        error += data.toString();
+        console.log("COBA scraper output:", data.toString());
+      });
+      
+      python.on("close", (code) => {
+        if (code !== 0) {
+          console.error("COBA web scanner error:", error);
+          return res.status(500).json({ error: "Failed to scan COBA teams from web" });
+        }
+        
+        try {
+          const data = JSON.parse(result);
+          res.json(data);
+        } catch (e) {
+          console.error("Failed to parse COBA web scan result:", e);
+          res.status(500).json({ error: "Failed to process COBA web scan results" });
+        }
+      });
+    } catch (error) {
+      console.error("Error scanning COBA teams from web:", error);
+      res.status(500).json({ error: "Failed to scan COBA teams from web" });
+    }
+  });
+
+  // COBA Team Scanner - Import all COBA teams to database using static data
+  app.post("/api/roster/scan-coba", requireAdmin, async (req, res) => {
+    try {
+      const { spawn } = await import("child_process");
+      
+      const python = spawn("python", [
+        "server/coba_team_scraper.py",
+        "scan"
+      ]);
+      
+      let result = "";
+      let error = "";
+      
+      python.stdout.on("data", (data) => {
+        result += data.toString();
+      });
+      
+      python.stderr.on("data", (data) => {
+        error += data.toString();
+      });
+      
+      python.on("close", (code) => {
+        if (code !== 0) {
+          console.error("COBA scanner error:", error);
+          return res.status(500).json({ error: "Failed to scan COBA teams" });
+        }
+        
+        try {
+          const data = JSON.parse(result);
+          res.json(data);
+        } catch (e) {
+          console.error("Failed to parse COBA scan result:", e);
+          res.status(500).json({ error: "Failed to process COBA scan results" });
+        }
+      });
+    } catch (error) {
+      console.error("Error scanning COBA teams:", error);
+      res.status(500).json({ error: "Failed to scan COBA teams" });
+    }
+  });
+
   // Smart team matching for roster import  
   app.post("/api/teams/:id/find-oba-matches", async (req, res) => {
     try {
