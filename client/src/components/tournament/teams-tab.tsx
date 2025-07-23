@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, CheckCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Download, CheckCircle, Users, ExternalLink } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -10,20 +14,29 @@ interface Team {
   id: string;
   name: string;
   division: string;
+  rosterLink?: string;
+  rosterData?: string;
+  pitchCountAppName?: string;
+  pitchCountName?: string;
+  gameChangerName?: string;
 }
 
-interface QuickRosterImportProps {
+interface TeamsTabProps {
+  tournamentId: string;
+}
+
+interface RosterImportProps {
   team: Team;
   onSuccess: () => void;
 }
 
-export function QuickRosterImport({ team, onSuccess }: QuickRosterImportProps) {
+function RosterImport({ team, onSuccess }: RosterImportProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('');
   const [isImporting, setIsImporting] = useState(false);
   const { toast } = useToast();
 
-  // Verified authentic OBA teams with real player data
+  // Verified OBA teams with authentic player data
   const verifiedOBATeams = [
     {
       id: '499919',
@@ -59,7 +72,7 @@ export function QuickRosterImport({ team, onSuccess }: QuickRosterImportProps) {
     }
   ];
 
-  // Filter teams by division if possible
+  // Filter by division
   const relevantTeams = verifiedOBATeams.filter(obaTeam => 
     !team.division || obaTeam.division === team.division
   );
@@ -77,23 +90,28 @@ export function QuickRosterImport({ team, onSuccess }: QuickRosterImportProps) {
     setIsImporting(true);
     
     try {
-      const response = await apiRequest(`/api/teams/${team.id}/roster/import`, {
+      const response = await fetch(`/api/teams/${team.id}/roster/import`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           obaTeamId: selectedTeam
         })
       });
 
-      if (response.success) {
+      const data = await response.json();
+
+      if (data.success) {
         toast({
           title: "Roster Imported Successfully",
-          description: `Imported ${response.players_imported} authentic players from OBA`,
+          description: `Imported ${data.players_imported} authentic players from OBA`,
         });
         
         setIsOpen(false);
         onSuccess();
       } else {
-        throw new Error(response.error || 'Import failed');
+        throw new Error(data.error || 'Import failed');
       }
     } catch (error) {
       console.error('Roster import error:', error);
@@ -114,7 +132,7 @@ export function QuickRosterImport({ team, onSuccess }: QuickRosterImportProps) {
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
           <Download className="w-4 h-4 mr-2" />
-          Import Authentic Roster
+          Import Roster
         </Button>
       </DialogTrigger>
       
@@ -199,5 +217,126 @@ export function QuickRosterImport({ team, onSuccess }: QuickRosterImportProps) {
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function TeamsTab({ tournamentId }: TeamsTabProps) {
+  const [divisionFilter, setDivisionFilter] = useState<string>('all');
+  const queryClient = useQueryClient();
+  
+  const { data: teams = [], isLoading } = useQuery({
+    queryKey: [`/api/tournaments/${tournamentId}/teams`],
+    enabled: !!tournamentId
+  });
+
+  const { data: divisions = [] } = useQuery({
+    queryKey: [`/api/tournaments/${tournamentId}/age-divisions`],
+    enabled: !!tournamentId
+  });
+
+  const filteredTeams = divisionFilter === 'all' 
+    ? teams 
+    : teams.filter((team: Team) => team.division === divisionFilter);
+
+  const handleRosterImportSuccess = () => {
+    // Refresh teams data to show updated roster status
+    queryClient.invalidateQueries({ queryKey: [`/api/tournaments/${tournamentId}/teams`] });
+  };
+
+  const getRosterStatus = (team: Team) => {
+    if (team.rosterData) {
+      try {
+        const players = JSON.parse(team.rosterData);
+        return `${players.length} players`;
+      } catch {
+        return "Invalid data";
+      }
+    }
+    return "No roster";
+  };
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-32">Loading teams...</div>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">Teams</h3>
+        
+        <div className="flex items-center gap-2">
+          <Select value={divisionFilter} onValueChange={setDivisionFilter}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Divisions</SelectItem>
+              {divisions.map((division: any) => (
+                <SelectItem key={division.id} value={division.id}>
+                  {division.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Team Name</TableHead>
+              <TableHead>Division</TableHead>
+              <TableHead>Roster Status</TableHead>
+              <TableHead>Roster Link</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredTeams.map((team: Team) => (
+              <TableRow key={team.id}>
+                <TableCell className="font-medium">{team.name}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">{team.division}</Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm">{getRosterStatus(team)}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {team.rosterLink ? (
+                    <a 
+                      href={team.rosterLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      View Roster
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ) : (
+                    <span className="text-gray-400 text-sm">No link</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <RosterImport 
+                    team={team} 
+                    onSuccess={handleRosterImportSuccess}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {filteredTeams.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          No teams found for the selected division.
+        </div>
+      )}
+    </div>
   );
 }
