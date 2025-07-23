@@ -298,7 +298,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
             const teamPoolId = isPlayoffPlaceholder(row.homeTeam) 
               ? poolsMap.get(`${divisionId}-Playoff`) || poolId 
               : poolId;
-            teams.push({ id: teamId, name: row.homeTeam, poolId: teamPoolId });
+            teams.push({ id: teamId, name: row.homeTeam, division: divisionId, poolId: teamPoolId });
           }
 
           const awayTeamKey = `${divisionId}-${row.awayTeam}`;
@@ -309,7 +309,7 @@ export const AdminPortalNew = ({ tournamentId, onImportSuccess }: AdminPortalNew
             const teamPoolId = isPlayoffPlaceholder(row.awayTeam) 
               ? poolsMap.get(`${divisionId}-Playoff`) || poolId 
               : poolId;
-            teams.push({ id: teamId, name: row.awayTeam, poolId: teamPoolId });
+            teams.push({ id: teamId, name: row.awayTeam, division: divisionId, poolId: teamPoolId });
           }
         }
 
