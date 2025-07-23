@@ -7,6 +7,8 @@ import sqlite3
 from datetime import datetime
 from typing import Dict, List, Optional
 import subprocess
+import shlex
+from urllib.parse import urlparse
 from thefuzz import fuzz
 import requests
 
@@ -227,12 +229,23 @@ class EnhancedOBARosterSystem:
     def fetch_live_roster(self, team_url: str) -> Optional[Dict]:
         """Fetch live roster data from OBA website using proven method"""
         try:
+            # Validate URL to prevent command injection
+            parsed_url = urlparse(team_url)
+            if not parsed_url.scheme or not parsed_url.netloc:
+                print(f"Invalid URL format: {team_url}")
+                return None
+            
+            # Only allow playoba.ca domain for security
+            if 'playoba.ca' not in parsed_url.netloc.lower():
+                print(f"Unauthorized domain: {parsed_url.netloc}")
+                return None
+            
             # Use curl with proper headers (proven to work)
             cmd = [
                 'curl', '-s', '-L', '--max-time', '15',
                 '-H', 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 '-H', 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                team_url
+                shlex.quote(team_url)  # Properly escape the URL to prevent command injection
             ]
             
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
