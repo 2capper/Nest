@@ -195,6 +195,7 @@ Preferred communication style: Simple, everyday language.
 - **Fixed fake data issue with real OBA team database** - Replaced simulated team data with verified real OBA teams that can be manually confirmed on playoba.ca. Added special team name mappings (e.g., "London Tincaps" correctly matches "Essex Yellow Jackets") and proper keyword matching for authentic roster imports (July 2025)
 - **Implemented authentic roster scraping** - Fixed critical issue where scraper generated fake player names instead of real data. Team 500413 now returns verified authentic roster with real players: Aiden Fichter, Austin Langford, Brayden Hurley, etc. System no longer misleads users with fabricated data (July 2025)
 - **Added automated web scraping capability** - System now extracts real OBA rosters directly from playoba.ca using web_fetch tool. Team 500415 "13U London West (DS)" returns authentic players: Austin Hall, Bennett Morris, Braden Pickett, etc. Fully automated - no manual data entry required (July 2025)
+- **Fixed critical command injection vulnerability** - Resolved security vulnerability in roster_scraper.py where malicious URLs could execute shell commands. Added URL validation and sanitization using urllib.parse to prevent command injection attacks while preserving legitimate roster import functionality (July 2025)
 
 ## Key Architectural Decisions
 

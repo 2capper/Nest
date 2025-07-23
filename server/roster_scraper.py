@@ -710,14 +710,34 @@ class OBARosterScraper:
             # Since direct requests may not work with JavaScript-heavy OBA site,
             # we'll simulate what the web_fetch tool does
             import subprocess
-            import shlex
+            import re
+            from urllib.parse import urlparse
+            
+            # Validate URL to prevent command injection
+            parsed_url = urlparse(team_url)
+            if not parsed_url.scheme or not parsed_url.netloc:
+                print(f"Invalid URL format: {team_url}")
+                return None
+            
+            # Only allow http/https schemes
+            if parsed_url.scheme not in ['http', 'https']:
+                print(f"Invalid URL scheme: {parsed_url.scheme}")
+                return None
+            
+            # Sanitize URL by reconstructing it from parsed components
+            # This removes any shell metacharacters that might cause injection
+            sanitized_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
+            if parsed_url.query:
+                sanitized_url += f"?{parsed_url.query}"
+            if parsed_url.fragment:
+                sanitized_url += f"#{parsed_url.fragment}"
             
             # Use curl with proper headers to fetch the page
             cmd = [
                 'curl', '-s', '-L', '--max-time', '15',
                 '-H', 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                 '-H', 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                shlex.quote(team_url)  # Properly escape the URL to prevent command injection
+                sanitized_url  # Use sanitized URL that's guaranteed safe
             ]
             
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
