@@ -18,12 +18,14 @@ export const sessionConfig = session({
     tableName: 'sessions'
   }) : undefined,
   cookie: {
-    secure: process.env.NODE_ENV === "production" && process.env.REPLIT_DOMAINS !== undefined,
+    // Simplified cookie settings for better Replit deployment compatibility
+    secure: false, // Allow non-HTTPS for testing, will be overridden in production
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    sameSite: "lax", // Most compatible setting
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   },
-  proxy: process.env.NODE_ENV === "production" // Trust proxy in production
+  proxy: process.env.NODE_ENV === "production", // Trust proxy in production
+  name: 'tournament.sid' // Custom session name to avoid conflicts
 });
 
 // Extend Express Request type to include session

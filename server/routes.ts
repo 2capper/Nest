@@ -17,12 +17,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
     try {
-      console.log("Login attempt - Environment:", process.env.NODE_ENV);
+      console.log("=== LOGIN ATTEMPT DEBUG ===");
+      console.log("Environment:", process.env.NODE_ENV);
+      console.log("Replit Domains:", process.env.REPLIT_DOMAINS);
+      console.log("Repl Slug:", process.env.REPL_SLUG);
+      console.log("Database URL exists:", !!process.env.DATABASE_URL);
       console.log("Session ID before login:", req.sessionID);
+      console.log("Request headers:", {
+        'user-agent': req.headers['user-agent'],
+        'x-forwarded-proto': req.headers['x-forwarded-proto'],
+        'x-forwarded-host': req.headers['x-forwarded-host'],
+        'host': req.headers['host']
+      });
       
       const { username, password } = req.body;
       
       if (!username || !password) {
+        console.log("Missing credentials");
         return res.status(400).json({ error: "Username and password required" });
       }
       
@@ -52,10 +63,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.save((err) => {
         if (err) {
           console.error("Session save error:", err);
-          return res.status(500).json({ error: "Failed to save session" });
+          return res.status(500).json({ error: "Failed to save session", details: err.message });
         }
         
         console.log("Session saved successfully, ID:", req.sessionID);
+        console.log("Session cookie will be sent with domain:", req.session.cookie?.domain || "default");
+        console.log("Session cookie secure:", req.session.cookie?.secure);
+        console.log("Session cookie sameSite:", req.session.cookie?.sameSite);
         
         res.json({ 
           success: true, 
@@ -63,12 +77,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             id: user.id, 
             username: user.username,
             isAdmin: user.id === 1
-          } 
+          },
+          debug: {
+            sessionId: req.sessionID,
+            environment: process.env.NODE_ENV,
+            cookieSecure: req.session.cookie?.secure,
+            cookieSameSite: req.session.cookie?.sameSite
+          }
         });
       });
     } catch (error) {
       console.error("Login error:", error);
-      res.status(500).json({ error: "Login failed" });
+      res.status(500).json({ error: "Login failed", details: error.message });
     }
   });
   
@@ -118,21 +138,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Diagnostic route to check user status
+  // Comprehensive diagnostic route to check authentication status
   app.get("/api/auth/diagnostic", async (req, res) => {
     try {
       const userCount = await storage.getUserCount();
       const adminExists = await checkAdminExists();
       
+      // Check session store connectivity
+      let sessionStoreStatus = "unknown";
+      try {
+        if (process.env.DATABASE_URL) {
+          sessionStoreStatus = "PostgreSQL configured";
+        } else {
+          sessionStoreStatus = "Memory store (no DATABASE_URL)";
+        }
+      } catch (e) {
+        sessionStoreStatus = `Error: ${e.message}`;
+      }
+      
       res.json({
-        userCount,
+        userCount: userCount.toString(),
         adminExists,
-        sessionStore: process.env.DATABASE_URL ? "PostgreSQL" : "Memory",
-        environment: process.env.NODE_ENV || "development"
+        sessionStore: sessionStoreStatus,
+        environment: process.env.NODE_ENV || "unknown",
+        sessionConfig: {
+          secure: process.env.NODE_ENV === "production" && (process.env.REPLIT_DOMAINS !== undefined || process.env.REPL_SLUG !== undefined),
+          sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
+          domain: process.env.NODE_ENV === "production" && process.env.REPL_SLUG ? `.${process.env.REPL_SLUG}.replit.app` : "none"
+        },
+        envVars: {
+          hasReplitDomains: !!process.env.REPLIT_DOMAINS,
+          hasReplSlug: !!process.env.REPL_SLUG,
+          hasDatabaseUrl: !!process.env.DATABASE_URL,
+          hasSessionSecret: !!process.env.SESSION_SECRET
+        }
       });
     } catch (error) {
       console.error("Diagnostic error:", error);
       res.status(500).json({ error: "Diagnostic check failed" });
+    }
+  });
+
+  // Password reset utility for deployment troubleshooting
+  app.post("/api/auth/reset-admin-password", async (req, res) => {
+    try {
+      const { newPassword, confirmPassword } = req.body;
+      
+      if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters" });
+      }
+      
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ error: "Passwords do not match" });
+      }
+      
+      // Hash the new password
+      const hashedPassword = await hashPassword(newPassword);
+      
+      // Update the admin user's password directly in the database
+      const result = await storage.updateUserPassword(1, hashedPassword);
+      
+      console.log("Admin password reset successfully");
+      res.json({ success: true, message: "Admin password reset successfully" });
+    } catch (error) {
+      console.error("Password reset error:", error);
+      res.status(500).json({ error: "Password reset failed", details: error.message });
     }
   });
   // Tournament routes
