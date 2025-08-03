@@ -93,43 +93,67 @@ const resolveTie = (tiedTeams: any[], allGames: Game[]): any[] => {
     return null;
   };
 
-  // Forfeit losses first
-  let result = regroupAndResolve(team => team.forfeitLosses);
-  if (result) return result;
+  // SP11.2 Official Tie Breaking Rules:
+  
+  // (a) Teams with a forfeit loss are ineligible for tiebreakers
+  const eligibleTeams = sortedTeams.filter(team => team.forfeitLosses === 0);
+  const ineligibleTeams = sortedTeams.filter(team => team.forfeitLosses > 0);
+  
+  if (eligibleTeams.length <= 1) {
+    // Sort ineligible teams by points, then alphabetically
+    const sortedIneligible = ineligibleTeams.sort((a, b) => {
+      if (a.points !== b.points) return b.points - a.points;
+      return a.name.localeCompare(b.name);
+    });
+    return [...eligibleTeams, ...sortedIneligible];
+  }
+  
+  sortedTeams = eligibleTeams;
 
-  // Head to head for 2 teams
+  // For 3+ teams tied: Skip head-to-head, start with runs against ratio among tied teams
+  // For 2 teams tied: Start with head-to-head
+  
+  // (b)(1) Head to head record among tied teams (only for 2 teams)
   if (sortedTeams.length === 2) {
-    const stats = calculateStats(sortedTeams[0].id, allGames, [sortedTeams[1].id]);
-    if (stats.wins > stats.losses) return [sortedTeams[0], sortedTeams[1]];
-    if (stats.losses > stats.wins) return [sortedTeams[1], sortedTeams[0]];
+    const team1Stats = calculateStats(sortedTeams[0].id, allGames, [sortedTeams[1].id]);
+    const team2Stats = calculateStats(sortedTeams[1].id, allGames, [sortedTeams[0].id]);
+    
+    if (team1Stats.wins > team1Stats.losses) {
+      return [...[sortedTeams[0], sortedTeams[1]], ...ineligibleTeams];
+    }
+    if (team2Stats.wins > team2Stats.losses) {
+      return [...[sortedTeams[1], sortedTeams[0]], ...ineligibleTeams];
+    }
+    // If tied in head-to-head, continue to next tie-breaker
   }
 
-  // Runs against per inning among tied teams
+  // (b)(2) Smallest runs against ratio among tied teams (runs allowed / defensive innings)
   const raRatioAmongTied = (t: any) => {
     const s = calculateStats(t.id, allGames, teamIds);
     return s.defensiveInnings > 0 ? s.runsAgainst / s.defensiveInnings : Infinity;
   };
-  result = regroupAndResolve(raRatioAmongTied);
-  if (result) return result;
+  let result = regroupAndResolve(raRatioAmongTied);
+  if (result) return [...result, ...ineligibleTeams];
 
-  // Overall runs against per inning
+  // (b)(3) Smallest runs against ratio in all games (runs allowed / defensive innings)
   result = regroupAndResolve(t => t.runsAgainstPerInning);
-  if (result) return result;
+  if (result) return [...result, ...ineligibleTeams];
 
-  // Runs for per inning among tied teams
+  // (b)(4) Highest runs for ratio among tied teams (runs scored / offensive innings)
   const rfRatioAmongTied = (t: any) => {
     const s = calculateStats(t.id, allGames, teamIds);
     return s.offensiveInnings > 0 ? s.runsFor / s.offensiveInnings : 0;
   };
   result = regroupAndResolve(rfRatioAmongTied, true);
-  if (result) return result;
+  if (result) return [...result, ...ineligibleTeams];
 
-  // Overall runs for per inning
+  // (b)(5) Highest runs for ratio in all games (runs scored / offensive innings)
   result = regroupAndResolve(t => t.runsForPerInning, true);
-  if (result) return result;
+  if (result) return [...result, ...ineligibleTeams];
 
-  // Alphabetical
-  return sortedTeams.sort((a, b) => a.name.localeCompare(b.name));
+  // (b)(6) Coin toss (alphabetical as substitute)
+  const finalResult = sortedTeams.sort((a, b) => a.name.localeCompare(b.name));
+  return [...finalResult, ...ineligibleTeams];
 };
 
 export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColumn = true }: StandingsTableProps) => {
@@ -178,7 +202,7 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
       const poolRunnersUp: any[] = [];
       const remainingTeams: any[] = [];
       
-      sortedPools.forEach(pool => {
+      divisionPools.forEach(pool => {
         const poolTeams = teamStats.filter(t => t.poolId === pool.id);
         
         // Group pool teams by points for tie-breaking
