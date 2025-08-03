@@ -173,9 +173,10 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
         return acc;
       }, {} as Record<number, any[]>);
 
-      // Calculate pool standings first to identify pool winners
+      // Calculate pool standings first to identify pool winners and runners-up
       const poolWinners: any[] = [];
-      const nonPoolWinners: any[] = [];
+      const poolRunnersUp: any[] = [];
+      const remainingTeams: any[] = [];
       
       sortedPools.forEach(pool => {
         const poolTeams = teamStats.filter(t => t.poolId === pool.id);
@@ -197,28 +198,38 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
           // Mark the pool winner
           const poolWinner = { ...sortedPoolTeams[0], isPoolWinner: true };
           poolWinners.push(poolWinner);
-          // Add non-winners to separate array
-          nonPoolWinners.push(...sortedPoolTeams.slice(1));
+          
+          // Mark the runner-up (2nd place in pool)
+          if (sortedPoolTeams.length > 1) {
+            const runnerUp = { ...sortedPoolTeams[1], isPoolRunnerUp: true };
+            poolRunnersUp.push(runnerUp);
+            
+            // Add remaining teams from this pool
+            remainingTeams.push(...sortedPoolTeams.slice(2));
+          }
         }
       });
       
       // Sort pool winners by RA/DIP (best defensive performance first)
       poolWinners.sort((a, b) => a.runsAgainstPerInning - b.runsAgainstPerInning);
       
-      // Sort non-pool winners by regular standings logic (points first, then tie-breakers)
-      const nonWinnerGroups = nonPoolWinners.reduce((acc, team) => {
+      // Sort pool runners-up by RA/DIP (best defensive performance first)
+      poolRunnersUp.sort((a, b) => a.runsAgainstPerInning - b.runsAgainstPerInning);
+      
+      // Sort remaining teams by regular standings logic (points first, then tie-breakers)
+      const remainingGroups = remainingTeams.reduce((acc, team) => {
         const points = team.points;
         if (!acc[points]) acc[points] = [];
         acc[points].push(team);
         return acc;
       }, {} as Record<number, any[]>);
       
-      const sortedNonWinners = Object.keys(nonWinnerGroups)
+      const sortedRemainingTeams = Object.keys(remainingGroups)
         .sort((a, b) => Number(b) - Number(a))
-        .flatMap(points => resolveTie(nonWinnerGroups[Number(points)], games));
+        .flatMap(points => resolveTie(remainingGroups[Number(points)], games));
       
-      // Combine: Pool winners first (ranked by RA/DIP), then everyone else
-      const overallStandings = [...poolWinners, ...sortedNonWinners];
+      // Combine: Pool winners (1-3), then pool runners-up (4-6), then everyone else
+      const overallStandings = [...poolWinners, ...poolRunnersUp, ...sortedRemainingTeams];
 
       // Now calculate individual pool standings for display
       // Sort pools in ascending order
@@ -306,6 +317,11 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
                         POOL WINNER
                       </span>
                     )}
+                    {team.isPoolRunnerUp && (
+                      <span className="ml-2 px-2 py-1 bg-blue-500 text-white text-xs rounded-full font-bold">
+                        POOL 2ND
+                      </span>
+                    )}
                     {team.forfeitLosses > 0 && (
                       <AlertTriangle className="w-4 h-4 ml-2 text-red-500" />
                     )}
@@ -372,6 +388,11 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
                         {team.isPoolWinner && (
                           <span className="ml-2 px-2 py-1 bg-[var(--falcons-green)] text-white text-xs rounded-full font-bold">
                             POOL WINNER
+                          </span>
+                        )}
+                        {team.isPoolRunnerUp && (
+                          <span className="ml-2 px-2 py-1 bg-blue-500 text-white text-xs rounded-full font-bold">
+                            POOL 2ND
                           </span>
                         )}
                         {team.forfeitLosses > 0 && (
