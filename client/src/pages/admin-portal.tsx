@@ -18,7 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function AdminPortal() {
   const { tournamentId } = useParams<{ tournamentId: string }>();
-  const currentTournamentId = tournamentId || 'aug-classic';
+  const currentTournamentId = tournamentId || 'fg-baseball-11u-13u-2025-08';
   const { teams, games, pools, tournaments, ageDivisions, loading, error } = useTournamentData(currentTournamentId);
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('tournaments');

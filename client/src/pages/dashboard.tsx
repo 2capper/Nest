@@ -14,7 +14,7 @@ import { useTournamentData } from '@/hooks/use-tournament-data';
 
 export default function Dashboard() {
   const { tournamentId } = useParams<{ tournamentId: string }>();
-  const currentTournamentId = tournamentId || 'aug-classic';
+  const currentTournamentId = tournamentId || 'fg-baseball-11u-13u-2025-08';
   const { teams, games, pools, tournaments, ageDivisions, loading, error } = useTournamentData(currentTournamentId);
 
   if (loading) {
