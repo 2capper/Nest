@@ -163,14 +163,26 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
   const standingsByDivision = useMemo(() => {
     if (!teams.length || !ageDivisions.length) return [];
     
-    // Filter to only show 11U and 13U divisions
-    const targetDivisions = ageDivisions.filter(div => 
-      div.name === '11U' || div.name === '13U'
-    );
+    // Since this tournament doesn't have explicit age divisions, we need to identify
+    // 13U teams by their pool structure: Pools 1, 2, 3 are 13U; Pools A, B, C are 11U
+    const thirteenUPools = pools.filter(p => {
+      const poolName = p.name || '';
+      return poolName.includes('Pool-1') || poolName.includes('Pool-2') || poolName.includes('Pool-3');
+    });
     
-    return targetDivisions.map(division => {
-      // Get pools for this division
-      const divisionPools = pools.filter(p => p.ageDivisionId === division.id);
+    const elevenUPools = pools.filter(p => {
+      const poolName = p.name || '';
+      return poolName.includes('Pool-A') || poolName.includes('Pool-B') || poolName.includes('Pool-C');
+    });
+    
+    // Create synthetic divisions for display
+    const syntheticDivisions = [
+      { id: '13U', name: '13U', pools: thirteenUPools },
+      { id: '11U', name: '11U', pools: elevenUPools }
+    ];
+    
+    return syntheticDivisions.map(division => {
+      const divisionPools = division.pools;
       
       // Get teams in this division
       const divisionTeams = teams.filter(t => 
