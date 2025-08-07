@@ -1028,17 +1028,18 @@ Waterdown 10U AA
     }
   });
 
-  // OBA Roster API Routes - Comprehensive database-driven roster matching
+  // OBA Roster API Routes - Enhanced team search with improved scraping
   app.get("/api/roster/teams/search", async (req, res) => {
     try {
-      const { query, division } = req.query;
+      const { query } = req.query;
+      
+      if (!query || typeof query !== 'string' || query.trim().length < 2) {
+        return res.json({ success: false, error: "Please provide a search term with at least 2 characters" });
+      }
+
       const { spawn } = await import("child_process");
+      const python = spawn("python", ["oba_roster_service.py", "search", query.toString()], { cwd: "server" });
       
-      const args = ["oba_roster_service.py", "search"];
-      if (query) args.push(query as string);
-      if (division) args.push(division as string);
-      
-      const python = spawn("python", args, { cwd: "server" });
       let output = "";
       let error = "";
       
@@ -1052,29 +1053,13 @@ Waterdown 10U AA
       
       python.on("close", (code) => {
         if (code === 0) {
-          // Parse the output to extract team data
-          const lines = output.split('\n').filter(line => line.trim());
-          const teams = [];
-          
-          for (const line of lines) {
-            const match = line.match(/^\s*(\d+):\s*([^(]+)\s*\(([^)]+)\)\s*\(match:\s*(\d+)%\)/);
-            if (match) {
-              const [, teamId, teamName, playerInfo, matchScore] = match;
-              const playerCount = playerInfo.includes('players') ? 
-                parseInt(playerInfo.match(/(\d+) players/)?.[1] || '0') : 0;
-              const hasRoster = !playerInfo.includes('no roster');
-              
-              teams.push({
-                teamId,
-                teamName: teamName.trim(),
-                hasRoster,
-                playerCount,
-                matchScore: parseInt(matchScore)
-              });
-            }
+          try {
+            const result = JSON.parse(output);
+            res.json(result);
+          } catch (parseError) {
+            console.error("Failed to parse search results:", parseError);
+            res.status(500).json({ success: false, error: "Invalid search response format" });
           }
-          
-          res.json({ success: true, teams });
         } else {
           console.error("Python script error:", error);
           res.status(500).json({ success: false, error: "Failed to search teams" });
@@ -1082,6 +1067,90 @@ Waterdown 10U AA
       });
     } catch (error) {
       console.error("Roster search error:", error);
+      res.status(500).json({ success: false, error: "Internal server error" });
+    }
+  });
+
+  // Team discovery endpoint - discover new teams by scanning ID ranges
+  app.post("/api/roster/teams/discover", requireAdmin, async (req, res) => {
+    try {
+      const { startId, endId } = req.body;
+      
+      if (!startId || !endId) {
+        return res.status(400).json({ success: false, error: "Start ID and End ID are required" });
+      }
+
+      if (endId - startId > 100) {
+        return res.status(400).json({ success: false, error: "Range too large. Maximum 100 teams per discovery" });
+      }
+
+      const { spawn } = await import("child_process");
+      const python = spawn("python", ["oba_roster_service.py", "discover", startId.toString(), endId.toString()], { cwd: "server" });
+      
+      let output = "";
+      let error = "";
+      
+      python.stdout.on("data", (data) => {
+        output += data.toString();
+      });
+      
+      python.stderr.on("data", (data) => {
+        error += data.toString();
+      });
+      
+      python.on("close", (code) => {
+        if (code === 0) {
+          try {
+            const result = JSON.parse(output);
+            res.json(result);
+          } catch (parseError) {
+            console.error("Failed to parse discovery results:", parseError);
+            res.status(500).json({ success: false, error: "Invalid discovery response format" });
+          }
+        } else {
+          console.error("Python discovery script error:", error);
+          res.status(500).json({ success: false, error: "Failed to discover teams" });
+        }
+      });
+    } catch (error) {
+      console.error("Team discovery error:", error);
+      res.status(500).json({ success: false, error: "Internal server error" });
+    }
+  });
+
+  // Get all cached teams endpoint
+  app.get("/api/roster/teams/cached", async (req, res) => {
+    try {
+      const { spawn } = await import("child_process");
+      const python = spawn("python", ["oba_roster_service.py", "list"], { cwd: "server" });
+      
+      let output = "";
+      let error = "";
+      
+      python.stdout.on("data", (data) => {
+        output += data.toString();
+      });
+      
+      python.stderr.on("data", (data) => {
+        error += data.toString();
+      });
+      
+      python.on("close", (code) => {
+        if (code === 0) {
+          try {
+            const result = JSON.parse(output);
+            res.json(result);
+          } catch (parseError) {
+            console.error("Failed to parse cached teams:", parseError);
+            res.status(500).json({ success: false, error: "Invalid cached teams response format" });
+          }
+        } else {
+          console.error("Python cached teams script error:", error);
+          res.status(500).json({ success: false, error: "Failed to get cached teams" });
+        }
+      });
+    } catch (error) {
+      console.error("Cached teams error:", error);
       res.status(500).json({ success: false, error: "Internal server error" });
     }
   });

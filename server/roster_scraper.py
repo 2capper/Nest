@@ -17,7 +17,7 @@ class OBARosterScraper:
         self.cache_duration_hours = 24
         self.init_database()
 
-    def _get_affiliate_info(self, affiliate: str) -> Optional[Dict[str, any]]:
+    def _get_affiliate_info(self, affiliate: str) -> Optional[Dict[str, str]]:
         """Get the OBA affiliate ID and season ID from the affiliate name."""
         affiliate_map = {
             "ABA": {"id": "2101", "season_id": "8239"},
@@ -164,8 +164,8 @@ class OBARosterScraper:
                     href = link_tag.get('href')
                     team_name = team_name_div.get_text(strip=True)
                     
-                    if division.lower() in team_name.lower():
-                        full_url = urllib.parse.urljoin(self.base_url, href)
+                    if href and division.lower() in team_name.lower():
+                        full_url = urllib.parse.urljoin(self.base_url, str(href))
                         teams[team_name] = full_url
             
             return teams
@@ -195,7 +195,8 @@ class OBARosterScraper:
                 'available_teams': team_names
             }
         
-        matched_name, confidence = best_match
+        matched_name = best_match[0]
+        confidence = best_match[1]
         team_url = teams[matched_name]
         
         return {
