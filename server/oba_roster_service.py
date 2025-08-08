@@ -14,38 +14,19 @@ class OBARosterService:
         self.scraper = DirectOBAScraper()
     
     def search_teams(self, team_name: str) -> dict:
-        """Search for real OBA teams by name using live discovery"""
-        try:
-            # First check if we have any cached teams from previous searches
-            cached_result = self.scraper.find_teams_by_name(team_name, min_confidence=30)
-            
-            if cached_result['success'] and len(cached_result.get('teams', [])) > 0:
-                # Format cached results
-                teams = []
-                for team in cached_result['teams']:
-                    teams.append({
-                        'id': team['team_id'],
-                        'name': team['team_name'],
-                        'affiliate': team['affiliate'],
-                        'ageGroup': team['age_group'],
-                        'confidence': team['confidence']
-                    })
-                
-                return {
-                    'success': True,
-                    'teams': teams,
-                    'searchTerm': team_name,
-                    'source': 'cached'
-                }
-            
-            # No cached results - perform live search for real teams
-            return self._perform_live_oba_search(team_name)
-                
-        except Exception as e:
-            return {
-                'success': False,
-                'error': f'Service error: {str(e)}'
-            }
+        """Honest response about OBA data limitations"""
+        return {
+            'success': False,
+            'error': f"Automatic OBA roster discovery is not available. The OBA website (playoba.ca) has protections that prevent automated data access.",
+            'searchTerm': team_name,
+            'solution': "Manual roster import required",
+            'instructions': [
+                "1. Visit playoba.ca manually",
+                "2. Find your team's roster page", 
+                "3. Copy the team roster data",
+                "4. Use the manual import option in the tournament system"
+            ]
+        }
     
     def _perform_live_oba_search(self, team_name: str) -> dict:
         """Perform live search on playoba.ca for real teams"""

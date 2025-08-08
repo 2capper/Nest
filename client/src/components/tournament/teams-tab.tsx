@@ -67,7 +67,13 @@ function RosterImport({ team, onSuccess }: RosterImportProps) {
           confidence: t.confidence
         })));
       } else {
+        // Show honest error about OBA limitations
         setMatchedTeams([]);
+        toast({
+          title: "Automatic Import Not Available",
+          description: data.error || "OBA website protections prevent automatic roster discovery. Manual import required.",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error('Error searching teams:', error);
@@ -155,21 +161,50 @@ function RosterImport({ team, onSuccess }: RosterImportProps) {
                 <SelectValue placeholder={isSearching ? "Searching for matches..." : "Select an OBA team..."} />
               </SelectTrigger>
               <SelectContent>
-                {matchedTeams.map((obaTeam: any) => (
-                  <SelectItem key={obaTeam.team_id} value={obaTeam.team_id}>
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">{obaTeam.team_name}</span>
-                      <span className="text-xs text-gray-500">
-                        {obaTeam.affiliate} • {obaTeam.division} • {obaTeam.confidence}% match
-                      </span>
-                    </div>
+                {matchedTeams.length === 0 ? (
+                  <SelectItem value="no-teams" disabled>
+                    No automatic roster discovery available
                   </SelectItem>
-                ))}
+                ) : (
+                  matchedTeams.map((obaTeam: any) => (
+                    <SelectItem key={obaTeam.team_id} value={obaTeam.team_id}>
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium">{obaTeam.team_name}</span>
+                        <span className="text-xs text-gray-500">
+                          {obaTeam.affiliate} • {obaTeam.division} • {obaTeam.confidence}% match
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
 
-          {selectedTeam && (
+          {matchedTeams.length === 0 && (
+            <div className="bg-amber-50 p-3 rounded-md border border-amber-200">
+              <div className="flex items-center gap-2 mb-2">
+                <ExternalLink className="w-4 h-4 text-amber-600" />
+                <span className="text-sm font-medium text-amber-800">
+                  Manual Import Required
+                </span>
+              </div>
+              <p className="text-xs text-amber-700 mb-2">
+                Automatic OBA roster discovery is not available due to website protections.
+              </p>
+              <div className="text-xs text-amber-600">
+                <p className="font-medium">To import rosters:</p>
+                <ol className="list-decimal ml-4 mt-1">
+                  <li>Visit playoba.ca manually</li>
+                  <li>Find your team's roster page</li>
+                  <li>Copy roster data</li>
+                  <li>Contact tournament organizer for manual import</li>
+                </ol>
+              </div>
+            </div>
+          )}
+
+          {selectedTeam && matchedTeams.length > 0 && (
             <div className="bg-green-50 p-3 rounded-md border border-green-200">
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
@@ -193,13 +228,18 @@ function RosterImport({ team, onSuccess }: RosterImportProps) {
             </Button>
             <Button
               onClick={handleImport}
-              disabled={!selectedTeam || isImporting}
+              disabled={!selectedTeam || isImporting || matchedTeams.length === 0}
               className="flex-1"
             >
               {isImporting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                   Importing...
+                </>
+              ) : matchedTeams.length === 0 ? (
+                <>
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Manual Import Required
                 </>
               ) : (
                 <>
