@@ -346,10 +346,10 @@ export function TeamsTab({ teams, pools, ageDivisions }: TeamsTabProps) {
                   )}
                 </TableCell>
                 <TableCell className="text-right">
-                  <RosterImport 
-                    team={team} 
-                    onSuccess={handleRosterImportSuccess}
-                  />
+                  <Button size="sm" variant="ghost" disabled>
+                    <Users className="w-4 h-4 mr-2" />
+                    Contact Organizer
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

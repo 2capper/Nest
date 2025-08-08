@@ -45,7 +45,7 @@ Preferred communication style: Simple, everyday language.
 - **Authentication System**: Replit Auth integration with OpenID Connect, automatic user provisioning, and session management with PostgreSQL session store.
 - **Theming**: Professional baseball styling with Forest Green and Yellow colors, Oswald and Roboto fonts, and uppercase headings.
 - **Location Integration**: Display of diamond GPS coordinates for game venues with Google Maps integration.
-- **Roster Management**: Automated roster import tool with fuzzy team name matching from playoba.ca, comprehensive OBA team discovery, and authentic roster scraping.
+- **Roster Management**: Manual roster import system with clear instructions for organizers to add team roster data.
 
 ## External Dependencies
 
