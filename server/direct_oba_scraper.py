@@ -204,14 +204,19 @@ class DirectOBAScraper:
         
         return None
     
-    def cache_team(self, team_id: str, team_name: str, affiliate: str):
-        """Cache discovered team"""
-        age_group = self.extract_age_group(team_name)
+    def add_team_to_database(self, team_id: str, team_name: str, affiliate: str, age_group: str = None):
+        """Add discovered team to database"""
+        if age_group is None:
+            age_group = self.extract_age_group(team_name)
         self.cursor.execute(
             'INSERT OR REPLACE INTO teams (team_id, team_name, affiliate, age_group, last_updated) VALUES (?, ?, ?, ?, ?)',
             (team_id, team_name, affiliate, age_group, datetime.now().isoformat())
         )
         self.conn.commit()
+    
+    def cache_team(self, team_id: str, team_name: str, affiliate: str):
+        """Cache discovered team - legacy method"""
+        self.add_team_to_database(team_id, team_name, affiliate)
     
     def get_cached_teams(self) -> List[Dict]:
         """Get all cached teams"""
