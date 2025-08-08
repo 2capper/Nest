@@ -14,18 +14,15 @@ class OBARosterService:
         self.scraper = DirectOBAScraper()
     
     def search_teams(self, team_name: str) -> dict:
-        """Search for teams by name with expanded database"""
+        """Search for real OBA teams by name using live discovery"""
         try:
-            # Ensure we have some common teams in the database
-            self._populate_common_teams()
+            # First check if we have any cached teams from previous searches
+            cached_result = self.scraper.find_teams_by_name(team_name, min_confidence=30)
             
-            # Search cached teams
-            result = self.scraper.find_teams_by_name(team_name, min_confidence=30)
-            
-            # Format results for frontend consumption
-            if result['success'] and len(result.get('teams', [])) > 0:
+            if cached_result['success'] and len(cached_result.get('teams', [])) > 0:
+                # Format cached results
                 teams = []
-                for team in result['teams']:
+                for team in cached_result['teams']:
                     teams.append({
                         'id': team['team_id'],
                         'name': team['team_name'],
@@ -37,14 +34,12 @@ class OBARosterService:
                 return {
                     'success': True,
                     'teams': teams,
-                    'searchTerm': result['search_term']
+                    'searchTerm': team_name,
+                    'source': 'cached'
                 }
-            else:
-                return {
-                    'success': False,
-                    'error': f"No teams found matching '{team_name}'. Available teams include: {', '.join(result.get('available_teams', [])[:5])}",
-                    'searchTerm': team_name
-                }
+            
+            # No cached results - perform live search for real teams
+            return self._perform_live_oba_search(team_name)
                 
         except Exception as e:
             return {
@@ -52,48 +47,139 @@ class OBARosterService:
                 'error': f'Service error: {str(e)}'
             }
     
-    def _populate_common_teams(self):
-        """Populate database with common tournament team names and known IDs"""
-        common_teams = [
-            # Known working teams
-            ("500718", "11U HS Forest Glade", "SPBA", "11U"),
-            ("500719", "13U HS Forest Glade", "SPBA", "13U"), 
-            ("500726", "18U HS Forest Glade", "SPBA", "18U"),
+    def _perform_live_oba_search(self, team_name: str) -> dict:
+        """Perform live search on playoba.ca for real teams"""
+        try:
+            import requests
+            from urllib.parse import urlencode
             
-            # Common Ontario team patterns (using realistic ID ranges)
-            ("520001", "London Nationals 11U", "LDBA", "11U"),
-            ("520002", "London Nationals 13U", "LDBA", "13U"),
-            ("520003", "London Nationals 15U", "LDBA", "15U"),
-            ("520011", "Strathroy Royals 11U", "LDBA", "11U"),
-            ("520012", "Strathroy Royals 13U", "LDBA", "13U"),
-            ("520021", "Sarnia Sting 11U", "LDBA", "11U"),
-            ("520022", "Sarnia Sting 13U", "LDBA", "13U"),
-            ("520031", "Windsor Selects 11U", "LDBA", "11U"),
-            ("520032", "Windsor Selects 13U", "LDBA", "13U"),
-            ("520041", "Chatham Ironmen 11U", "LDBA", "11U"),
-            ("520042", "Chatham Ironmen 13U", "LDBA", "13U"),
-            ("520051", "Thames Valley 11U", "LDBA", "11U"),
-            ("520052", "Thames Valley 13U", "LDBA", "13U"),
+            # Use different search strategies
+            search_terms = [team_name]
             
-            # Add more common Ontario baseball teams
-            ("525001", "Mississauga North 11U", "COBA", "11U"),
-            ("525002", "Mississauga North 13U", "COBA", "13U"),
-            ("525011", "Toronto Playgrounds 11U", "COBA", "11U"),
-            ("525012", "Toronto Playgrounds 13U", "COBA", "13U"),
-            ("525021", "Etobicoke Rangers 11U", "COBA", "11U"),
-            ("525022", "Etobicoke Rangers 13U", "COBA", "13U"),
-            ("525031", "North York Blues 11U", "COBA", "11U"),
-            ("525032", "North York Blues 13U", "COBA", "13U"),
+            # Add simplified search terms
+            if len(team_name.split()) > 1:
+                # Try individual words
+                words = team_name.split()
+                search_terms.extend(words)
+                
+                # Try last word (often the team name)
+                if len(words) > 1:
+                    search_terms.append(words[-1])
             
-            # Regional teams that commonly participate
-            ("530001", "Hamilton Cardinals 11U", "Hamilton", "11U"),
-            ("530002", "Hamilton Cardinals 13U", "Hamilton", "13U"),
-            ("530011", "Brantford Red Sox 11U", "Brantford", "11U"),
-            ("530012", "Brantford Red Sox 13U", "Brantford", "13U"),
+            found_teams = []
+            
+            for search_term in search_terms[:3]:  # Limit to 3 search variations
+                # Try to find teams using OBA search patterns
+                team_results = self._search_oba_teams_by_pattern(search_term)
+                found_teams.extend(team_results)
+                
+                if len(found_teams) >= 5:  # Stop if we have enough results
+                    break
+            
+            # Remove duplicates and sort by confidence
+            unique_teams = {}
+            for team in found_teams:
+                team_id = team['id']
+                if team_id not in unique_teams or team['confidence'] > unique_teams[team_id]['confidence']:
+                    unique_teams[team_id] = team
+            
+            final_teams = list(unique_teams.values())
+            final_teams.sort(key=lambda x: x['confidence'], reverse=True)
+            
+            if final_teams:
+                return {
+                    'success': True,
+                    'teams': final_teams[:5],  # Top 5 matches
+                    'searchTerm': team_name,
+                    'source': 'live'
+                }
+            else:
+                return {
+                    'success': False,
+                    'error': f"No real OBA teams found matching '{team_name}'. Please verify the team exists on playoba.ca",
+                    'searchTerm': team_name
+                }
+                
+        except Exception as e:
+            return {
+                'success': False,
+                'error': f'Live search error: {str(e)}'
+            }
+    
+    def _search_oba_teams_by_pattern(self, search_term: str) -> list:
+        """Search for teams using known OBA ID patterns"""
+        teams = []
+        
+        # Common OBA team ID ranges based on real data
+        search_ranges = [
+            (500000, 500100),  # Known range with real teams
+            (500700, 500800),  # Another real range
+            (501000, 501100),  # Additional range
         ]
         
-        for team_id, team_name, affiliate, age_group in common_teams:
-            self.scraper.add_team_to_database(team_id, team_name, affiliate, age_group)
+        import requests
+        
+        for start_id, end_id in search_ranges:
+            for team_id in range(start_id, min(start_id + 20, end_id)):  # Check first 20 in each range
+                try:
+                    # Try to get team info from OBA API
+                    url = f"https://www.playoba.ca/api/teams/{team_id}/roster"
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        'Accept': 'application/json'
+                    }
+                    
+                    response = requests.get(url, headers=headers, timeout=3)
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        team_name = data.get('team', {}).get('name', '')
+                        
+                        if team_name and self._name_matches(search_term, team_name):
+                            confidence = self._calculate_confidence(search_term, team_name)
+                            
+                            teams.append({
+                                'id': str(team_id),
+                                'name': team_name,
+                                'affiliate': data.get('affiliate', {}).get('name', 'Unknown'),
+                                'ageGroup': self._extract_age_group(team_name),
+                                'confidence': confidence
+                            })
+                            
+                            # Cache this real discovery
+                            self.scraper.add_team_to_database(
+                                str(team_id), 
+                                team_name, 
+                                data.get('affiliate', {}).get('name', 'Unknown'),
+                                self._extract_age_group(team_name)
+                            )
+                            
+                except (requests.RequestException, Exception):
+                    continue  # Skip failed requests
+                    
+                # Don't overload the server
+                import time
+                time.sleep(0.1)
+        
+        return teams
+    
+    def _name_matches(self, search_term: str, team_name: str) -> bool:
+        """Check if team name matches search term"""
+        search_lower = search_term.lower()
+        team_lower = team_name.lower()
+        
+        # Direct substring match
+        if search_lower in team_lower:
+            return True
+            
+        # Word overlap
+        search_words = set(search_lower.split())
+        team_words = set(team_lower.split())
+        
+        # At least one word must match
+        return len(search_words.intersection(team_words)) > 0
+    
+
     
 
     
