@@ -57,14 +57,14 @@ function RosterImport({ team, onSuccess }: RosterImportProps) {
       const response = await fetch(`/api/roster/teams/search?query=${encodeURIComponent(team.name)}&division=${division}`);
       
       const data = await response.json();
+      console.log('RosterImport search response:', data);
       if (data.success && data.teams) {
         setMatchedTeams(data.teams.map((t: any) => ({
-          team_id: t.teamId,
-          team_name: t.teamName,
-          division: division,
-          player_count: t.playerCount,
-          has_roster: t.hasRoster,
-          match_score: t.matchScore
+          team_id: t.id,
+          team_name: t.name,
+          division: t.ageGroup,
+          affiliate: t.affiliate,
+          confidence: t.confidence
         })));
       } else {
         setMatchedTeams([]);
@@ -160,7 +160,7 @@ function RosterImport({ team, onSuccess }: RosterImportProps) {
                     <div className="flex flex-col items-start">
                       <span className="font-medium">{obaTeam.team_name}</span>
                       <span className="text-xs text-gray-500">
-                        {obaTeam.player_count} players
+                        {obaTeam.affiliate} • {obaTeam.division} • {obaTeam.confidence}% match
                       </span>
                     </div>
                   </SelectItem>
