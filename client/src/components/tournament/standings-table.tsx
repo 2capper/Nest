@@ -67,6 +67,11 @@ const calculateStats = (teamId: string, games: Game[], teamIdFilter?: string[]):
   return stats;
 };
 
+// Helper function for floating-point comparison with precision tolerance
+const isEqual = (a: number, b: number, tolerance = 0.001): boolean => {
+  return Math.abs(a - b) < tolerance;
+};
+
 const resolveTie = (tiedTeams: any[], allGames: Game[]): any[] => {
   if (tiedTeams.length <= 1) return tiedTeams;
   
@@ -75,12 +80,12 @@ const resolveTie = (tiedTeams: any[], allGames: Game[]): any[] => {
 
   const regroupAndResolve = (getMetric: (team: any) => number, descending = false) => {
     sortedTeams.sort((a, b) => descending ? getMetric(b) - getMetric(a) : getMetric(a) - getMetric(b));
-    if (getMetric(sortedTeams[0]) !== getMetric(sortedTeams[sortedTeams.length - 1])) {
+    if (!isEqual(getMetric(sortedTeams[0]), getMetric(sortedTeams[sortedTeams.length - 1]))) {
       const groups: any[][] = [];
       let currentGroup = [sortedTeams[0]];
       
       for (let i = 1; i < sortedTeams.length; i++) {
-        if (getMetric(sortedTeams[i]) === getMetric(currentGroup[0])) {
+        if (isEqual(getMetric(sortedTeams[i]), getMetric(currentGroup[0]))) {
           currentGroup.push(sortedTeams[i]);
         } else {
           groups.push(currentGroup);
