@@ -209,34 +209,37 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateGameWithAudit(id: string, updates: GameUpdate, userId: string, metadata?: any): Promise<Game> {
-    // Get current game state for audit trail
-    const [currentGame] = await db.select().from(games).where(eq(games.id, id));
-    if (!currentGame) {
-      throw new Error("Game not found");
-    }
+    // Use database transaction to ensure atomic operation and prevent race conditions
+    return await db.transaction(async (tx) => {
+      // Get current game state for audit trail
+      const [currentGame] = await tx.select().from(games).where(eq(games.id, id));
+      if (!currentGame) {
+        throw new Error("Game not found");
+      }
 
-    // Perform the update
-    const [updatedGame] = await db.update(games).set(updates).where(eq(games.id, id)).returning();
+      // Perform the update within transaction
+      const [updatedGame] = await tx.update(games).set(updates).where(eq(games.id, id)).returning();
 
-    // Create audit log entry
-    await this.createAuditLog({
-      userId,
-      action: "score_update",
-      entityType: "game",
-      entityId: id,
-      oldValues: {
-        homeScore: currentGame.homeScore,
-        awayScore: currentGame.awayScore,
-        homeInningsBatted: currentGame.homeInningsBatted,
-        awayInningsBatted: currentGame.awayInningsBatted,
-        status: currentGame.status,
-        forfeitStatus: currentGame.forfeitStatus
-      },
-      newValues: updates,
-      metadata
+      // Create audit log entry within same transaction
+      await tx.insert(auditLogs).values({
+        userId,
+        action: "score_update",
+        entityType: "game",
+        entityId: id,
+        oldValues: {
+          homeScore: currentGame.homeScore,
+          awayScore: currentGame.awayScore,
+          homeInningsBatted: currentGame.homeInningsBatted,
+          awayInningsBatted: currentGame.awayInningsBatted,
+          status: currentGame.status,
+          forfeitStatus: currentGame.forfeitStatus
+        },
+        newValues: updates,
+        metadata
+      });
+
+      return updatedGame;
     });
-
-    return updatedGame;
   }
 
   async deleteGame(id: string): Promise<void> {
