@@ -48,6 +48,11 @@ export const tournaments = pgTable("tournaments", {
   name: text("name").notNull(),
   startDate: text("start_date").notNull(),
   endDate: text("end_date").notNull(),
+  type: text("type").notNull().default("pool_play"), // "single_elimination" | "double_elimination" | "pool_play"
+  numberOfTeams: integer("number_of_teams").default(8),
+  numberOfPools: integer("number_of_pools").default(2),
+  numberOfPlayoffTeams: integer("number_of_playoff_teams").default(6),
+  showTiebreakers: boolean("show_tiebreakers").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -213,6 +218,15 @@ export const gameUpdateSchema = insertGameSchema.partial().extend({
   status: z.enum(["scheduled", "completed"]).optional(),
 });
 
+// Enhanced tournament creation schema with tournament configuration
+export const tournamentCreationSchema = insertTournamentSchema.extend({
+  type: z.enum(["single_elimination", "double_elimination", "pool_play"]).default("pool_play"),
+  numberOfTeams: z.number().int().min(4).max(64).default(8),
+  numberOfPools: z.number().int().min(1).max(8).default(2),
+  numberOfPlayoffTeams: z.number().int().min(2).max(32).default(6),
+  showTiebreakers: z.boolean().default(true),
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
@@ -239,3 +253,4 @@ export type InsertObaTeam = z.infer<typeof insertObaTeamSchema>;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type GameUpdate = z.infer<typeof gameUpdateSchema>;
+export type TournamentCreation = z.infer<typeof tournamentCreationSchema>;
