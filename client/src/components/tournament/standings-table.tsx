@@ -585,20 +585,36 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
             <span className="bg-[var(--falcons-green)] text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">!</span>
             Tiebreaker Rules
           </h4>
-          <div className="text-sm text-gray-700 space-y-2">
-            <p className="font-medium text-gray-900">When teams are tied in points, rankings are determined by:</p>
-            <ol className="list-decimal list-inside space-y-1 ml-4">
-              <li><strong>Head-to-head record</strong> among tied teams</li>
-              <li><strong>Fewest runs allowed per defensive inning</strong> (RA/Inn) among tied teams</li>
-              <li><strong>Fewest runs allowed per defensive inning</strong> (RA/Inn) in all games</li>
-              <li><strong>Most runs scored per offensive inning</strong> among tied teams</li>
-              <li><strong>Most runs scored per offensive inning</strong> in all games</li>
-              <li><strong>Alphabetical order</strong> (final tiebreaker)</li>
-            </ol>
-            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+          <div className="text-sm text-gray-700 space-y-3">
+            <div>
+              <p className="font-medium text-gray-900 mb-2">Point System:</p>
+              <div className="ml-4 text-xs space-y-1">
+                <div><strong>Win</strong> = 2 pts | <strong>Tie</strong> = 1 pt | <strong>Loss</strong> = 0 pts</div>
+              </div>
+            </div>
+            
+            <div>
+              <p className="font-medium text-gray-900">When teams are tied in points, rankings are determined by:</p>
+              <ol className="list-decimal list-inside space-y-1 ml-4">
+                <li><strong>Teams with a forfeit loss are ineligible</strong> for tiebreakers</li>
+                <li><strong>Head-to-head record</strong> among tied teams</li>
+                <li><strong>Smallest runs against ratio</strong> (runs allowed ÷ defensive innings played) in games among tied teams</li>
+                <li><strong>Smallest runs against ratio</strong> (runs allowed ÷ defensive innings played) in all games</li>
+                <li><strong>Highest runs for ratio</strong> (runs scored ÷ offensive innings played) in games among tied teams</li>
+                <li><strong>Highest runs for ratio</strong> (runs scored ÷ offensive innings played) in all games</li>
+                <li><strong>Coin toss</strong> (final tiebreaker)</li>
+              </ol>
+            </div>
+
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-xs text-blue-800">
+                <strong>Special Rule for 3+ Team Ties:</strong> When 3 or more teams are tied, head-to-head record (rule #2) is excluded until only 2 teams remain. Once down to 2 teams, tiebreakers restart from head-to-head record.
+              </p>
+            </div>
+
+            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
               <p className="text-xs text-yellow-800">
-                <strong>Note:</strong> DIP = Defensive Innings Played, RA/Inn = Runs Allowed per Defensive Inning. 
-                These statistics help ensure fair rankings when teams have played different numbers of games or innings.
+                <strong>Abbreviations:</strong> DIP = Defensive Innings Played, RA/Inn = Runs Allowed per Defensive Inning. These ratios ensure fair comparison when teams have played different numbers of games or innings.
               </p>
             </div>
           </div>
