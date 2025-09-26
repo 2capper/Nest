@@ -193,8 +193,14 @@ const resolveTie = (tiedTeams: any[], allGames: Game[]): any[] => {
   result = regroupAndResolve(t => t.runsForPerInning, true);
   if (result) return [...result, ...ineligibleTeams];
 
-  // (b)(6) Coin toss (alphabetical as substitute)
-  const finalResult = sortedTeams.sort((a, b) => a.name.localeCompare(b.name));
+  // (b)(6) Coin toss (final tiebreaker)
+  // Use team IDs to create deterministic but pseudo-random ordering
+  // This ensures consistent results across renders while simulating coin toss
+  const finalResult = sortedTeams.sort((a, b) => {
+    const aHash = a.id.toString().split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    const bHash = b.id.toString().split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    return aHash - bHash;
+  });
   return [...finalResult, ...ineligibleTeams];
 };
 
