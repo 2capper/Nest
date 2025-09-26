@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { Team, Game, Pool, AgeDivision } from '@shared/schema';
+import { Team, Game, Pool, AgeDivision, Tournament } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -9,6 +9,7 @@ interface StandingsTableProps {
   games: Game[];
   pools: Pool[];
   ageDivisions: AgeDivision[];
+  tournament?: Tournament | null;
   showPoolColumn?: boolean;
 }
 
@@ -197,7 +198,7 @@ const resolveTie = (tiedTeams: any[], allGames: Game[]): any[] => {
   return [...finalResult, ...ineligibleTeams];
 };
 
-export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColumn = true }: StandingsTableProps) => {
+export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, showPoolColumn = true }: StandingsTableProps) => {
   const [selectedDivision, setSelectedDivision] = useState<string | null>(null);
   const [selectedPool, setSelectedPool] = useState<string | null>(null);
   
@@ -401,7 +402,7 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
                 <div className="text-xs text-gray-500">PTS</div>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3 text-center">
+            <div className={`grid gap-3 text-center ${(tournament?.showTiebreakers !== false) ? 'grid-cols-3' : 'grid-cols-2'}`}>
               <div>
                 <div className="text-sm font-semibold text-gray-900">{team.wins}-{team.losses}-{team.ties}</div>
                 <div className="text-xs text-gray-500">W-L-T</div>
@@ -414,10 +415,12 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
                 </div>
                 <div className="text-xs text-gray-500">RF/RA</div>
               </div>
-              <div>
-                <div className="text-sm font-semibold text-gray-900">{team.runsAgainstPerInning.toFixed(2)}</div>
-                <div className="text-xs text-gray-500">RA/Inn</div>
-              </div>
+              {(tournament?.showTiebreakers !== false) && (
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">{team.runsAgainstPerInning.toFixed(2)}</div>
+                  <div className="text-xs text-gray-500">RA/Inn</div>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -434,8 +437,12 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">W-L-T</th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">RF</th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">RA</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Defensive Innings Played">DIP</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Runs Allowed per Defensive Inning">RA/Inn</th>
+              {(tournament?.showTiebreakers !== false) && (
+                <>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Defensive Innings Played">DIP</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Runs Allowed per Defensive Inning">RA/Inn</th>
+                </>
+              )}
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pts</th>
             </tr>
           </thead>
@@ -488,12 +495,16 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, showPoolColu
                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-semibold text-red-600">
                   {team.runsAgainst}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 font-semibold">
-                  {team.defensiveInnings}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 font-semibold">
-                  {team.runsAgainstPerInning.toFixed(2)}
-                </td>
+                {(tournament?.showTiebreakers !== false) && (
+                  <>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 font-semibold">
+                      {team.defensiveInnings}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 font-semibold">
+                      {team.runsAgainstPerInning.toFixed(2)}
+                    </td>
+                  </>
+                )}
                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 font-bold">
                   {team.points}
                 </td>
