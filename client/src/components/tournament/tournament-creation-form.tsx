@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Type, Loader2 } from 'lucide-react';
+import { Plus, Calendar, Type, Loader2, Users, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { insertTournamentSchema } from '@shared/schema';
+import { tournamentCreationSchema } from '@shared/schema';
 
 interface TournamentCreationFormProps {
   onSuccess?: (tournament: any) => void;
@@ -19,6 +21,11 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
     name: '',
     startDate: '',
     endDate: '',
+    type: 'pool_play' as const,
+    numberOfTeams: 8,
+    numberOfPools: 2,
+    numberOfPlayoffTeams: 6,
+    showTiebreakers: true,
   });
   const [isOpen, setIsOpen] = useState(showForm);
   
@@ -55,7 +62,17 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
         ),
       });
       queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
-      setFormData({ id: '', name: '', startDate: '', endDate: '' });
+      setFormData({ 
+        id: '', 
+        name: '', 
+        startDate: '', 
+        endDate: '', 
+        type: 'pool_play' as const,
+        numberOfTeams: 8,
+        numberOfPools: 2,
+        numberOfPlayoffTeams: 6,
+        showTiebreakers: true,
+      });
       setIsOpen(false);
       if (onSuccess) onSuccess(tournament);
     },
@@ -72,9 +89,10 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
     e.preventDefault();
     
     try {
-      const validatedData = insertTournamentSchema.parse(formData);
+      const validatedData = tournamentCreationSchema.parse(formData);
       createTournamentMutation.mutate(validatedData);
     } catch (error) {
+      console.error('Validation error:', error);
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields correctly.",
@@ -85,7 +103,7 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
 
 
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Auto-generate ID when name or startDate changes
@@ -159,6 +177,88 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
                 min={formData.startDate}
               />
             </div>
+          </div>
+          
+          {/* Tournament Configuration */}
+          <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-semibold text-gray-900 flex items-center">
+              <Trophy className="w-4 h-4 mr-2" />
+              Tournament Configuration
+            </h3>
+            
+            <div>
+              <Label htmlFor="tournamentType">Tournament Type</Label>
+              <Select 
+                value={formData.type} 
+                onValueChange={(value) => handleInputChange('type', value)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select tournament type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pool_play">Pool Play with Playoffs</SelectItem>
+                  <SelectItem value="single_elimination">Single Elimination</SelectItem>
+                  <SelectItem value="double_elimination">Double Elimination</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="numberOfTeams">Number of Teams</Label>
+              <Input
+                id="numberOfTeams"
+                type="number"
+                min="4"
+                max="64"
+                value={formData.numberOfTeams}
+                onChange={(e) => handleInputChange('numberOfTeams', parseInt(e.target.value) || 8)}
+                className="mt-1"
+              />
+            </div>
+            
+            {formData.type === 'pool_play' && (
+              <>
+                <div>
+                  <Label htmlFor="numberOfPools">Number of Pools</Label>
+                  <Input
+                    id="numberOfPools"
+                    type="number"
+                    min="1"
+                    max="8"
+                    value={formData.numberOfPools}
+                    onChange={(e) => handleInputChange('numberOfPools', parseInt(e.target.value) || 2)}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="numberOfPlayoffTeams">Number of Playoff Teams</Label>
+                  <Input
+                    id="numberOfPlayoffTeams"
+                    type="number"
+                    min="2"
+                    max="32"
+                    value={formData.numberOfPlayoffTeams}
+                    onChange={(e) => handleInputChange('numberOfPlayoffTeams', parseInt(e.target.value) || 6)}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Top teams from pools advance to playoff bracket
+                  </p>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="showTiebreakers"
+                    checked={formData.showTiebreakers}
+                    onCheckedChange={(checked) => handleInputChange('showTiebreakers', checked)}
+                  />
+                  <Label htmlFor="showTiebreakers" className="text-sm">
+                    Show detailed tiebreaker information in standings
+                  </Label>
+                </div>
+              </>
+            )}
           </div>
           
           <div>
