@@ -132,8 +132,8 @@ export const HierarchicalScoreInput = ({
     updateGameMutation.mutate({
       homeScore: Number(homeScore),
       awayScore: Number(awayScore),
-      homeInningsBatted: homeInnings,
-      awayInningsBatted: awayInnings,
+      homeInningsBatted: Number(homeInnings),
+      awayInningsBatted: Number(awayInnings),
       status: 'completed',
       forfeitStatus
     });
