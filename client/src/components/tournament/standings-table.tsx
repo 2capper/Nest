@@ -577,6 +577,33 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
           </div>
         </div>
       ))}
+
+      {/* Tiebreaker Information Section */}
+      {(tournament?.showTiebreakers !== false) && (
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 mt-8">
+          <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <span className="bg-[var(--falcons-green)] text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">!</span>
+            Tiebreaker Rules
+          </h4>
+          <div className="text-sm text-gray-700 space-y-2">
+            <p className="font-medium text-gray-900">When teams are tied in points, rankings are determined by:</p>
+            <ol className="list-decimal list-inside space-y-1 ml-4">
+              <li><strong>Head-to-head record</strong> among tied teams</li>
+              <li><strong>Fewest runs allowed per defensive inning</strong> (RA/Inn) among tied teams</li>
+              <li><strong>Fewest runs allowed per defensive inning</strong> (RA/Inn) in all games</li>
+              <li><strong>Most runs scored per offensive inning</strong> among tied teams</li>
+              <li><strong>Most runs scored per offensive inning</strong> in all games</li>
+              <li><strong>Alphabetical order</strong> (final tiebreaker)</li>
+            </ol>
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-xs text-yellow-800">
+                <strong>Note:</strong> DIP = Defensive Innings Played, RA/Inn = Runs Allowed per Defensive Inning. 
+                These statistics help ensure fair rankings when teams have played different numbers of games or innings.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
