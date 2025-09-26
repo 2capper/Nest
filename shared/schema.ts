@@ -99,6 +99,19 @@ export const games = pgTable("games", {
   isPlayoff: boolean("is_playoff").notNull().default(false),
 });
 
+// Audit log table for tracking score changes and administrative actions
+export const auditLogs = pgTable("audit_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  action: text("action").notNull(), // "score_update" | "game_create" | "game_delete" | etc
+  entityType: text("entity_type").notNull(), // "game" | "team" | "tournament"
+  entityId: text("entity_id").notNull(),
+  oldValues: jsonb("old_values"), // Previous values before change
+  newValues: jsonb("new_values"), // New values after change
+  metadata: jsonb("metadata"), // Additional context (IP, user agent, etc.)
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+});
+
 // Relations
 export const tournamentsRelations = relations(tournaments, ({ many }) => ({
   ageDivisions: many(ageDivisions),
@@ -185,6 +198,20 @@ export const insertObaTeamSchema = createInsertSchema(obaTeams).omit({
   id: true,
   lastScanned: true,
 });
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  timestamp: true,
+});
+
+// Game update validation schema with strict score validation
+export const gameUpdateSchema = insertGameSchema.partial().extend({
+  homeScore: z.number().int().min(0).max(50).optional().nullable(),
+  awayScore: z.number().int().min(0).max(50).optional().nullable(),
+  homeInningsBatted: z.number().min(0).max(20).optional().nullable(),
+  awayInningsBatted: z.number().min(0).max(20).optional().nullable(),
+  forfeitStatus: z.enum(["none", "home", "away"]).optional(),
+  status: z.enum(["scheduled", "completed"]).optional(),
+});
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -208,3 +235,7 @@ export type InsertGame = z.infer<typeof insertGameSchema>;
 
 export type ObaTeam = typeof obaTeams.$inferSelect;
 export type InsertObaTeam = z.infer<typeof insertObaTeamSchema>;
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+export type GameUpdate = z.infer<typeof gameUpdateSchema>;

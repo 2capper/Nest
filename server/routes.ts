@@ -6,7 +6,8 @@ import {
   insertAgeDivisionSchema, 
   insertPoolSchema, 
   insertTeamSchema, 
-  insertGameSchema 
+  insertGameSchema,
+  gameUpdateSchema
 } from "@shared/schema";
 import { setupAuth, isAuthenticated, requireAdmin } from "./replitAuth";
 
@@ -972,10 +973,35 @@ Waterdown 10U AA
 
   app.put("/api/games/:id", requireAdmin, async (req, res) => {
     try {
-      const game = await storage.updateGame(req.params.id, req.body);
+      // Validate the game update data
+      const validatedData = gameUpdateSchema.parse(req.body);
+      
+      // Get user ID from the authenticated session
+      const user = req.user as any;
+      const userId = user.claims.sub;
+      
+      // Prepare metadata for audit trail
+      const metadata = {
+        ip: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent'),
+        timestamp: new Date().toISOString()
+      };
+      
+      // Update game with audit logging
+      const game = await storage.updateGameWithAudit(req.params.id, validatedData, userId, metadata);
+      
       res.json(game);
     } catch (error) {
       console.error("Error updating game:", error);
+      
+      // Provide specific error messages for validation failures
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ 
+          error: "Invalid score data", 
+          details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`) 
+        });
+      }
+      
       res.status(400).json({ error: "Failed to update game" });
     }
   });

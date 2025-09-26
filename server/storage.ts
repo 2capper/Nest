@@ -5,6 +5,7 @@ import {
   pools, 
   teams, 
   games,
+  auditLogs,
   type User, 
   type InsertUser,
   type UpsertUser,
@@ -17,7 +18,10 @@ import {
   type Team,
   type InsertTeam,
   type Game,
-  type InsertGame
+  type InsertGame,
+  type AuditLog,
+  type InsertAuditLog,
+  type GameUpdate
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql } from "drizzle-orm";
@@ -55,7 +59,12 @@ export interface IStorage {
   getGames(tournamentId: string): Promise<Game[]>;
   createGame(game: InsertGame): Promise<Game>;
   updateGame(id: string, game: Partial<InsertGame>): Promise<Game>;
+  updateGameWithAudit(id: string, updates: GameUpdate, userId: string, metadata?: any): Promise<Game>;
   deleteGame(id: string): Promise<void>;
+  
+  // Audit log methods
+  createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog>;
+  getAuditLogs(entityType?: string, entityId?: string): Promise<AuditLog[]>;
   
   // Bulk operations
   bulkCreateTeams(teams: InsertTeam[]): Promise<Team[]>;
@@ -199,8 +208,57 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async updateGameWithAudit(id: string, updates: GameUpdate, userId: string, metadata?: any): Promise<Game> {
+    // Get current game state for audit trail
+    const [currentGame] = await db.select().from(games).where(eq(games.id, id));
+    if (!currentGame) {
+      throw new Error("Game not found");
+    }
+
+    // Perform the update
+    const [updatedGame] = await db.update(games).set(updates).where(eq(games.id, id)).returning();
+
+    // Create audit log entry
+    await this.createAuditLog({
+      userId,
+      action: "score_update",
+      entityType: "game",
+      entityId: id,
+      oldValues: {
+        homeScore: currentGame.homeScore,
+        awayScore: currentGame.awayScore,
+        homeInningsBatted: currentGame.homeInningsBatted,
+        awayInningsBatted: currentGame.awayInningsBatted,
+        status: currentGame.status,
+        forfeitStatus: currentGame.forfeitStatus
+      },
+      newValues: updates,
+      metadata
+    });
+
+    return updatedGame;
+  }
+
   async deleteGame(id: string): Promise<void> {
     await db.delete(games).where(eq(games.id, id));
+  }
+
+  // Audit log methods
+  async createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog> {
+    const [result] = await db.insert(auditLogs).values(auditLog).returning();
+    return result;
+  }
+
+  async getAuditLogs(entityType?: string, entityId?: string): Promise<AuditLog[]> {
+    let query = db.select().from(auditLogs);
+    
+    if (entityType && entityId) {
+      query = query.where(and(eq(auditLogs.entityType, entityType), eq(auditLogs.entityId, entityId)));
+    } else if (entityType) {
+      query = query.where(eq(auditLogs.entityType, entityType));
+    }
+    
+    return await query.orderBy(sql`${auditLogs.timestamp} DESC`);
   }
 
   // Bulk operations
