@@ -37,9 +37,9 @@ export const HierarchicalScoreInput = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Filter to only show 11U and 13U divisions
+  // Show all available divisions
   const targetDivisions = useMemo(() => 
-    ageDivisions.filter(div => div.name === '11U' || div.name === '13U'),
+    ageDivisions,
     [ageDivisions]
   );
 

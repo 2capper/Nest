@@ -205,10 +205,8 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
   const standingsByDivision = useMemo(() => {
     if (!teams.length || !ageDivisions.length) return [];
     
-    // Filter to only show 11U and 13U divisions using real division data
-    const targetDivisions = ageDivisions.filter(div => 
-      div.name === '11U' || div.name === '13U'
-    );
+    // Show all available divisions using real division data
+    const targetDivisions = ageDivisions;
     
     return targetDivisions.map(division => {
       // Get pools for this division
