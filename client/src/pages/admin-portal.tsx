@@ -147,7 +147,11 @@ export default function AdminPortal() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SimpleNavigation tournamentId={currentTournamentId} currentPage="admin" />
+      <SimpleNavigation 
+        tournamentId={currentTournamentId} 
+        currentPage="admin" 
+        tournament={currentTournament}
+      />
 
       {/* Main Content */}
       <div className="px-4 py-4 md:py-8">
