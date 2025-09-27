@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Type, Loader2, Users, Trophy } from 'lucide-react';
+import { Plus, Calendar, Type, Loader2, Users, Trophy, Palette, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +26,9 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
     numberOfPools: 2,
     numberOfPlayoffTeams: 6,
     showTiebreakers: true,
+    customName: '',
+    accentColor: '#22c55e',
+    logoUrl: '',
   });
   const [isOpen, setIsOpen] = useState(showForm);
   
@@ -72,6 +75,9 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
         numberOfPools: 2,
         numberOfPlayoffTeams: 6,
         showTiebreakers: true,
+        customName: '',
+        accentColor: '#22c55e',
+        logoUrl: '',
       });
       setIsOpen(false);
       if (onSuccess) onSuccess(tournament);
@@ -258,6 +264,88 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
                   </Label>
                 </div>
               </>
+            )}
+          </div>
+          
+          {/* Branding & Appearance Section */}
+          <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-semibold text-gray-900 flex items-center">
+              <Palette className="w-4 h-4 mr-2" />
+              Branding & Appearance
+            </h3>
+            
+            <div>
+              <Label htmlFor="customName">Custom Tournament Display Name</Label>
+              <Input
+                id="customName"
+                type="text"
+                value={formData.customName}
+                onChange={(e) => handleInputChange('customName', e.target.value)}
+                placeholder="e.g., Forest Glade Falcons Championship"
+                className="mt-1"
+                data-testid="input-custom-name"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Optional display name that will appear throughout the tournament interface
+              </p>
+            </div>
+            
+            <div>
+              <Label htmlFor="accentColor">Accent Color</Label>
+              <div className="flex items-center space-x-3 mt-1">
+                <Input
+                  id="accentColor"
+                  type="color"
+                  value={formData.accentColor}
+                  onChange={(e) => handleInputChange('accentColor', e.target.value)}
+                  className="w-16 h-10 p-1 border border-gray-300 rounded cursor-pointer"
+                  data-testid="input-accent-color"
+                />
+                <Input
+                  type="text"
+                  value={formData.accentColor}
+                  onChange={(e) => handleInputChange('accentColor', e.target.value)}
+                  placeholder="#22c55e"
+                  className="flex-1 font-mono text-sm"
+                  pattern="^#[0-9A-Fa-f]{6}$"
+                  data-testid="input-accent-color-text"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Custom color for buttons, highlights, and branding elements
+              </p>
+            </div>
+            
+            <div>
+              <Label htmlFor="logoUrl">Tournament Logo URL</Label>
+              <Input
+                id="logoUrl"
+                type="url"
+                value={formData.logoUrl}
+                onChange={(e) => handleInputChange('logoUrl', e.target.value)}
+                placeholder="https://example.com/logo.png"
+                className="mt-1"
+                data-testid="input-logo-url"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                URL to a logo image that will be displayed in the tournament header
+              </p>
+            </div>
+            
+            {/* Logo Preview */}
+            {formData.logoUrl && (
+              <div className="mt-3 p-3 bg-white border border-gray-200 rounded-md">
+                <p className="text-xs text-gray-600 mb-2">Logo Preview:</p>
+                <img 
+                  src={formData.logoUrl} 
+                  alt="Tournament Logo Preview" 
+                  className="max-h-16 max-w-32 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                  data-testid="img-logo-preview"
+                />
+              </div>
             )}
           </div>
           
