@@ -49,11 +49,11 @@ export default function Dashboard() {
       <SimpleNavigation 
         tournamentId={currentTournamentId} 
         currentPage="dashboard" 
-        tournament={currentTournament}
+        tournament={currentTournament || undefined}
       />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardHeader tournamentId={currentTournamentId} />
+        <DashboardHeader />
         
         <TournamentCards 
           tournaments={tournaments}
@@ -64,12 +64,41 @@ export default function Dashboard() {
         />
 
         <div className="mt-8">
-          <Tabs defaultValue="standings" className="w-full tabs-forest">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="standings">Standings</TabsTrigger>
-              <TabsTrigger value="games">Games</TabsTrigger>
-              <TabsTrigger value="teams">Teams</TabsTrigger>
-              <TabsTrigger value="playoffs">Playoffs</TabsTrigger>
+          <Tabs defaultValue="standings" className="w-full">
+            <TabsList 
+              className="grid w-full grid-cols-4"
+              style={{
+                '--tab-bg': currentTournament?.accentColor || 'hsl(120, 45%, 25%)',
+                '--tab-bg-hover': currentTournament?.accentColor ? `color-mix(in srgb, ${currentTournament.accentColor} 80%, #000 20%)` : 'hsl(120, 45%, 20%)',
+                '--tab-text': '#ffffff',
+                '--tab-active-bg': '#ffffff',
+                '--tab-active-text': currentTournament?.accentColor || 'hsl(120, 45%, 25%)',
+              } as React.CSSProperties}
+            >
+              <TabsTrigger 
+                value="standings"
+                className="data-[state=active]:bg-[var(--tab-active-bg)] data-[state=active]:text-[var(--tab-active-text)] bg-[var(--tab-bg)] text-[var(--tab-text)] hover:bg-[var(--tab-bg-hover)]"
+              >
+                Standings
+              </TabsTrigger>
+              <TabsTrigger 
+                value="games"
+                className="data-[state=active]:bg-[var(--tab-active-bg)] data-[state=active]:text-[var(--tab-active-text)] bg-[var(--tab-bg)] text-[var(--tab-text)] hover:bg-[var(--tab-bg-hover)]"
+              >
+                Games
+              </TabsTrigger>
+              <TabsTrigger 
+                value="teams"
+                className="data-[state=active]:bg-[var(--tab-active-bg)] data-[state=active]:text-[var(--tab-active-text)] bg-[var(--tab-bg)] text-[var(--tab-text)] hover:bg-[var(--tab-bg-hover)]"
+              >
+                Teams
+              </TabsTrigger>
+              <TabsTrigger 
+                value="playoffs"
+                className="data-[state=active]:bg-[var(--tab-active-bg)] data-[state=active]:text-[var(--tab-active-text)] bg-[var(--tab-bg)] text-[var(--tab-text)] hover:bg-[var(--tab-bg-hover)]"
+              >
+                Playoffs
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="standings" className="mt-6">
@@ -105,6 +134,7 @@ export default function Dashboard() {
                 games={games}
                 pools={pools}
                 ageDivisions={ageDivisions}
+                tournamentId={currentTournamentId}
               />
             </TabsContent>
           </Tabs>
