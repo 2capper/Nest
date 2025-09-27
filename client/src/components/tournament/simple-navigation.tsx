@@ -4,32 +4,60 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import fLogo from '@assets/519-fsu-falcons.webp';
 
-const NestLogo = () => (
+interface TournamentBranding {
+  name: string;
+  customName?: string | null;
+  logoUrl?: string | null;
+  accentColor?: string | null;
+}
+
+interface TournamentLogoProps {
+  tournament?: TournamentBranding;
+}
+
+const TournamentLogo = ({ tournament }: TournamentLogoProps) => (
   <div className="flex items-center">
     <img 
-      src={fLogo} 
-      alt="Forest Glade Falcons" 
+      src={tournament?.logoUrl || fLogo} 
+      alt={tournament?.customName || tournament?.name || "Tournament"} 
       className="h-10 w-auto mr-2"
+      onError={(e) => {
+        // Fallback to default logo if custom logo fails to load
+        if (tournament?.logoUrl && e.currentTarget.src !== fLogo) {
+          e.currentTarget.src = fLogo;
+        }
+      }}
+      data-testid="img-tournament-nav-logo"
     />
-    <span className="text-[var(--forest-green)] font-bold text-lg">The Nest</span>
+    <span 
+      className="font-bold text-lg"
+      style={{ color: tournament?.accentColor || '#22c55e' }}
+      data-testid="text-tournament-nav-name"
+    >
+      {tournament?.customName || tournament?.name || "The Nest"}
+    </span>
   </div>
 );
 
 interface SimpleNavigationProps {
   tournamentId: string;
   currentPage: 'dashboard' | 'coach' | 'admin';
+  tournament?: TournamentBranding;
 }
 
-export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigationProps) => {
+export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: SimpleNavigationProps) => {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Get the accent color for styling
+  const accentColor = tournament?.accentColor || '#22c55e';
   
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <NestLogo />
+            <TournamentLogo tournament={tournament} />
           </div>
           
           {/* Desktop Navigation */}
@@ -38,7 +66,25 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'dashboard' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`${currentPage === 'dashboard' ? 'bg-[var(--forest-green)] text-white font-semibold' : 'text-[var(--forest-green)] hover:bg-[var(--forest-green)] hover:text-white'}`}
+                className={`${currentPage === 'dashboard' ? 'text-white font-semibold' : 'hover:text-white'}`}
+                style={{
+                  backgroundColor: currentPage === 'dashboard' ? accentColor : 'transparent',
+                  color: currentPage === 'dashboard' ? 'white' : accentColor,
+                  ...(currentPage !== 'dashboard' && {
+                    '--tw-hover-bg-opacity': '1'
+                  })
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== 'dashboard') {
+                    e.currentTarget.style.backgroundColor = accentColor;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== 'dashboard') {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+                data-testid="button-nav-dashboard"
               >
                 <Home className="w-4 h-4 mr-2" />
                 Dashboard
@@ -49,7 +95,22 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'coach' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`${currentPage === 'coach' ? 'bg-[var(--forest-green)] text-white font-semibold' : 'text-[var(--forest-green)] hover:bg-[var(--forest-green)] hover:text-white'}`}
+                className={`${currentPage === 'coach' ? 'text-white font-semibold' : 'hover:text-white'}`}
+                style={{
+                  backgroundColor: currentPage === 'coach' ? accentColor : 'transparent',
+                  color: currentPage === 'coach' ? 'white' : accentColor,
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== 'coach') {
+                    e.currentTarget.style.backgroundColor = accentColor;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== 'coach') {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+                data-testid="button-nav-score-input"
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Score Input
@@ -60,7 +121,22 @@ export const SimpleNavigation = ({ tournamentId, currentPage }: SimpleNavigation
               <Button 
                 variant={currentPage === 'admin' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`${currentPage === 'admin' ? 'bg-[var(--forest-green)] text-white font-semibold' : 'text-[var(--forest-green)] hover:bg-[var(--forest-green)] hover:text-white'}`}
+                className={`${currentPage === 'admin' ? 'text-white font-semibold' : 'hover:text-white'}`}
+                style={{
+                  backgroundColor: currentPage === 'admin' ? accentColor : 'transparent',
+                  color: currentPage === 'admin' ? 'white' : accentColor,
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== 'admin') {
+                    e.currentTarget.style.backgroundColor = accentColor;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== 'admin') {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+                data-testid="button-nav-admin"
               >
                 <Shield className="w-4 h-4 mr-2" />
                 Admin

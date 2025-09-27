@@ -82,33 +82,54 @@ export default function TournamentDashboard() {
       <SimpleNavigation 
         tournamentId={tournamentId}
         currentPage='dashboard'
+        tournament={currentTournament}
       />
       
       <div className="px-4 py-4 md:py-8">
-        {/* Tournament Header */}
+        {/* Tournament Header with Custom Branding */}
         <div className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                {currentTournament.name}
-              </h1>
-              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  {currentTournament.startDate} - {currentTournament.endDate}
-                </div>
-                <div className="flex items-center">
-                  <Users className="w-4 h-4 mr-1" />
-                  {teams.length} Teams
-                </div>
-                <div className="flex items-center">
-                  <Trophy className="w-4 h-4 mr-1" />
-                  {ageDivisions.length} Divisions
+            <div className="flex items-center gap-4">
+              {/* Tournament Logo */}
+              {currentTournament.logoUrl && (
+                <img
+                  src={currentTournament.logoUrl}
+                  alt="Tournament Logo"
+                  className="h-16 w-auto object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                  data-testid="img-tournament-logo"
+                />
+              )}
+              
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                  {currentTournament.customName || currentTournament.name}
+                </h1>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                  <div className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    {currentTournament.startDate} - {currentTournament.endDate}
+                  </div>
+                  <div className="flex items-center">
+                    <Users className="w-4 h-4 mr-1" />
+                    {teams.length} Teams
+                  </div>
+                  <div className="flex items-center">
+                    <Trophy className="w-4 h-4 mr-1" />
+                    {ageDivisions.length} Divisions
+                  </div>
                 </div>
               </div>
             </div>
             <div>
-              <Badge variant="outline" className="text-[var(--falcons-green)] text-xs px-2 py-1 w-fit">
+              <Badge 
+                variant="outline" 
+                className="text-xs px-2 py-1 w-fit border-current"
+                style={{ color: currentTournament.accentColor || '#22c55e' }}
+                data-testid="badge-tournament-id"
+              >
                 ID: {tournamentId}
               </Badge>
             </div>
