@@ -53,6 +53,9 @@ export const tournaments = pgTable("tournaments", {
   numberOfPools: integer("number_of_pools").default(2),
   numberOfPlayoffTeams: integer("number_of_playoff_teams").default(6),
   showTiebreakers: boolean("show_tiebreakers").notNull().default(true),
+  customName: text("custom_name"), // Custom display name for tournament branding
+  accentColor: text("accent_color").default("#22c55e"), // Custom accent color (default: green)
+  logoUrl: text("logo_url"), // URL to custom tournament logo
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -225,6 +228,9 @@ export const tournamentCreationSchema = insertTournamentSchema.extend({
   numberOfPools: z.number().int().min(1).max(8).default(2),
   numberOfPlayoffTeams: z.number().int().min(2).max(32).default(6),
   showTiebreakers: z.boolean().default(true),
+  customName: z.string().min(1).max(100).optional(),
+  accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).default("#22c55e"),
+  logoUrl: z.string().url().max(500).optional(),
 });
 
 // Types
