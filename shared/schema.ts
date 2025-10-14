@@ -232,7 +232,7 @@ export const tournamentCreationSchema = insertTournamentSchema.extend({
   customName: z.string().min(1).max(100).optional(),
   primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).default("#22c55e"),
   secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).default("#ffffff"),
-  logoUrl: z.string().url().max(500).optional(),
+  logoUrl: z.string().url().max(2000).optional().or(z.literal('')),
 });
 
 // Types
