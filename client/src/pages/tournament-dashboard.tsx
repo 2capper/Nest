@@ -127,7 +127,7 @@ export default function TournamentDashboard() {
               <Badge 
                 variant="outline" 
                 className="text-xs px-2 py-1 w-fit border-current"
-                style={{ color: currentTournament.accentColor || '#22c55e' }}
+                style={{ color: currentTournament.primaryColor || '#22c55e' }}
                 data-testid="badge-tournament-id"
               >
                 ID: {tournamentId}
@@ -139,12 +139,41 @@ export default function TournamentDashboard() {
 
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="standings" className="mt-6 tabs-forest">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 h-auto">
-            <TabsTrigger value="standings" className="text-xs md:text-sm py-2">Standings</TabsTrigger>
-            <TabsTrigger value="games" className="text-xs md:text-sm py-2">Games</TabsTrigger>
-            <TabsTrigger value="teams" className="text-xs md:text-sm py-2">Teams</TabsTrigger>
-            <TabsTrigger value="playoffs" className="text-xs md:text-sm py-2">Playoffs</TabsTrigger>
+        <Tabs defaultValue="standings" className="mt-6">
+          <TabsList 
+            className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 h-auto"
+            style={{
+              '--tab-bg': currentTournament.primaryColor || 'hsl(120, 45%, 25%)',
+              '--tab-bg-hover': currentTournament.primaryColor ? `color-mix(in srgb, ${currentTournament.primaryColor} 80%, #000 20%)` : 'hsl(120, 45%, 20%)',
+              '--tab-text': currentTournament.secondaryColor || '#ffffff',
+              '--tab-active-bg': currentTournament.secondaryColor || '#ffffff',
+              '--tab-active-text': currentTournament.primaryColor || 'hsl(120, 45%, 25%)',
+            } as React.CSSProperties}
+          >
+            <TabsTrigger 
+              value="standings" 
+              className="text-xs md:text-sm py-2 data-[state=active]:bg-[var(--tab-active-bg)] data-[state=active]:text-[var(--tab-active-text)] bg-[var(--tab-bg)] text-[var(--tab-text)] hover:bg-[var(--tab-bg-hover)]"
+            >
+              Standings
+            </TabsTrigger>
+            <TabsTrigger 
+              value="games" 
+              className="text-xs md:text-sm py-2 data-[state=active]:bg-[var(--tab-active-bg)] data-[state=active]:text-[var(--tab-active-text)] bg-[var(--tab-bg)] text-[var(--tab-text)] hover:bg-[var(--tab-bg-hover)]"
+            >
+              Games
+            </TabsTrigger>
+            <TabsTrigger 
+              value="teams" 
+              className="text-xs md:text-sm py-2 data-[state=active]:bg-[var(--tab-active-bg)] data-[state=active]:text-[var(--tab-active-text)] bg-[var(--tab-bg)] text-[var(--tab-text)] hover:bg-[var(--tab-bg-hover)]"
+            >
+              Teams
+            </TabsTrigger>
+            <TabsTrigger 
+              value="playoffs" 
+              className="text-xs md:text-sm py-2 data-[state=active]:bg-[var(--tab-active-bg)] data-[state=active]:text-[var(--tab-active-text)] bg-[var(--tab-bg)] text-[var(--tab-text)] hover:bg-[var(--tab-bg-hover)]"
+            >
+              Playoffs
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="standings" className="mt-6">

@@ -27,7 +27,8 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
     numberOfPlayoffTeams: 6,
     showTiebreakers: true,
     customName: '',
-    accentColor: '#22c55e',
+    primaryColor: '#22c55e',
+    secondaryColor: '#ffffff',
     logoUrl: '',
   });
   const [isOpen, setIsOpen] = useState(showForm);
@@ -76,7 +77,8 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
         numberOfPlayoffTeams: 6,
         showTiebreakers: true,
         customName: '',
-        accentColor: '#22c55e',
+        primaryColor: '#22c55e',
+        secondaryColor: '#ffffff',
         logoUrl: '',
       });
       setIsOpen(false);
@@ -291,28 +293,54 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
             </div>
             
             <div>
-              <Label htmlFor="accentColor">Accent Color</Label>
+              <Label htmlFor="primaryColor">Primary Color</Label>
               <div className="flex items-center space-x-3 mt-1">
                 <Input
-                  id="accentColor"
+                  id="primaryColor"
                   type="color"
-                  value={formData.accentColor}
-                  onChange={(e) => handleInputChange('accentColor', e.target.value)}
+                  value={formData.primaryColor}
+                  onChange={(e) => handleInputChange('primaryColor', e.target.value)}
                   className="w-16 h-10 p-1 border border-gray-300 rounded cursor-pointer"
-                  data-testid="input-accent-color"
+                  data-testid="input-primary-color"
                 />
                 <Input
                   type="text"
-                  value={formData.accentColor}
-                  onChange={(e) => handleInputChange('accentColor', e.target.value)}
+                  value={formData.primaryColor}
+                  onChange={(e) => handleInputChange('primaryColor', e.target.value)}
                   placeholder="#22c55e"
                   className="flex-1 font-mono text-sm"
                   pattern="^#[0-9A-Fa-f]{6}$"
-                  data-testid="input-accent-color-text"
+                  data-testid="input-primary-color-text"
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Custom color for buttons, highlights, and branding elements
+                Main color for backgrounds, buttons, and tabs
+              </p>
+            </div>
+            
+            <div>
+              <Label htmlFor="secondaryColor">Secondary Color</Label>
+              <div className="flex items-center space-x-3 mt-1">
+                <Input
+                  id="secondaryColor"
+                  type="color"
+                  value={formData.secondaryColor}
+                  onChange={(e) => handleInputChange('secondaryColor', e.target.value)}
+                  className="w-16 h-10 p-1 border border-gray-300 rounded cursor-pointer"
+                  data-testid="input-secondary-color"
+                />
+                <Input
+                  type="text"
+                  value={formData.secondaryColor}
+                  onChange={(e) => handleInputChange('secondaryColor', e.target.value)}
+                  placeholder="#ffffff"
+                  className="flex-1 font-mono text-sm"
+                  pattern="^#[0-9A-Fa-f]{6}$"
+                  data-testid="input-secondary-color-text"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Text color on primary backgrounds (typically white or contrasting color)
               </p>
             </div>
             

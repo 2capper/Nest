@@ -8,7 +8,8 @@ interface TournamentBranding {
   name: string;
   customName?: string | null;
   logoUrl?: string | null;
-  accentColor?: string | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
 }
 
 interface TournamentLogoProps {
@@ -31,7 +32,7 @@ const TournamentLogo = ({ tournament }: TournamentLogoProps) => (
     />
     <span 
       className="font-bold text-lg"
-      style={{ color: tournament?.accentColor || '#22c55e' }}
+      style={{ color: tournament?.primaryColor || '#22c55e' }}
       data-testid="text-tournament-nav-name"
     >
       {tournament?.customName || tournament?.name || "The Nest"}
@@ -49,8 +50,9 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Get the accent color for styling
-  const accentColor = tournament?.accentColor || '#22c55e';
+  // Get the primary and secondary colors for styling
+  const primaryColor = tournament?.primaryColor || '#22c55e';
+  const secondaryColor = tournament?.secondaryColor || '#ffffff';
   
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
@@ -66,22 +68,24 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
               <Button 
                 variant={currentPage === 'dashboard' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`${currentPage === 'dashboard' ? 'text-white font-semibold' : 'hover:text-white'}`}
+                className={`${currentPage === 'dashboard' ? 'font-semibold' : ''}`}
                 style={{
-                  backgroundColor: currentPage === 'dashboard' ? accentColor : 'transparent',
-                  color: currentPage === 'dashboard' ? 'white' : accentColor,
+                  backgroundColor: currentPage === 'dashboard' ? primaryColor : 'transparent',
+                  color: currentPage === 'dashboard' ? secondaryColor : primaryColor,
                   ...(currentPage !== 'dashboard' && {
                     '--tw-hover-bg-opacity': '1'
                   })
                 }}
                 onMouseEnter={(e) => {
                   if (currentPage !== 'dashboard') {
-                    e.currentTarget.style.backgroundColor = accentColor;
+                    e.currentTarget.style.backgroundColor = primaryColor;
+                    e.currentTarget.style.color = secondaryColor;
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (currentPage !== 'dashboard') {
                     e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = primaryColor;
                   }
                 }}
                 data-testid="button-nav-dashboard"
@@ -95,19 +99,21 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
               <Button 
                 variant={currentPage === 'coach' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`${currentPage === 'coach' ? 'text-white font-semibold' : 'hover:text-white'}`}
+                className={`${currentPage === 'coach' ? 'font-semibold' : ''}`}
                 style={{
-                  backgroundColor: currentPage === 'coach' ? accentColor : 'transparent',
-                  color: currentPage === 'coach' ? 'white' : accentColor,
+                  backgroundColor: currentPage === 'coach' ? primaryColor : 'transparent',
+                  color: currentPage === 'coach' ? secondaryColor : primaryColor,
                 }}
                 onMouseEnter={(e) => {
                   if (currentPage !== 'coach') {
-                    e.currentTarget.style.backgroundColor = accentColor;
+                    e.currentTarget.style.backgroundColor = primaryColor;
+                    e.currentTarget.style.color = secondaryColor;
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (currentPage !== 'coach') {
                     e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = primaryColor;
                   }
                 }}
                 data-testid="button-nav-score-input"
@@ -121,19 +127,21 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
               <Button 
                 variant={currentPage === 'admin' ? 'secondary' : 'ghost'}
                 size="sm"
-                className={`${currentPage === 'admin' ? 'text-white font-semibold' : 'hover:text-white'}`}
+                className={`${currentPage === 'admin' ? 'font-semibold' : ''}`}
                 style={{
-                  backgroundColor: currentPage === 'admin' ? accentColor : 'transparent',
-                  color: currentPage === 'admin' ? 'white' : accentColor,
+                  backgroundColor: currentPage === 'admin' ? primaryColor : 'transparent',
+                  color: currentPage === 'admin' ? secondaryColor : primaryColor,
                 }}
                 onMouseEnter={(e) => {
                   if (currentPage !== 'admin') {
-                    e.currentTarget.style.backgroundColor = accentColor;
+                    e.currentTarget.style.backgroundColor = primaryColor;
+                    e.currentTarget.style.color = secondaryColor;
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (currentPage !== 'admin') {
                     e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = primaryColor;
                   }
                 }}
                 data-testid="button-nav-admin"
@@ -150,7 +158,13 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
               variant="ghost"
               size="sm"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-[var(--forest-green)] hover:bg-[var(--forest-green)]/10"
+              style={{ color: primaryColor }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = `${primaryColor}10`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
               <Menu className="w-6 h-6" />
             </Button>
@@ -165,7 +179,11 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
                 <Button
                   variant="ghost"
                   size="lg"
-                  className={`w-full justify-start ${currentPage === 'dashboard' ? 'bg-[var(--forest-green)] text-white font-semibold' : 'text-[var(--forest-green)]'}`}
+                  className={`w-full justify-start ${currentPage === 'dashboard' ? 'font-semibold' : ''}`}
+                  style={{
+                    backgroundColor: currentPage === 'dashboard' ? primaryColor : 'transparent',
+                    color: currentPage === 'dashboard' ? secondaryColor : primaryColor,
+                  }}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Home className="w-5 h-5 mr-3" />
@@ -177,7 +195,11 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
                 <Button
                   variant="ghost"
                   size="lg"
-                  className={`w-full justify-start ${currentPage === 'coach' ? 'bg-[var(--forest-green)] text-white font-semibold' : 'text-[var(--forest-green)]'}`}
+                  className={`w-full justify-start ${currentPage === 'coach' ? 'font-semibold' : ''}`}
+                  style={{
+                    backgroundColor: currentPage === 'coach' ? primaryColor : 'transparent',
+                    color: currentPage === 'coach' ? secondaryColor : primaryColor,
+                  }}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <FileText className="w-5 h-5 mr-3" />
@@ -189,7 +211,11 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
                 <Button
                   variant="ghost"
                   size="lg"
-                  className={`w-full justify-start ${currentPage === 'admin' ? 'bg-[var(--forest-green)] text-white font-semibold' : 'text-[var(--forest-green)]'}`}
+                  className={`w-full justify-start ${currentPage === 'admin' ? 'font-semibold' : ''}`}
+                  style={{
+                    backgroundColor: currentPage === 'admin' ? primaryColor : 'transparent',
+                    color: currentPage === 'admin' ? secondaryColor : primaryColor,
+                  }}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Shield className="w-5 h-5 mr-3" />

@@ -68,11 +68,11 @@ export default function Dashboard() {
             <TabsList 
               className="grid w-full grid-cols-4"
               style={{
-                '--tab-bg': currentTournament?.accentColor || 'hsl(120, 45%, 25%)',
-                '--tab-bg-hover': currentTournament?.accentColor ? `color-mix(in srgb, ${currentTournament.accentColor} 80%, #000 20%)` : 'hsl(120, 45%, 20%)',
-                '--tab-text': '#ffffff',
-                '--tab-active-bg': '#ffffff',
-                '--tab-active-text': currentTournament?.accentColor || 'hsl(120, 45%, 25%)',
+                '--tab-bg': currentTournament?.primaryColor || 'hsl(120, 45%, 25%)',
+                '--tab-bg-hover': currentTournament?.primaryColor ? `color-mix(in srgb, ${currentTournament.primaryColor} 80%, #000 20%)` : 'hsl(120, 45%, 20%)',
+                '--tab-text': currentTournament?.secondaryColor || '#ffffff',
+                '--tab-active-bg': currentTournament?.secondaryColor || '#ffffff',
+                '--tab-active-text': currentTournament?.primaryColor || 'hsl(120, 45%, 25%)',
               } as React.CSSProperties}
             >
               <TabsTrigger 
