@@ -301,13 +301,13 @@ export class DatabaseStorage implements IStorage {
       throw new Error('Division not found');
     }
 
-    // Get all pools in this division
+    // Get all pools in this division (exclude playoff pool for team gathering)
     const divisionPools = await db.select().from(pools).where(eq(pools.ageDivisionId, divisionId));
-    const poolIds = divisionPools.map(p => p.id);
+    const regularPoolIds = divisionPools.filter(p => !p.name.toLowerCase().includes('playoff')).map(p => p.id);
 
-    // Get all teams in the division (across all pools)
+    // Get all teams in the division (across all regular pools, excluding playoff pool)
     const divisionTeams = await db.select().from(teams)
-      .where(poolIds.length > 0 ? sql`${teams.poolId} IN (${sql.join(poolIds.map(id => sql`${id}`), sql`, `)})` : sql`false`);
+      .where(regularPoolIds.length > 0 ? sql`${teams.poolId} IN (${sql.join(regularPoolIds.map(id => sql`${id}`), sql`, `)})` : sql`false`);
     
     if (divisionTeams.length === 0) {
       throw new Error('No teams found in division');
