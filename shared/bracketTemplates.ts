@@ -64,9 +64,17 @@ export const BRACKET_12_TEAM_DOUBLE_ELIM: BracketTemplate = {
 
 export const BRACKET_TEMPLATES: Record<string, BracketTemplate> = {
   'de-12': BRACKET_12_TEAM_DOUBLE_ELIM,
+  'double_elim_12': BRACKET_12_TEAM_DOUBLE_ELIM,
 };
 
 export function getBracketTemplate(playoffFormat: string, teamCount: number): BracketTemplate | null {
-  const key = `${playoffFormat === 'double_elimination' ? 'de' : 'se'}-${teamCount}`;
+  // Check for exact format match first
+  if (BRACKET_TEMPLATES[playoffFormat]) {
+    return BRACKET_TEMPLATES[playoffFormat];
+  }
+  
+  // Try legacy format key construction
+  const eliminationType = playoffFormat.includes('double') ? 'de' : 'se';
+  const key = `${eliminationType}-${teamCount}`;
   return BRACKET_TEMPLATES[key] || null;
 }

@@ -60,7 +60,9 @@ export function getPlayoffTeamsFromStandings(
   playoffFormat: string
 ): Array<{ teamId: string; seed: number }> {
   // Extract playoff team count from format
-  // Examples: 'top_4' -> 4, 'top_6' -> 6, 'top_8' -> 8, 'championship_consolation' -> special
+  // Examples: 'top_4' -> 4, 'top_6' -> 6, 'top_8' -> 8
+  // 'single_elim_8' -> 8, 'double_elim_12' -> 12
+  // 'championship_consolation' -> 4
   
   let playoffTeamCount = 0;
   
@@ -68,9 +70,21 @@ export function getPlayoffTeamsFromStandings(
     // Championship & Consolation: Top 4 teams (seeds 1-4)
     playoffTeamCount = 4;
   } else if (playoffFormat.startsWith('top_')) {
+    // Pool play formats: top_4, top_6, top_8
     playoffTeamCount = parseInt(playoffFormat.replace('top_', ''), 10);
+  } else if (playoffFormat.startsWith('single_elim_')) {
+    // Single elimination with specific team count: single_elim_4, single_elim_8, etc.
+    playoffTeamCount = parseInt(playoffFormat.replace('single_elim_', ''), 10);
+  } else if (playoffFormat.startsWith('double_elim_')) {
+    // Double elimination with specific team count: double_elim_4, double_elim_8, double_elim_12, etc.
+    playoffTeamCount = parseInt(playoffFormat.replace('double_elim_', ''), 10);
   } else if (playoffFormat === 'single_elimination' || playoffFormat === 'double_elimination') {
-    // All teams participate
+    // Legacy formats: All teams participate
+    playoffTeamCount = standings.length;
+  }
+  
+  if (playoffTeamCount === 0) {
+    console.warn(`Unknown playoff format: ${playoffFormat}, defaulting to all teams`);
     playoffTeamCount = standings.length;
   }
   

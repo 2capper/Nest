@@ -25,6 +25,8 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql } from "drizzle-orm";
+import { generateBracketGames, getPlayoffTeamsFromStandings } from "@shared/bracketGeneration";
+import { calculateStandings } from "@shared/standingsCalculation";
 
 export interface IStorage {
   // User methods - required for Replit Auth
@@ -70,6 +72,9 @@ export interface IStorage {
   bulkCreateTeams(teams: InsertTeam[]): Promise<Team[]>;
   bulkCreateGames(games: InsertGame[]): Promise<Game[]>;
   clearTournamentData(tournamentId: string): Promise<void>;
+  
+  // Playoff bracket generation
+  generatePlayoffBracket(tournamentId: string, divisionId: string): Promise<Game[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -281,6 +286,91 @@ export class DatabaseStorage implements IStorage {
     await db.delete(teams).where(eq(teams.tournamentId, tournamentId));
     await db.delete(pools).where(eq(pools.tournamentId, tournamentId));
     await db.delete(ageDivisions).where(eq(ageDivisions.tournamentId, tournamentId));
+  }
+
+  async generatePlayoffBracket(tournamentId: string, divisionId: string): Promise<Game[]> {
+    // Get tournament info
+    const tournament = await this.getTournament(tournamentId);
+    if (!tournament || !tournament.playoffFormat) {
+      throw new Error('Tournament not found or playoff format not configured');
+    }
+
+    // Get division/pool info
+    const [pool] = await db.select().from(pools).where(eq(pools.id, divisionId));
+    if (!pool) {
+      throw new Error('Division/pool not found');
+    }
+
+    // Get all teams in the division
+    const divisionTeams = await db.select().from(teams).where(eq(teams.poolId, divisionId));
+    
+    if (divisionTeams.length === 0) {
+      throw new Error('No teams found in division');
+    }
+
+    // Get all completed pool play games for this division (exclude playoff games)
+    const poolGames = await db.select().from(games)
+      .where(and(
+        eq(games.poolId, divisionId),
+        eq(games.isPlayoff, false)
+      ));
+
+    // Calculate standings to determine seeding
+    const standings = calculateStandings(divisionTeams, poolGames);
+    
+    // Get playoff teams based on format and standings
+    const seededTeams = getPlayoffTeamsFromStandings(
+      standings.map(s => ({ teamId: s.teamId, rank: s.rank })),
+      tournament.playoffFormat
+    );
+
+    if (seededTeams.length === 0) {
+      throw new Error('No playoff teams determined from standings');
+    }
+
+    // Validate that we have enough teams for the bracket template
+    const expectedTeamCount = seededTeams.length;
+    if (divisionTeams.length < expectedTeamCount) {
+      throw new Error(`Insufficient teams: format requires ${expectedTeamCount} teams but only ${divisionTeams.length} available`);
+    }
+
+    // Generate bracket games
+    const bracketGames = generateBracketGames({
+      tournamentId,
+      divisionId,
+      playoffFormat: tournament.playoffFormat,
+      teamCount: seededTeams.length,
+      seededTeams,
+    });
+
+    if (bracketGames.length === 0) {
+      throw new Error(`No bracket template found for format: ${tournament.playoffFormat}`);
+    }
+
+    // Convert to InsertGame format and create games
+    const playoffGamesToInsert: InsertGame[] = bracketGames.map((bg) => ({
+      id: `${tournamentId}_playoff_${pool.ageDivisionId}_g${bg.gameNumber}`,
+      tournamentId,
+      poolId: divisionId,
+      homeTeamId: bg.team1Id || null,
+      awayTeamId: bg.team2Id || null,
+      isPlayoff: true,
+      playoffRound: bg.round,
+      playoffGameNumber: bg.gameNumber,
+      playoffBracket: bg.bracket,
+      team1Source: bg.team1Source as any,
+      team2Source: bg.team2Source as any,
+      status: 'scheduled',
+      date: tournament.startDate,
+      time: '12:00 PM',
+      location: 'TBD',
+      forfeitStatus: 'none',
+    }));
+
+    // Insert playoff games into database
+    const createdGames = await db.insert(games).values(playoffGamesToInsert).returning();
+    
+    return createdGames;
   }
 }
 

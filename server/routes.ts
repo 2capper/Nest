@@ -995,10 +995,10 @@ Waterdown 10U AA
       console.error("Error updating game:", error);
       
       // Provide specific error messages for validation failures
-      if (error.name === 'ZodError') {
+      if ((error as any).name === 'ZodError') {
         return res.status(400).json({ 
           error: "Invalid score data", 
-          details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`) 
+          details: (error as any).errors.map((e: any) => `${e.path.join('.')}: ${e.message}`) 
         });
       }
       
@@ -1013,6 +1013,21 @@ Waterdown 10U AA
     } catch (error) {
       console.error("Error deleting game:", error);
       res.status(400).json({ error: "Failed to delete game" });
+    }
+  });
+
+  // Playoff bracket generation
+  app.post("/api/tournaments/:tournamentId/divisions/:divisionId/generate-bracket", requireAdmin, async (req, res) => {
+    try {
+      const { tournamentId, divisionId } = req.params;
+      const games = await storage.generatePlayoffBracket(tournamentId, divisionId);
+      res.status(201).json({ 
+        message: `Generated ${games.length} playoff games`, 
+        games 
+      });
+    } catch (error) {
+      console.error("Error generating playoff bracket:", error);
+      res.status(400).json({ error: (error as any).message || "Failed to generate playoff bracket" });
     }
   });
 
