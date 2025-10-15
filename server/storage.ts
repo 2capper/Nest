@@ -295,24 +295,30 @@ export class DatabaseStorage implements IStorage {
       throw new Error('Tournament not found or playoff format not configured');
     }
 
-    // Get division/pool info
-    const [pool] = await db.select().from(pools).where(eq(pools.id, divisionId));
-    if (!pool) {
-      throw new Error('Division/pool not found');
+    // Get division info
+    const [division] = await db.select().from(ageDivisions).where(eq(ageDivisions.id, divisionId));
+    if (!division) {
+      throw new Error('Division not found');
     }
 
-    // Get all teams in the division
-    const divisionTeams = await db.select().from(teams).where(eq(teams.poolId, divisionId));
+    // Get all pools in this division
+    const divisionPools = await db.select().from(pools).where(eq(pools.ageDivisionId, divisionId));
+    const poolIds = divisionPools.map(p => p.id);
+
+    // Get all teams in the division (across all pools)
+    const divisionTeams = await db.select().from(teams)
+      .where(poolIds.length > 0 ? sql`${teams.poolId} IN (${sql.join(poolIds.map(id => sql`${id}`), sql`, `)})` : sql`false`);
     
     if (divisionTeams.length === 0) {
       throw new Error('No teams found in division');
     }
 
     // Get all completed pool play games for this division (exclude playoff games)
+    const teamIds = divisionTeams.map(t => t.id);
     const poolGames = await db.select().from(games)
       .where(and(
-        eq(games.poolId, divisionId),
-        eq(games.isPlayoff, false)
+        eq(games.isPlayoff, false),
+        teamIds.length > 0 ? sql`(${games.homeTeamId} IN (${sql.join(teamIds.map(id => sql`${id}`), sql`, `)}) OR ${games.awayTeamId} IN (${sql.join(teamIds.map(id => sql`${id}`), sql`, `)}))` : sql`false`
       ));
 
     // Calculate standings to determine seeding
@@ -347,11 +353,22 @@ export class DatabaseStorage implements IStorage {
       throw new Error(`No bracket template found for format: ${tournament.playoffFormat}`);
     }
 
+    // Find or create a playoff pool for this division
+    let playoffPool = divisionPools.find(p => p.name.toLowerCase().includes('playoff'));
+    if (!playoffPool) {
+      [playoffPool] = await db.insert(pools).values({
+        id: `${tournamentId}_pool_${divisionId}-Playoff`,
+        name: 'Playoff',
+        tournamentId,
+        ageDivisionId: divisionId,
+      }).returning();
+    }
+
     // Convert to InsertGame format and create games
     const playoffGamesToInsert: InsertGame[] = bracketGames.map((bg) => ({
-      id: `${tournamentId}_playoff_${pool.ageDivisionId}_g${bg.gameNumber}`,
+      id: `${tournamentId}_playoff_${divisionId}_g${bg.gameNumber}`,
       tournamentId,
-      poolId: divisionId,
+      poolId: playoffPool!.id,
       homeTeamId: bg.team1Id || null,
       awayTeamId: bg.team2Id || null,
       isPlayoff: true,

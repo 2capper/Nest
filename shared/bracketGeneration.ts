@@ -23,10 +23,16 @@ export interface BracketGenerationOptions {
 export function generateBracketGames(options: BracketGenerationOptions): GeneratedPlayoffGame[] {
   const { tournamentId, divisionId, playoffFormat, teamCount, seededTeams } = options;
   
+  // Convert 'all_seeded' format to appropriate single elimination template based on team count
+  let bracketFormat = playoffFormat;
+  if (playoffFormat === 'all_seeded') {
+    bracketFormat = `single_elim_${teamCount}`;
+  }
+  
   // Get the bracket template
-  const template = getBracketTemplate(playoffFormat, teamCount);
+  const template = getBracketTemplate(bracketFormat, teamCount);
   if (!template) {
-    console.warn(`No bracket template found for ${playoffFormat} with ${teamCount} teams`);
+    console.warn(`No bracket template found for ${bracketFormat} with ${teamCount} teams`);
     return [];
   }
   
@@ -66,7 +72,10 @@ export function getPlayoffTeamsFromStandings(
   
   let playoffTeamCount = 0;
   
-  if (playoffFormat === 'championship_consolation') {
+  if (playoffFormat === 'all_seeded') {
+    // All teams seeded into single elimination bracket
+    playoffTeamCount = standings.length;
+  } else if (playoffFormat === 'championship_consolation') {
     // Championship & Consolation: Top 4 teams (seeds 1-4)
     playoffTeamCount = 4;
   } else if (playoffFormat.startsWith('top_')) {
