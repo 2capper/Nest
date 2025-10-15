@@ -10,7 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { Team, Game, Pool, AgeDivision } from '@shared/schema';
+import { Team, Game, Pool, AgeDivision, Tournament } from '@shared/schema';
+import { getPlayoffTeamCount } from '@shared/playoffFormats';
 
 interface PlayoffsTabProps {
   teams: Team[];
@@ -18,6 +19,7 @@ interface PlayoffsTabProps {
   pools: Pool[];
   ageDivisions: AgeDivision[];
   tournamentId: string;
+  tournament: Tournament;
 }
 
 // Reuse the same calculation logic from the original code
@@ -278,13 +280,16 @@ const PlayoffScoreDialog = ({
   );
 };
 
-export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId }: PlayoffsTabProps) => {
+export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, tournament }: PlayoffsTabProps) => {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const { isAuthenticated } = useAuth();
   const divisionPlayoffTeams = useMemo(() => {
     if (!teams.length || !games.length || !ageDivisions.length) return {};
     
     const result: Record<string, any[]> = {};
+    
+    // Determine the number of playoff teams based on tournament format
+    const playoffTeamCount = getPlayoffTeamCount(tournament.playoffFormat as any, tournament.numberOfTeams || 0);
     
     // Process each division separately
     ageDivisions.forEach(division => {
@@ -336,15 +341,20 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId }:
       // Apply tie-breaker logic to each group and flatten the results
       const sortedTeams = groups.flatMap(group => resolveTie(group, divisionGames));
       
-      // Store top 6 teams for this division
-      result[division.id] = sortedTeams.slice(0, 6);
+      // Store playoff teams based on format (or all teams if playoffTeamCount is 0 or equals total teams)
+      const teamsToShow = playoffTeamCount === 0 || playoffTeamCount >= sortedTeams.length 
+        ? sortedTeams 
+        : sortedTeams.slice(0, playoffTeamCount);
+      result[division.id] = teamsToShow;
     });
     
     return result;
-  }, [teams, games, pools, ageDivisions]);
+  }, [teams, games, pools, ageDivisions, tournament]);
 
   // Check if any division has playoff teams
-  const hasAnyPlayoffTeams = Object.values(divisionPlayoffTeams).some(teams => teams.length >= 6);
+  const playoffTeamCount = getPlayoffTeamCount(tournament.playoffFormat as any, tournament.numberOfTeams || 0);
+  const minTeamsRequired = playoffTeamCount > 0 ? playoffTeamCount : 4; // Minimum 4 teams for a bracket
+  const hasAnyPlayoffTeams = Object.values(divisionPlayoffTeams).some(teams => teams.length >= minTeamsRequired);
   
   if (!hasAnyPlayoffTeams) {
     return (
@@ -386,7 +396,7 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId }:
         
         {ageDivisions.map((division) => {
           const playoffTeams = divisionPlayoffTeams[division.id] || [];
-          const hasEnoughTeams = playoffTeams.length >= 6;
+          const hasEnoughTeams = playoffTeams.length >= minTeamsRequired;
           
           if (!hasEnoughTeams) {
             return (

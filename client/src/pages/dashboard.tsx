@@ -129,13 +129,20 @@ export default function Dashboard() {
             </TabsContent>
             
             <TabsContent value="playoffs" className="mt-6">
-              <PlayoffsTab 
-                teams={teams}
-                games={games}
-                pools={pools}
-                ageDivisions={ageDivisions}
-                tournamentId={currentTournamentId}
-              />
+              {currentTournament ? (
+                <PlayoffsTab 
+                  teams={teams}
+                  games={games}
+                  pools={pools}
+                  ageDivisions={ageDivisions}
+                  tournamentId={currentTournamentId}
+                  tournament={currentTournament}
+                />
+              ) : (
+                <div className="text-center p-8">
+                  <p className="text-gray-500">Loading tournament data...</p>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
