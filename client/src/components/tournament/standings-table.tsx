@@ -70,6 +70,10 @@ const calculateStats = (teamId: string, games: Game[], teamIdFilter?: string[]):
 
 // Helper function for floating-point comparison with precision tolerance
 const isEqual = (a: number, b: number, tolerance = 0.001): boolean => {
+  // Handle Infinity and -Infinity specially
+  if (!isFinite(a) || !isFinite(b)) {
+    return a === b;
+  }
   return Math.abs(a - b) < tolerance;
 };
 
@@ -172,15 +176,10 @@ const resolveTie = (tiedTeams: any[], allGames: Game[]): any[] => {
   // (b)(2) Smallest runs against ratio among tied teams (runs allowed / defensive innings)
   const raRatioAmongTied = (t: any) => {
     const s = calculateStats(t.id, allGames, teamIds);
-    const ratio = s.defensiveInnings > 0 ? s.runsAgainst / s.defensiveInnings : Infinity;
-    console.log(`RA/DIP among tied for ${t.name}: ${s.runsAgainst}/${s.defensiveInnings} = ${ratio.toFixed(3)}`);
-    return ratio;
+    return s.defensiveInnings > 0 ? s.runsAgainst / s.defensiveInnings : Infinity;
   };
   let result = regroupAndResolve(raRatioAmongTied);
-  if (result) {
-    console.log(`Tie resolved by RA/DIP among tied teams:`, result.map(t => t.name));
-    return [...result, ...ineligibleTeams];
-  }
+  if (result) return [...result, ...ineligibleTeams];
 
   // (b)(3) Smallest runs against ratio in all games (runs allowed / defensive innings)
   result = regroupAndResolve(t => t.runsAgainstPerInning);
