@@ -107,6 +107,12 @@ export const games = pgTable("games", {
   location: text("location").notNull(),
   subVenue: text("sub_venue"),
   isPlayoff: boolean("is_playoff").notNull().default(false),
+  // Playoff bracket fields
+  playoffRound: integer("playoff_round"),
+  playoffGameNumber: integer("playoff_game_number"),
+  playoffBracket: text("playoff_bracket"), // 'winners' | 'losers' | 'championship'
+  team1Source: jsonb("team1_source"), // { gameNumber: number, position: 'winner' | 'loser' }
+  team2Source: jsonb("team2_source"), // { gameNumber: number, position: 'winner' | 'loser' }
 });
 
 // Audit log table for tracking score changes and administrative actions
