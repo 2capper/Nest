@@ -548,7 +548,14 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
       <div className="flex items-center justify-center space-x-4">
         <Button
           onClick={() => setSelectedDivision(null)}
-          className={`${selectedDivision === null ? 'bg-[var(--yellow)] text-[var(--forest-green)]' : 'bg-[var(--forest-green)] text-[var(--yellow)]'} hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors`}
+          style={{
+            ['--bg' as string]: selectedDivision === null ? (tournament?.secondaryColor || '#fbbf24') : (tournament?.primaryColor || '#14532d'),
+            ['--color' as string]: selectedDivision === null ? (tournament?.primaryColor || '#14532d') : (tournament?.secondaryColor || '#fbbf24'),
+            ['--hover-bg' as string]: selectedDivision === null ? (tournament?.primaryColor || '#14532d') : (tournament?.secondaryColor || '#fbbf24'),
+            ['--hover-color' as string]: selectedDivision === null ? (tournament?.secondaryColor || '#fbbf24') : (tournament?.primaryColor || '#14532d'),
+          }}
+          className="bg-[var(--bg)] text-[var(--color)] transition-colors hover:bg-[var(--hover-bg)] hover:text-[var(--hover-color)]"
+          data-testid="button-all-divisions"
         >
           All Divisions
         </Button>
@@ -556,7 +563,14 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
           <Button
             key={division.id}
             onClick={() => setSelectedDivision(division.id)}
-            className={`${selectedDivision === division.id ? 'bg-[var(--yellow)] text-[var(--forest-green)]' : 'bg-[var(--forest-green)] text-[var(--yellow)]'} hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors`}
+            style={{
+              ['--bg' as string]: selectedDivision === division.id ? (tournament?.secondaryColor || '#fbbf24') : (tournament?.primaryColor || '#14532d'),
+              ['--color' as string]: selectedDivision === division.id ? (tournament?.primaryColor || '#14532d') : (tournament?.secondaryColor || '#fbbf24'),
+              ['--hover-bg' as string]: selectedDivision === division.id ? (tournament?.primaryColor || '#14532d') : (tournament?.secondaryColor || '#fbbf24'),
+              ['--hover-color' as string]: selectedDivision === division.id ? (tournament?.secondaryColor || '#fbbf24') : (tournament?.primaryColor || '#14532d'),
+            }}
+            className="bg-[var(--bg)] text-[var(--color)] transition-colors hover:bg-[var(--hover-bg)] hover:text-[var(--hover-color)]"
+            data-testid={`button-division-${division.id}`}
           >
             {division.name}
           </Button>
