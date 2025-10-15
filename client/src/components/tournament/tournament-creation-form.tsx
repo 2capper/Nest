@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Plus, Calendar, Type, Loader2, Users, Trophy, Palette, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { tournamentCreationSchema } from '@shared/schema';
+import { getAvailablePlayoffFormats, getDefaultPlayoffFormat, type PlayoffFormat } from '@shared/playoffFormats';
 
 interface TournamentCreationFormProps {
   onSuccess?: (tournament: any) => void;
@@ -24,7 +25,8 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
     type: 'pool_play' as const,
     numberOfTeams: 8,
     numberOfPools: 2,
-    numberOfPlayoffTeams: 6,
+    numberOfPlayoffTeams: 6, // DEPRECATED - for backwards compatibility
+    playoffFormat: null as PlayoffFormat | null,
     showTiebreakers: true,
     customName: '',
     primaryColor: '#22c55e',
@@ -122,7 +124,22 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
       const generatedId = `${name}-${date}`.replace(/--+/g, '-');
       setFormData(prev => ({ ...prev, id: generatedId }));
     }
+    
+    // Auto-select default playoff format when tournament type or team count changes
+    if (field === 'type' || field === 'numberOfTeams') {
+      const updatedData = { ...formData, [field]: value };
+      const defaultFormat = getDefaultPlayoffFormat(
+        updatedData.type,
+        updatedData.numberOfTeams
+      );
+      setFormData(prev => ({ ...prev, playoffFormat: defaultFormat }));
+    }
   };
+  
+  // Calculate available playoff formats based on current settings
+  const availablePlayoffFormats = useMemo(() => {
+    return getAvailablePlayoffFormats(formData.type, formData.numberOfTeams);
+  }, [formData.type, formData.numberOfTeams]);
 
 
 
@@ -239,22 +256,6 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="numberOfPlayoffTeams">Number of Playoff Teams</Label>
-                  <Input
-                    id="numberOfPlayoffTeams"
-                    type="number"
-                    min="2"
-                    max="32"
-                    value={formData.numberOfPlayoffTeams}
-                    onChange={(e) => handleInputChange('numberOfPlayoffTeams', parseInt(e.target.value) || 6)}
-                    className="mt-1"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Top teams from pools advance to playoff bracket
-                  </p>
-                </div>
-                
                 <div className="flex items-center space-x-2">
                   <Switch 
                     id="showTiebreakers"
@@ -267,6 +268,30 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
                 </div>
               </>
             )}
+            
+            <div>
+              <Label htmlFor="playoffFormat">Playoff Format</Label>
+              <Select 
+                value={formData.playoffFormat || ''} 
+                onValueChange={(value) => handleInputChange('playoffFormat', value)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select playoff format" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availablePlayoffFormats.map((format) => (
+                    <SelectItem key={format.value} value={format.value}>
+                      {format.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formData.playoffFormat && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {availablePlayoffFormats.find(f => f.value === formData.playoffFormat)?.description}
+                </p>
+              )}
+            </div>
           </div>
           
           {/* Branding & Appearance Section */}

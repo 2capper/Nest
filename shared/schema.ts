@@ -51,7 +51,8 @@ export const tournaments = pgTable("tournaments", {
   type: text("type").notNull().default("pool_play"), // "single_elimination" | "double_elimination" | "pool_play"
   numberOfTeams: integer("number_of_teams").default(8),
   numberOfPools: integer("number_of_pools").default(2),
-  numberOfPlayoffTeams: integer("number_of_playoff_teams").default(6),
+  numberOfPlayoffTeams: integer("number_of_playoff_teams").default(6), // DEPRECATED: Use playoffFormat instead
+  playoffFormat: text("playoff_format"), // "top_4" | "top_6" | "top_8" | "all_seeded" | "championship_consolation" | "double_elim_12" | etc
   showTiebreakers: boolean("show_tiebreakers").notNull().default(true),
   customName: text("custom_name"), // Custom display name for tournament branding
   primaryColor: text("primary_color").default("#22c55e"), // Primary theme color (default: green)
@@ -227,7 +228,8 @@ export const tournamentCreationSchema = insertTournamentSchema.extend({
   type: z.enum(["single_elimination", "double_elimination", "pool_play"]).default("pool_play"),
   numberOfTeams: z.number().int().min(4).max(64).default(8),
   numberOfPools: z.number().int().min(1).max(8).default(2),
-  numberOfPlayoffTeams: z.number().int().min(2).max(32).default(6),
+  numberOfPlayoffTeams: z.number().int().min(2).max(32).default(6), // DEPRECATED
+  playoffFormat: z.string().optional(), // "top_4" | "top_6" | "top_8" | "all_seeded" | "championship_consolation" | "double_elim_12" | etc
   showTiebreakers: z.boolean().default(true),
   customName: z.string().min(1).max(100).optional(),
   primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).default("#22c55e"),
