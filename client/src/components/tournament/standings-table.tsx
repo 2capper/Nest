@@ -410,7 +410,7 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
                 <div className="text-xs text-gray-500">PTS</div>
               </div>
             </div>
-            <div className={`grid gap-3 text-center ${(tournament?.showTiebreakers !== false) ? 'grid-cols-3' : 'grid-cols-2'}`}>
+            <div className={`grid gap-3 text-center ${(tournament?.showTiebreakers !== false) ? 'grid-cols-4' : 'grid-cols-2'}`}>
               <div>
                 <div className="text-sm font-semibold text-gray-900">{team.wins}-{team.losses}-{team.ties}</div>
                 <div className="text-xs text-gray-500">W-L-T</div>
@@ -424,10 +424,16 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
                 <div className="text-xs text-gray-500">RF/RA</div>
               </div>
               {(tournament?.showTiebreakers !== false) && (
-                <div>
-                  <div className="text-sm font-semibold text-gray-900">{team.runsAgainstPerInning.toFixed(2)}</div>
-                  <div className="text-xs text-gray-500">RA/Inn</div>
-                </div>
+                <>
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">{team.runsAgainstPerInning.toFixed(3)}</div>
+                    <div className="text-xs text-gray-500">RA/Inn</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">{team.runsForPerInning.toFixed(3)}</div>
+                    <div className="text-xs text-gray-500">RF/Inn</div>
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -449,6 +455,7 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
                 <>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Defensive Innings Played">DIP</th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Runs Allowed per Defensive Inning">RA/Inn</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Runs For per Offensive Inning">RF/Inn</th>
                 </>
               )}
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pts</th>
@@ -509,7 +516,10 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
                       {team.defensiveInnings}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 font-semibold">
-                      {team.runsAgainstPerInning.toFixed(2)}
+                      {team.runsAgainstPerInning.toFixed(3)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 font-semibold">
+                      {team.runsForPerInning.toFixed(3)}
                     </td>
                   </>
                 )}
