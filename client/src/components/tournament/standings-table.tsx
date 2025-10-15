@@ -391,11 +391,6 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
                         POOL WINNER
                       </span>
                     )}
-                    {team.isPoolRunnerUp && (
-                      <span className="ml-2 px-2 py-1 bg-blue-500 text-white text-xs rounded-full font-bold">
-                        POOL 2ND
-                      </span>
-                    )}
                     {team.forfeitLosses > 0 && (
                       <AlertTriangle className="w-4 h-4 ml-2 text-red-500" />
                     )}
@@ -475,11 +470,6 @@ export const StandingsTable = ({ teams, games, pools, ageDivisions, tournament, 
                         {team.isPoolWinner && (
                           <span className="ml-2 px-2 py-1 bg-[var(--falcons-green)] text-white text-xs rounded-full font-bold">
                             POOL WINNER
-                          </span>
-                        )}
-                        {team.isPoolRunnerUp && (
-                          <span className="ml-2 px-2 py-1 bg-blue-500 text-white text-xs rounded-full font-bold">
-                            POOL 2ND
                           </span>
                         )}
                         {team.forfeitLosses > 0 && (
