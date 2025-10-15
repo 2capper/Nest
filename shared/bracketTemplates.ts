@@ -15,6 +15,36 @@ export interface BracketTemplate {
   matchups: BracketMatchup[];
 }
 
+export const BRACKET_16_TEAM_SINGLE_ELIM: BracketTemplate = {
+  name: '16-Team Single Elimination',
+  teamCount: 16,
+  eliminationType: 'single',
+  matchups: [
+    // Round 1 - Round of 16 (8 games)
+    { round: 1, gameNumber: 1, bracket: 'winners', team1Seed: 1, team2Seed: 16 },
+    { round: 1, gameNumber: 2, bracket: 'winners', team1Seed: 8, team2Seed: 9 },
+    { round: 1, gameNumber: 3, bracket: 'winners', team1Seed: 5, team2Seed: 12 },
+    { round: 1, gameNumber: 4, bracket: 'winners', team1Seed: 4, team2Seed: 13 },
+    { round: 1, gameNumber: 5, bracket: 'winners', team1Seed: 6, team2Seed: 11 },
+    { round: 1, gameNumber: 6, bracket: 'winners', team1Seed: 3, team2Seed: 14 },
+    { round: 1, gameNumber: 7, bracket: 'winners', team1Seed: 7, team2Seed: 10 },
+    { round: 1, gameNumber: 8, bracket: 'winners', team1Seed: 2, team2Seed: 15 },
+    
+    // Round 2 - Quarterfinals (4 games)
+    { round: 2, gameNumber: 9, bracket: 'winners', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 1, position: 'winner' }, team2Source: { gameNumber: 2, position: 'winner' } },
+    { round: 2, gameNumber: 10, bracket: 'winners', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 3, position: 'winner' }, team2Source: { gameNumber: 4, position: 'winner' } },
+    { round: 2, gameNumber: 11, bracket: 'winners', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 5, position: 'winner' }, team2Source: { gameNumber: 6, position: 'winner' } },
+    { round: 2, gameNumber: 12, bracket: 'winners', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 7, position: 'winner' }, team2Source: { gameNumber: 8, position: 'winner' } },
+    
+    // Round 3 - Semifinals (2 games)
+    { round: 3, gameNumber: 13, bracket: 'winners', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 9, position: 'winner' }, team2Source: { gameNumber: 10, position: 'winner' } },
+    { round: 3, gameNumber: 14, bracket: 'winners', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 11, position: 'winner' }, team2Source: { gameNumber: 12, position: 'winner' } },
+    
+    // Round 4 - Finals (1 game)
+    { round: 4, gameNumber: 15, bracket: 'championship', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 13, position: 'winner' }, team2Source: { gameNumber: 14, position: 'winner' } },
+  ]
+};
+
 export const BRACKET_12_TEAM_DOUBLE_ELIM: BracketTemplate = {
   name: '12-Team Double Elimination',
   teamCount: 12,
@@ -63,6 +93,8 @@ export const BRACKET_12_TEAM_DOUBLE_ELIM: BracketTemplate = {
 };
 
 export const BRACKET_TEMPLATES: Record<string, BracketTemplate> = {
+  'se-16': BRACKET_16_TEAM_SINGLE_ELIM,
+  'single_elim_16': BRACKET_16_TEAM_SINGLE_ELIM,
   'de-12': BRACKET_12_TEAM_DOUBLE_ELIM,
   'double_elim_12': BRACKET_12_TEAM_DOUBLE_ELIM,
 };
