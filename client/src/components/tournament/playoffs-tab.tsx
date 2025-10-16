@@ -495,7 +495,7 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
 
               {/* Playoff Bracket */}
               {divisionPlayoffGames.length > 0 ? (
-                <div className="bg-gray-800 rounded-xl p-6">
+                <div className="rounded-xl p-6" style={{ backgroundColor: tournament.primaryColor || '#1f2937' }}>
                   <div className={`grid grid-cols-1 gap-8`} style={{ 
                     gridTemplateColumns: rounds.length > 0 ? `repeat(${rounds.length}, minmax(0, 1fr))` : '1fr'
                   }}>
@@ -520,9 +520,17 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
                             return (
                               <div 
                                 key={game.id}
-                                className={`${isFinals ? 'bg-gradient-to-br from-yellow-600 to-yellow-700' : 'bg-gray-900'} rounded-lg shadow-lg p-4 border-2 cursor-pointer transition-all ${
-                                  isCompleted ? 'border-green-500' : isFinals ? 'border-yellow-500 hover:border-[var(--falcons-green)]' : 'border-gray-700 hover:border-[var(--falcons-green)]'
-                                }`}
+                                className="rounded-lg shadow-lg p-4 border-2 cursor-pointer transition-all"
+                                style={{
+                                  backgroundColor: isFinals 
+                                    ? tournament.secondaryColor || '#ca8a04'
+                                    : 'rgba(0, 0, 0, 0.3)',
+                                  borderColor: isCompleted 
+                                    ? '#22c55e'
+                                    : isFinals 
+                                      ? tournament.secondaryColor || '#eab308'
+                                      : 'rgba(255, 255, 255, 0.2)'
+                                }}
                                 onClick={() => {
                                   if (!isAuthenticated) {
                                     alert('Please sign in as an administrator to edit playoff scores.');
@@ -533,7 +541,10 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
                                   }
                                 }}
                               >
-                                <div className={`text-center text-xs font-bold ${isFinals ? 'text-white' : 'text-yellow-400'} uppercase mb-3 flex items-center justify-center`}>
+                                <div 
+                                  className="text-center text-xs font-bold uppercase mb-3 flex items-center justify-center"
+                                  style={{ color: isFinals ? 'white' : tournament.secondaryColor || '#facc15' }}
+                                >
                                   Game {game.playoffGameNumber || gameIndex + 1}
                                   {isCompleted ? (
                                     <CheckCircle className="w-3 h-3 ml-1 text-green-400" />
@@ -542,7 +553,13 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
                                   )}
                                 </div>
                                 <div className="space-y-1">
-                                  <div className={`flex items-center justify-between ${isFinals ? 'bg-gray-900/80 backdrop-blur-sm border-yellow-600' : 'bg-gray-700 border-gray-600'} text-white p-3 rounded border`}>
+                                  <div 
+                                    className="flex items-center justify-between text-white p-3 rounded border"
+                                    style={{
+                                      backgroundColor: isFinals ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.4)',
+                                      borderColor: isFinals ? tournament.secondaryColor || '#ca8a04' : 'rgba(255, 255, 255, 0.3)'
+                                    }}
+                                  >
                                     <span className="font-bold">
                                       {homeTeamSeed ? `${homeTeamSeed}. ` : ''}{homeTeam ? homeTeam.name : 'TBD'}
                                     </span>
@@ -550,8 +567,14 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
                                       {isCompleted && game.homeScore !== null ? game.homeScore : '-'}
                                     </span>
                                   </div>
-                                  <div className={`text-center ${isFinals ? 'text-white' : 'text-gray-400'} text-xs font-bold`}>VS</div>
-                                  <div className={`flex items-center justify-between ${isFinals ? 'bg-gray-900/80 backdrop-blur-sm border-yellow-600' : 'bg-gray-700 border-gray-600'} text-white p-3 rounded border`}>
+                                  <div className={`text-center ${isFinals ? 'text-white' : 'text-gray-300'} text-xs font-bold`}>VS</div>
+                                  <div 
+                                    className="flex items-center justify-between text-white p-3 rounded border"
+                                    style={{
+                                      backgroundColor: isFinals ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.4)',
+                                      borderColor: isFinals ? tournament.secondaryColor || '#ca8a04' : 'rgba(255, 255, 255, 0.3)'
+                                    }}
+                                  >
                                     <span className="font-bold">
                                       {awayTeamSeed ? `${awayTeamSeed}. ` : ''}{awayTeam ? awayTeam.name : 'TBD'}
                                     </span>
@@ -561,12 +584,12 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
                                   </div>
                                 </div>
                                 {!isCompleted && homeTeam && awayTeam && (
-                                  <div className={`text-center mt-2 text-xs ${isFinals ? 'text-white' : 'text-gray-400'}`}>
+                                  <div className={`text-center mt-2 text-xs ${isFinals ? 'text-white' : 'text-gray-300'}`}>
                                     Click to enter score
                                   </div>
                                 )}
                                 {(!homeTeam || !awayTeam) && (
-                                  <div className={`text-center mt-2 text-xs ${isFinals ? 'text-gray-300' : 'text-gray-500'}`}>
+                                  <div className={`text-center mt-2 text-xs ${isFinals ? 'text-gray-200' : 'text-gray-400'}`}>
                                     Waiting for previous round
                                   </div>
                                 )}
