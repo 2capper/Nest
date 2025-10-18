@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ListChecks, Loader2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,16 +42,6 @@ export const HierarchicalScoreInput = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Initialize schedule fields when game is selected
-  useMemo(() => {
-    if (selectedGame) {
-      setGameDate(selectedGame.date || '');
-      setGameTime(selectedGame.time || '');
-      setGameLocation(selectedGame.location || '');
-      setGameSubVenue(selectedGame.subVenue || '');
-    }
-  }, [selectedGame]);
-
   // Show all available divisions
   const targetDivisions = useMemo(() => 
     ageDivisions,
@@ -84,6 +74,16 @@ export const HierarchicalScoreInput = ({
     return match ? match[1] : pool.name;
   };
   const selectedGame = useMemo(() => games.find(g => g.id === selectedGameId), [games, selectedGameId]);
+
+  // Initialize schedule fields when game is selected
+  useEffect(() => {
+    if (selectedGame) {
+      setGameDate(selectedGame.date || '');
+      setGameTime(selectedGame.time || '');
+      setGameLocation(selectedGame.location || '');
+      setGameSubVenue(selectedGame.subVenue || '');
+    }
+  }, [selectedGame]);
 
   const updateGameMutation = useMutation({
     mutationFn: async (updateData: any) => {
