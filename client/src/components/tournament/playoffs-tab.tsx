@@ -109,24 +109,9 @@ const PlayoffScoreDialog = ({
   const [homeInnings, setHomeInnings] = useState('7');
   const [awayInnings, setAwayInnings] = useState('7');
   const [forfeitStatus, setForfeitStatus] = useState('none');
-  const [gameDate, setGameDate] = useState('');
-  const [gameTime, setGameTime] = useState('');
-  const [gameLocation, setGameLocation] = useState('');
-  const [gameSubVenue, setGameSubVenue] = useState('');
-  const [showScheduleEdit, setShowScheduleEdit] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Initialize form values when game changes
-  useMemo(() => {
-    if (game) {
-      setGameDate(game.date || '');
-      setGameTime(game.time || '');
-      setGameLocation(game.location || '');
-      setGameSubVenue(game.subVenue || '');
-    }
-  }, [game]);
 
   const updateGameMutation = useMutation({
     mutationFn: async (updateData: any) => {
@@ -167,22 +152,14 @@ const PlayoffScoreDialog = ({
       return;
     }
 
-    const updateData: any = {
+    const updateData = {
       homeScore: Number(homeScore),
       awayScore: Number(awayScore),
       homeInningsBatted: Number(homeInnings),
       awayInningsBatted: Number(awayInnings),
       forfeitStatus,
-      status: 'completed'
+      status: 'completed' as const
     };
-
-    // Include schedule fields if they were modified
-    if (showScheduleEdit) {
-      if (gameDate) updateData.date = gameDate;
-      if (gameTime) updateData.time = gameTime;
-      if (gameLocation) updateData.location = gameLocation;
-      if (gameSubVenue !== game?.subVenue) updateData.subVenue = gameSubVenue || null;
-    }
 
     updateGameMutation.mutate(updateData);
   };
@@ -281,71 +258,6 @@ const PlayoffScoreDialog = ({
               <SelectItem value="away">Away Team Forfeit</SelectItem>
             </SelectContent>
           </Select>
-        </div>
-
-        {/* Schedule Editing Section */}
-        <div className="border-t pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setShowScheduleEdit(!showScheduleEdit)}
-            className="w-full mb-3"
-          >
-            {showScheduleEdit ? 'Hide' : 'Edit'} Game Schedule
-          </Button>
-
-          {showScheduleEdit && (
-            <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
-              <div>
-                <Label htmlFor="gameDate">Game Date</Label>
-                <Input
-                  id="gameDate"
-                  type="date"
-                  value={gameDate}
-                  onChange={(e) => setGameDate(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="gameTime">Game Time</Label>
-                <Input
-                  id="gameTime"
-                  type="time"
-                  value={gameTime}
-                  onChange={(e) => setGameTime(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="gameLocation">Diamond/Location</Label>
-                <Input
-                  id="gameLocation"
-                  type="text"
-                  value={gameLocation}
-                  onChange={(e) => setGameLocation(e.target.value)}
-                  placeholder="e.g., Diamond 1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="gameSubVenue">Field Name (Optional)</Label>
-                <Input
-                  id="gameSubVenue"
-                  type="text"
-                  value={gameSubVenue}
-                  onChange={(e) => setGameSubVenue(e.target.value)}
-                  placeholder="e.g., North Field"
-                />
-              </div>
-
-              <Alert>
-                <AlertDescription className="text-xs">
-                  Use this to reschedule games due to weather or other changes. All fields will be updated when you submit.
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
         </div>
 
         <div className="flex gap-2 pt-4">

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { ListChecks, Loader2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,11 +33,6 @@ export const HierarchicalScoreInput = ({
   const [homeInnings, setHomeInnings] = useState('');
   const [awayInnings, setAwayInnings] = useState('');
   const [forfeitStatus, setForfeitStatus] = useState('none');
-  const [gameDate, setGameDate] = useState('');
-  const [gameTime, setGameTime] = useState('');
-  const [gameLocation, setGameLocation] = useState('');
-  const [gameSubVenue, setGameSubVenue] = useState('');
-  const [showScheduleEdit, setShowScheduleEdit] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -74,16 +69,6 @@ export const HierarchicalScoreInput = ({
     return match ? match[1] : pool.name;
   };
   const selectedGame = useMemo(() => games.find(g => g.id === selectedGameId), [games, selectedGameId]);
-
-  // Initialize schedule fields when game is selected
-  useEffect(() => {
-    if (selectedGame) {
-      setGameDate(selectedGame.date || '');
-      setGameTime(selectedGame.time || '');
-      setGameLocation(selectedGame.location || '');
-      setGameSubVenue(selectedGame.subVenue || '');
-    }
-  }, [selectedGame]);
 
   const updateGameMutation = useMutation({
     mutationFn: async (updateData: any) => {
@@ -144,22 +129,14 @@ export const HierarchicalScoreInput = ({
       return;
     }
 
-    const updateData: any = {
+    const updateData = {
       homeScore: Number(homeScore),
       awayScore: Number(awayScore),
       homeInningsBatted: Number(homeInnings),
       awayInningsBatted: Number(awayInnings),
-      status: 'completed',
+      status: 'completed' as const,
       forfeitStatus
     };
-
-    // Include schedule fields if they were modified
-    if (showScheduleEdit && selectedGame) {
-      if (gameDate) updateData.date = gameDate;
-      if (gameTime) updateData.time = gameTime;
-      if (gameLocation) updateData.location = gameLocation;
-      if (gameSubVenue !== selectedGame.subVenue) updateData.subVenue = gameSubVenue || null;
-    }
 
     updateGameMutation.mutate(updateData);
   };
@@ -332,75 +309,6 @@ export const HierarchicalScoreInput = ({
                     <SelectItem value="away">Forfeited by {getTeamName(selectedGame.awayTeamId)}</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              {/* Schedule Editing Section */}
-              <div className="border-t pt-4 mt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowScheduleEdit(!showScheduleEdit)}
-                  className="w-full mb-3"
-                >
-                  {showScheduleEdit ? 'Hide' : 'Edit'} Game Schedule
-                </Button>
-
-                {showScheduleEdit && (
-                  <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <Label htmlFor="gameDate" className="text-sm font-medium">Game Date</Label>
-                      <Input
-                        id="gameDate"
-                        type="date"
-                        value={gameDate}
-                        onChange={(e) => setGameDate(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="gameTime" className="text-sm font-medium">Game Time</Label>
-                      <Input
-                        id="gameTime"
-                        type="time"
-                        value={gameTime}
-                        onChange={(e) => setGameTime(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="gameLocation" className="text-sm font-medium">Diamond/Location</Label>
-                      <Input
-                        id="gameLocation"
-                        type="text"
-                        value={gameLocation}
-                        onChange={(e) => setGameLocation(e.target.value)}
-                        placeholder="e.g., Diamond 1"
-                        className="mt-1"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="gameSubVenue" className="text-sm font-medium">Field Name (Optional)</Label>
-                      <Input
-                        id="gameSubVenue"
-                        type="text"
-                        value={gameSubVenue}
-                        onChange={(e) => setGameSubVenue(e.target.value)}
-                        placeholder="e.g., North Field"
-                        className="mt-1"
-                      />
-                    </div>
-
-                    <Alert>
-                      <AlertDescription className="text-xs">
-                        Use this to reschedule games due to weather or other changes. All fields will be updated when you submit.
-                      </AlertDescription>
-                    </Alert>
-                  </div>
-                )}
               </div>
             </div>
           )}
