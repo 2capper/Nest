@@ -227,6 +227,10 @@ export const gameUpdateSchema = insertGameSchema.partial().extend({
   awayInningsBatted: z.number().min(0).max(20).optional().nullable(),
   forfeitStatus: z.enum(["none", "home", "away"]).optional(),
   status: z.enum(["scheduled", "completed"]).optional(),
+  date: z.string().optional(),
+  time: z.string().optional(),
+  location: z.string().optional(),
+  subVenue: z.string().optional().nullable(),
 });
 
 // Enhanced tournament creation schema with tournament configuration
