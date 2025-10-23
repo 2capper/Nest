@@ -113,10 +113,10 @@ export default function AdminPortal() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--splash-light-gray)] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[var(--falcons-green)] mx-auto mb-4" />
-          <p className="text-gray-600">{authLoading ? "Checking authentication..." : "Loading admin portal..."}</p>
+          <Loader2 className="w-8 h-8 animate-spin text-[var(--forest-green)] mx-auto mb-4" />
+          <p className="text-[var(--text-secondary)]">{authLoading ? "Checking authentication..." : "Loading admin portal..."}</p>
         </div>
       </div>
     );
@@ -129,12 +129,12 @@ export default function AdminPortal() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--splash-light-gray)] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">Error loading tournament data: {error}</p>
+          <p className="text-[var(--destructive)] mb-4">Error loading tournament data: {error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="bg-[var(--falcons-green)] text-white px-4 py-2 rounded hover:bg-[var(--falcons-dark-green)]"
+            className="bg-[var(--forest-green)] text-[var(--yellow)] px-4 py-2 rounded hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
           >
             Retry
           </button>
@@ -147,7 +147,7 @@ export default function AdminPortal() {
   const scheduledGames = games.filter(g => g.status === 'scheduled').length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--splash-light-gray)]">
       <SimpleNavigation 
         tournamentId={currentTournamentId} 
         currentPage="admin" 
@@ -158,13 +158,13 @@ export default function AdminPortal() {
       <div className="px-4 py-4 md:py-8">
         
         {/* Warning Banner with Logout */}
-        <div className="mb-4 p-3 border border-red-200 bg-red-50 rounded-lg">
+        <div className="mb-4 p-3 border border-[var(--forest-green)] bg-[var(--yellow)]/10 rounded-lg">
           <div className="flex items-start justify-between">
             <div className="flex items-start">
-              <Shield className="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
+              <Shield className="w-5 h-5 text-[var(--forest-green)] mr-2 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-base font-semibold text-red-800">Admin Access Only</h3>
-                <p className="text-sm text-red-700 mt-1">
+                <h3 className="text-base font-semibold text-[var(--forest-green)]">Admin Access Only</h3>
+                <p className="text-sm text-[var(--splash-navy)] mt-1">
                   This portal is restricted to tournament administrators.
                 </p>
               </div>
@@ -185,40 +185,40 @@ export default function AdminPortal() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center">
-              <Database className="h-6 w-6 text-[var(--falcons-green)] mr-3" />
+              <Database className="h-6 w-6 text-[var(--forest-green)] mr-3" />
               <div>
-                <p className="text-xs text-gray-600">Divisions</p>
-                <p className="text-xl font-bold text-gray-900">{ageDivisions.length}</p>
+                <p className="text-xs text-[var(--text-secondary)]">Divisions</p>
+                <p className="text-xl font-bold text-[var(--splash-navy)]">{ageDivisions.length}</p>
               </div>
             </div>
           </div>
           
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center">
-              <Users className="h-6 w-6 text-[var(--falcons-green)] mr-3" />
+              <Users className="h-6 w-6 text-[var(--forest-green)] mr-3" />
               <div>
-                <p className="text-xs text-gray-600">Teams</p>
-                <p className="text-xl font-bold text-gray-900">{teams.length}</p>
+                <p className="text-xs text-[var(--text-secondary)]">Teams</p>
+                <p className="text-xl font-bold text-[var(--splash-navy)]">{teams.length}</p>
               </div>
             </div>
           </div>
           
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center">
-              <Calendar className="h-6 w-6 text-[var(--falcons-green)] mr-3" />
+              <Calendar className="h-6 w-6 text-[var(--forest-green)] mr-3" />
               <div>
-                <p className="text-xs text-gray-600">Completed</p>
-                <p className="text-xl font-bold text-gray-900">{completedGames}</p>
+                <p className="text-xs text-[var(--text-secondary)]">Completed</p>
+                <p className="text-xl font-bold text-[var(--splash-navy)]">{completedGames}</p>
               </div>
             </div>
           </div>
           
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center">
-              <Calendar className="h-6 w-6 text-orange-500 mr-3" />
+              <Calendar className="h-6 w-6 text-[var(--splash-orange)] mr-3" />
               <div>
-                <p className="text-xs text-gray-600">Scheduled</p>
-                <p className="text-xl font-bold text-gray-900">{scheduledGames}</p>
+                <p className="text-xs text-[var(--text-secondary)]">Scheduled</p>
+                <p className="text-xl font-bold text-[var(--splash-navy)]">{scheduledGames}</p>
               </div>
             </div>
           </div>
@@ -285,7 +285,7 @@ export default function AdminPortal() {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-gray-50 px-2 text-gray-500">Or fix existing data</span>
+                  <span className="bg-[var(--splash-light-gray)] px-2 text-[var(--text-secondary)]">Or fix existing data</span>
                 </div>
               </div>
               
@@ -312,8 +312,8 @@ export default function AdminPortal() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <h4 className="font-semibold text-gray-900 mb-2">Tournament Data</h4>
-                      <p className="text-sm text-gray-600 mb-3">
+                      <h4 className="font-semibold text-[var(--splash-navy)] mb-2">Tournament Data</h4>
+                      <p className="text-sm text-[var(--text-secondary)] mb-3">
                         Current tournament has {teams.length} teams across {pools.length} pools
                       </p>
                       <Button 
@@ -326,8 +326,8 @@ export default function AdminPortal() {
                     </div>
                     
                     <div>
-                      <h4 className="font-semibold text-gray-900 mb-2">Game Status</h4>
-                      <p className="text-sm text-gray-600 mb-3">
+                      <h4 className="font-semibold text-[var(--splash-navy)] mb-2">Game Status</h4>
+                      <p className="text-sm text-[var(--text-secondary)] mb-3">
                         {completedGames} completed, {scheduledGames} scheduled
                       </p>
                       <Button 
@@ -352,39 +352,39 @@ export default function AdminPortal() {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Tournament Overview</h4>
+                    <h4 className="font-semibold text-[var(--splash-navy)] mb-2">Tournament Overview</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-gray-600">Age Divisions</p>
-                        <p className="text-xl font-bold">{ageDivisions.length}</p>
+                      <div className="bg-white border border-[var(--card-border)] p-3 rounded">
+                        <p className="text-[var(--text-secondary)]">Age Divisions</p>
+                        <p className="text-xl font-bold text-[var(--splash-navy)]">{ageDivisions.length}</p>
                       </div>
-                      <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-gray-600">Pools</p>
-                        <p className="text-xl font-bold">{pools.length}</p>
+                      <div className="bg-white border border-[var(--card-border)] p-3 rounded">
+                        <p className="text-[var(--text-secondary)]">Pools</p>
+                        <p className="text-xl font-bold text-[var(--splash-navy)]">{pools.length}</p>
                       </div>
-                      <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-gray-600">Teams</p>
-                        <p className="text-xl font-bold">{teams.length}</p>
+                      <div className="bg-white border border-[var(--card-border)] p-3 rounded">
+                        <p className="text-[var(--text-secondary)]">Teams</p>
+                        <p className="text-xl font-bold text-[var(--splash-navy)]">{teams.length}</p>
                       </div>
-                      <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-gray-600">Total Games</p>
-                        <p className="text-xl font-bold">{games.length}</p>
+                      <div className="bg-white border border-[var(--card-border)] p-3 rounded">
+                        <p className="text-[var(--text-secondary)]">Total Games</p>
+                        <p className="text-xl font-bold text-[var(--splash-navy)]">{games.length}</p>
                       </div>
                     </div>
                   </div>
                   
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Game Progress</h4>
-                    <div className="bg-gray-50 p-4 rounded">
+                    <h4 className="font-semibold text-[var(--splash-navy)] mb-2">Game Progress</h4>
+                    <div className="bg-white border border-[var(--card-border)] p-4 rounded">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Completion Rate</span>
-                        <span className="font-semibold">
+                        <span className="text-[var(--text-secondary)]">Completion Rate</span>
+                        <span className="font-semibold text-[var(--splash-navy)]">
                           {games.length > 0 ? Math.round((completedGames / games.length) * 100) : 0}%
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                      <div className="w-full bg-[var(--splash-light-gray)] rounded-full h-2 mt-2">
                         <div 
-                          className="bg-[var(--falcons-green)] h-2 rounded-full" 
+                          className="bg-[var(--forest-green)] h-2 rounded-full" 
                           style={{ 
                             width: `${games.length > 0 ? (completedGames / games.length) * 100 : 0}%` 
                           }}
