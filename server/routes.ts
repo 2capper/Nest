@@ -120,9 +120,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Tournament routes
-  app.get("/api/tournaments", async (req, res) => {
+  app.get("/api/tournaments", async (req: any, res) => {
     try {
-      const tournaments = await storage.getTournaments();
+      let tournaments = await storage.getTournaments();
+      
+      // Role-aware filtering for admin users
+      if (req.user && req.user.claims) {
+        const userId = req.user.claims.sub;
+        const user = await storage.getUser(userId);
+        
+        // Regular admins (not super admins) only see their own tournaments
+        if (user && user.isAdmin && !user.isSuperAdmin) {
+          tournaments = tournaments.filter(t => t.createdBy === userId);
+        }
+        // Super admins see all tournaments (no filtering)
+        // Non-admin authenticated users see all tournaments (public viewing)
+      }
+      // Unauthenticated users see all tournaments (public viewing)
+      
       res.json(tournaments);
     } catch (error) {
       console.error("Error fetching tournaments:", error);

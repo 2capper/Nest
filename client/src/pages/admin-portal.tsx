@@ -13,6 +13,7 @@ import { GameResultEditor } from '@/components/tournament/game-result-editor';
 import { CSVReimportTool } from '@/components/tournament/csv-reimport-tool';
 import { TeamIdScanner } from '@/components/tournament/team-id-scanner';
 import { PasswordResetTool } from '@/components/tournament/password-reset-tool';
+import { AdminRequestsTab } from '@/components/admin-requests-tab';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { isUnauthorizedError } from '@/lib/authUtils';
@@ -24,7 +25,7 @@ export default function AdminPortal() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('tournaments');
   const [, setLocation] = useLocation();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
   const currentTournament = tournaments.find(t => t.id === currentTournamentId);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -236,11 +237,17 @@ export default function AdminPortal() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-forest">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full gap-1 h-auto">
+          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-2 md:grid-cols-5' : 'grid-cols-2 md:grid-cols-4'} w-full gap-1 h-auto`}>
             <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
             <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>
             <TabsTrigger value="games" className="text-xs md:text-sm py-2">Edit Games</TabsTrigger>
             <TabsTrigger value="reports" className="text-xs md:text-sm py-2">Reports</TabsTrigger>
+            {(user as any)?.isSuperAdmin && (
+              <TabsTrigger value="admin-requests" className="text-xs md:text-sm py-2">
+                <Shield className="w-3 h-3 mr-1" />
+                Admin Requests
+              </TabsTrigger>
+            )}
           </TabsList>
           
           <TabsContent value="tournaments" className="mt-6">
@@ -389,6 +396,12 @@ export default function AdminPortal() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {(user as any)?.isSuperAdmin && (
+            <TabsContent value="admin-requests" className="mt-6">
+              <AdminRequestsTab />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
