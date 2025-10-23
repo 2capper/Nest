@@ -50,9 +50,16 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Get the primary and secondary colors for styling
-  const primaryColor = tournament?.primaryColor || '#22c55e';
-  const secondaryColor = tournament?.secondaryColor || '#ffffff';
+  // Use admin theme colors when on admin page, otherwise use tournament colors
+  const adminPrimaryColor = '#2d5016'; // Forest green
+  const adminSecondaryColor = '#f4e409'; // Yellow
+  
+  const primaryColor = currentPage === 'admin' 
+    ? adminPrimaryColor 
+    : (tournament?.primaryColor || '#22c55e');
+  const secondaryColor = currentPage === 'admin' 
+    ? adminSecondaryColor 
+    : (tournament?.secondaryColor || '#ffffff');
   
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
