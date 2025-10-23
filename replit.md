@@ -61,6 +61,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 2025 - Schedule Editing Reorganization
+- **Consolidated Schedule Editing**: Moved all game schedule editing functionality to the Admin Portal's Edit Games tab
+  - GameResultEditor component now includes fields for date, time, location, and sub-venue editing
+  - Removed schedule editing UI from HierarchicalScoreInput (pool game score entry)
+  - Removed schedule editing UI from PlayoffScoreDialog (playoff game score entry)
+- **Improved User Experience**: Score entry dialogs now focus exclusively on scores, innings, and forfeit status
+  - Clearer separation of concerns: score entry vs. schedule management
+  - Admin-only schedule editing is now in a dedicated location where it logically belongs
+  - Single source of truth for all game editing (both scores and schedules) in the admin portal
+
 ### August 2025 - Authentication & Authorization System Update
 - **Public Route Access**: Made tournament viewing publicly accessible without authentication
   - Dashboard, Tournament Dashboard, and Coach Score Input are now public routes
