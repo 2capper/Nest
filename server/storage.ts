@@ -6,6 +6,7 @@ import {
   teams, 
   games,
   auditLogs,
+  adminRequests,
   type User, 
   type InsertUser,
   type UpsertUser,
@@ -21,7 +22,9 @@ import {
   type InsertGame,
   type AuditLog,
   type InsertAuditLog,
-  type GameUpdate
+  type GameUpdate,
+  type AdminRequest,
+  type InsertAdminRequest
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql } from "drizzle-orm";
@@ -67,6 +70,13 @@ export interface IStorage {
   // Audit log methods
   createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog>;
   getAuditLogs(entityType?: string, entityId?: string): Promise<AuditLog[]>;
+  
+  // Admin request methods
+  createAdminRequest(request: InsertAdminRequest): Promise<AdminRequest>;
+  getAdminRequests(status?: string): Promise<AdminRequest[]>;
+  getUserAdminRequest(userId: string): Promise<AdminRequest | undefined>;
+  approveAdminRequest(requestId: string, reviewerId: string): Promise<AdminRequest>;
+  rejectAdminRequest(requestId: string, reviewerId: string): Promise<AdminRequest>;
   
   // Bulk operations
   bulkCreateTeams(teams: InsertTeam[]): Promise<Team[]>;
@@ -267,6 +277,92 @@ export class DatabaseStorage implements IStorage {
     }
     
     return await query.orderBy(sql`${auditLogs.timestamp} DESC`);
+  }
+
+  // Admin request methods
+  async createAdminRequest(request: InsertAdminRequest): Promise<AdminRequest> {
+    const [result] = await db.insert(adminRequests).values(request).returning();
+    return result;
+  }
+
+  async getAdminRequests(status?: string): Promise<AdminRequest[]> {
+    let query = db.select().from(adminRequests);
+    
+    if (status) {
+      query = query.where(eq(adminRequests.status, status));
+    }
+    
+    return await query.orderBy(sql`${adminRequests.createdAt} DESC`);
+  }
+
+  async getUserAdminRequest(userId: string): Promise<AdminRequest | undefined> {
+    const [request] = await db.select().from(adminRequests)
+      .where(eq(adminRequests.userId, userId))
+      .orderBy(sql`${adminRequests.createdAt} DESC`)
+      .limit(1);
+    return request;
+  }
+
+  async approveAdminRequest(requestId: string, reviewerId: string): Promise<AdminRequest> {
+    const [request] = await db.select().from(adminRequests)
+      .where(eq(adminRequests.id, requestId));
+    
+    if (!request) {
+      throw new Error('Admin request not found');
+    }
+
+    if (request.status !== 'pending') {
+      throw new Error('Admin request has already been processed');
+    }
+
+    return await db.transaction(async (tx) => {
+      await tx.update(users)
+        .set({ isAdmin: true })
+        .where(eq(users.id, request.userId));
+
+      const [updatedRequest] = await tx.update(adminRequests)
+        .set({
+          status: 'approved',
+          reviewedBy: reviewerId,
+          reviewedAt: new Date(),
+        })
+        .where(eq(adminRequests.id, requestId))
+        .returning();
+
+      if (!updatedRequest) {
+        throw new Error('Failed to update admin request');
+      }
+
+      return updatedRequest;
+    });
+  }
+
+  async rejectAdminRequest(requestId: string, reviewerId: string): Promise<AdminRequest> {
+    const [request] = await db.select().from(adminRequests)
+      .where(eq(adminRequests.id, requestId));
+    
+    if (!request) {
+      throw new Error('Admin request not found');
+    }
+
+    if (request.status !== 'pending') {
+      throw new Error('Admin request has already been processed');
+    }
+
+    const [updatedRequest] = await db.update(adminRequests)
+      .set({
+        status: 'rejected',
+        reviewedBy: reviewerId,
+        reviewedAt: new Date(),
+      })
+      .where(eq(adminRequests.id, requestId))
+      .returning();
+
+    if (!updatedRequest) {
+      throw new Error('Failed to update admin request');
+    }
+
+    return updatedRequest;
   }
 
   // Bulk operations

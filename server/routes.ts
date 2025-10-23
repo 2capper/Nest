@@ -7,9 +7,10 @@ import {
   insertPoolSchema, 
   insertTeamSchema, 
   insertGameSchema,
-  gameUpdateSchema
+  gameUpdateSchema,
+  insertAdminRequestSchema
 } from "@shared/schema";
-import { setupAuth, isAuthenticated, requireAdmin } from "./replitAuth";
+import { setupAuth, isAuthenticated, requireAdmin, requireSuperAdmin } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -26,6 +27,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
+
+  // Admin request routes
+  app.post('/api/admin-requests', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (user.isAdmin || user.isSuperAdmin) {
+        return res.status(400).json({ error: "You already have admin access" });
+      }
+
+      const existingRequest = await storage.getUserAdminRequest(userId);
+      if (existingRequest && existingRequest.status === 'pending') {
+        return res.status(400).json({ error: "You already have a pending admin request" });
+      }
+
+      const validatedData = insertAdminRequestSchema.parse({
+        userId,
+        userEmail: user.email || '',
+        userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'Unknown',
+        message: req.body.message,
+        status: 'pending'
+      });
+      
+      const request = await storage.createAdminRequest(validatedData);
+      res.status(201).json(request);
+    } catch (error) {
+      console.error("Error creating admin request:", error);
+      res.status(400).json({ error: "Failed to create admin request" });
+    }
+  });
+
+  app.get('/api/admin-requests', requireSuperAdmin, async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      const requests = await storage.getAdminRequests(status);
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching admin requests:", error);
+      res.status(500).json({ error: "Failed to fetch admin requests" });
+    }
+  });
+
+  app.get('/api/admin-requests/my-request', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const request = await storage.getUserAdminRequest(userId);
+      res.json(request || null);
+    } catch (error) {
+      console.error("Error fetching user admin request:", error);
+      res.status(500).json({ error: "Failed to fetch admin request" });
+    }
+  });
+
+  app.put('/api/admin-requests/:id/approve', requireSuperAdmin, async (req: any, res) => {
+    try {
+      const reviewerId = req.user.claims.sub;
+      const request = await storage.approveAdminRequest(req.params.id, reviewerId);
+      res.json(request);
+    } catch (error: any) {
+      console.error("Error approving admin request:", error);
+      if (error.message === 'Admin request not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message === 'Admin request has already been processed') {
+        return res.status(409).json({ error: error.message });
+      }
+      res.status(500).json({ error: "Failed to approve admin request" });
+    }
+  });
+
+  app.put('/api/admin-requests/:id/reject', requireSuperAdmin, async (req: any, res) => {
+    try {
+      const reviewerId = req.user.claims.sub;
+      const request = await storage.rejectAdminRequest(req.params.id, reviewerId);
+      res.json(request);
+    } catch (error: any) {
+      console.error("Error rejecting admin request:", error);
+      if (error.message === 'Admin request not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message === 'Admin request has already been processed') {
+        return res.status(409).json({ error: error.message });
+      }
+      res.status(500).json({ error: "Failed to reject admin request" });
+    }
+  });
+
   // Tournament routes
   app.get("/api/tournaments", async (req, res) => {
     try {
@@ -50,9 +143,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/tournaments", requireAdmin, async (req, res) => {
+  app.post("/api/tournaments", requireAdmin, async (req: any, res) => {
     try {
-      const validatedData = insertTournamentSchema.parse(req.body);
+      const userId = req.user.claims.sub;
+      const validatedData = insertTournamentSchema.parse({
+        ...req.body,
+        createdBy: userId
+      });
       const tournament = await storage.createTournament(validatedData);
       res.status(201).json(tournament);
     } catch (error) {
@@ -61,19 +158,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/tournaments/:id", requireAdmin, async (req, res) => {
+  app.put("/api/tournaments/:id", requireAdmin, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      const tournament = await storage.getTournament(req.params.id);
+
+      if (!tournament) {
+        return res.status(404).json({ error: "Tournament not found" });
+      }
+
+      if (!user?.isSuperAdmin && tournament.createdBy !== userId) {
+        return res.status(403).json({ error: "You can only edit tournaments you created" });
+      }
+
       const validatedData = insertTournamentSchema.partial().parse(req.body);
-      const tournament = await storage.updateTournament(req.params.id, validatedData);
-      res.json(tournament);
+      const updatedTournament = await storage.updateTournament(req.params.id, validatedData);
+      res.json(updatedTournament);
     } catch (error) {
       console.error("Error updating tournament:", error);
       res.status(400).json({ error: "Invalid tournament data" });
     }
   });
 
-  app.delete("/api/tournaments/:id", requireAdmin, async (req, res) => {
+  app.delete("/api/tournaments/:id", requireAdmin, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      const tournament = await storage.getTournament(req.params.id);
+
+      if (!tournament) {
+        return res.status(404).json({ error: "Tournament not found" });
+      }
+
+      if (!user?.isSuperAdmin && tournament.createdBy !== userId) {
+        return res.status(403).json({ error: "You can only delete tournaments you created" });
+      }
+
       await storage.deleteTournament(req.params.id);
       res.status(204).send();
     } catch (error) {

@@ -23,6 +23,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   isAdmin: boolean("is_admin").notNull().default(false),
+  isSuperAdmin: boolean("is_super_admin").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -58,6 +59,7 @@ export const tournaments = pgTable("tournaments", {
   primaryColor: text("primary_color").default("#22c55e"), // Primary theme color (default: green)
   secondaryColor: text("secondary_color").default("#ffffff"), // Secondary theme color (default: white)
   logoUrl: text("logo_url"), // URL to custom tournament logo
+  createdBy: varchar("created_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -126,6 +128,19 @@ export const auditLogs = pgTable("audit_logs", {
   newValues: jsonb("new_values"), // New values after change
   metadata: jsonb("metadata"), // Additional context (IP, user agent, etc.)
   timestamp: timestamp("timestamp").notNull().defaultNow(),
+});
+
+// Admin request table for user admin access requests
+export const adminRequests = pgTable("admin_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  userEmail: varchar("user_email").notNull(),
+  userName: varchar("user_name").notNull(),
+  message: text("message").notNull(),
+  status: text("status").notNull().default("pending"), // "pending" | "approved" | "rejected"
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 // Relations
@@ -218,6 +233,11 @@ export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
   id: true,
   timestamp: true,
 });
+export const insertAdminRequestSchema = createInsertSchema(adminRequests).omit({
+  id: true,
+  createdAt: true,
+  reviewedAt: true,
+});
 
 // Game update validation schema with strict score validation
 export const gameUpdateSchema = insertGameSchema.partial().extend({
@@ -274,3 +294,6 @@ export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type GameUpdate = z.infer<typeof gameUpdateSchema>;
 export type TournamentCreation = z.infer<typeof tournamentCreationSchema>;
+
+export type AdminRequest = typeof adminRequests.$inferSelect;
+export type InsertAdminRequest = z.infer<typeof insertAdminRequestSchema>;
