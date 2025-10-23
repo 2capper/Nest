@@ -14,31 +14,37 @@ interface TournamentBranding {
 
 interface TournamentLogoProps {
   tournament?: TournamentBranding;
+  isAdminPage?: boolean;
 }
 
-const TournamentLogo = ({ tournament }: TournamentLogoProps) => (
-  <div className="flex items-center">
-    <img 
-      src={tournament?.logoUrl || fLogo} 
-      alt={tournament?.customName || tournament?.name || "Tournament"} 
-      className="h-10 w-auto mr-2"
-      onError={(e) => {
-        // Fallback to default logo if custom logo fails to load
-        if (tournament?.logoUrl && e.currentTarget.src !== fLogo) {
-          e.currentTarget.src = fLogo;
-        }
-      }}
-      data-testid="img-tournament-nav-logo"
-    />
-    <span 
-      className="font-bold text-lg"
-      style={{ color: tournament?.primaryColor || '#22c55e' }}
-      data-testid="text-tournament-nav-name"
-    >
-      {tournament?.customName || tournament?.name || "The Nest"}
-    </span>
-  </div>
-);
+const TournamentLogo = ({ tournament, isAdminPage }: TournamentLogoProps) => {
+  const adminColor = '#2d5016'; // Forest green
+  const logoColor = isAdminPage ? adminColor : (tournament?.primaryColor || '#22c55e');
+  
+  return (
+    <div className="flex items-center">
+      <img 
+        src={tournament?.logoUrl || fLogo} 
+        alt={tournament?.customName || tournament?.name || "Tournament"} 
+        className="h-10 w-auto mr-2"
+        onError={(e) => {
+          // Fallback to default logo if custom logo fails to load
+          if (tournament?.logoUrl && e.currentTarget.src !== fLogo) {
+            e.currentTarget.src = fLogo;
+          }
+        }}
+        data-testid="img-tournament-nav-logo"
+      />
+      <span 
+        className="font-bold text-lg"
+        style={{ color: logoColor }}
+        data-testid="text-tournament-nav-name"
+      >
+        {tournament?.customName || tournament?.name || "The Nest"}
+      </span>
+    </div>
+  );
+};
 
 interface SimpleNavigationProps {
   tournamentId: string;
@@ -66,7 +72,7 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <TournamentLogo tournament={tournament} />
+            <TournamentLogo tournament={tournament} isAdminPage={currentPage === 'admin'} />
           </div>
           
           {/* Desktop Navigation */}
