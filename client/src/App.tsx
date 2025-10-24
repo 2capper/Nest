@@ -61,9 +61,15 @@ function Router() {
       
       {/* Protected admin routes */}
       {isLoading || !isAuthenticated ? (
-        <Route path="/admin-portal/:tournamentId?" component={Landing} />
+        <>
+          <Route path="/admin-portal/:tournamentId?" component={Landing} />
+          <Route path="/admin/:tournamentId?" component={Landing} />
+        </>
       ) : (
-        <Route path="/admin-portal/:tournamentId?" component={AdminPortal} />
+        <>
+          <Route path="/admin-portal/:tournamentId?" component={AdminPortal} />
+          <Route path="/admin/:tournamentId?" component={AdminPortal} />
+        </>
       )}
       
       {/* Default routes */}
