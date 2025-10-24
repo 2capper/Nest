@@ -277,6 +277,9 @@ export function TeamsTab({ teams, pools, ageDivisions }: TeamsTabProps) {
         return "Invalid data";
       }
     }
+    if (team.rosterLink) {
+      return "Link available";
+    }
     return "No roster";
   };
 
