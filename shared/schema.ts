@@ -86,6 +86,7 @@ export const teams = pgTable("teams", {
   tournamentId: text("tournament_id").notNull().references(() => tournaments.id, { onDelete: "cascade" }),
   poolId: text("pool_id").notNull().references(() => pools.id, { onDelete: "cascade" }),
   rosterLink: text("roster_link"),
+  teamNumber: varchar("team_number", { length: 10 }), // 6-digit OBA team number for roster URL
   pitchCountAppName: text("pitch_count_app_name"),
   pitchCountName: text("pitch_count_name"),
   gameChangerName: text("game_changer_name"),

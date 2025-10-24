@@ -14,6 +14,7 @@ import { CSVReimportTool } from '@/components/tournament/csv-reimport-tool';
 import { TeamIdScanner } from '@/components/tournament/team-id-scanner';
 import { PasswordResetTool } from '@/components/tournament/password-reset-tool';
 import { AdminRequestsTab } from '@/components/admin-requests-tab';
+import { TeamEditor } from '@/components/tournament/team-editor';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { isUnauthorizedError } from '@/lib/authUtils';
@@ -237,9 +238,10 @@ export default function AdminPortal() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-forest">
-          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-2 md:grid-cols-5' : 'grid-cols-2 md:grid-cols-4'} w-full gap-1 h-auto`}>
+          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-3 md:grid-cols-6' : 'grid-cols-3 md:grid-cols-5'} w-full gap-1 h-auto`}>
             <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
             <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>
+            <TabsTrigger value="teams" className="text-xs md:text-sm py-2">Edit Teams</TabsTrigger>
             <TabsTrigger value="games" className="text-xs md:text-sm py-2">Edit Games</TabsTrigger>
             <TabsTrigger value="reports" className="text-xs md:text-sm py-2">Reports</TabsTrigger>
             {(user as any)?.isSuperAdmin && (
@@ -291,6 +293,17 @@ export default function AdminPortal() {
               
               <CSVReimportTool tournamentId={currentTournamentId} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="teams" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Team Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TeamEditor teams={teams} tournamentId={currentTournamentId} />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="games" className="mt-6">
