@@ -61,6 +61,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 2025 - Team Number and Roster Management Enhancement
+- **Team Number Feature**: Added simple 6-digit team number field for PlayOBA roster integration
+  - Admins can enter team numbers directly in the Team Editor dialog
+  - System automatically generates PlayOBA roster URLs: `https://www.playoba.ca/stats#/2111/team/{TEAM_NUMBER}/roster`
+  - Roster link and status are automatically updated when team number is saved
+  - Added `teamNumber` field (varchar) to teams schema
+- **Team Editor Component**: Created dedicated TeamEditor component with dialog interface
+  - Accessible from Admin Portal's "Edit Teams" tab
+  - Allows editing all team details including name, division, city, coach, phone, and team number
+  - Provides intuitive user experience for team management
+- **Database Changes**: Added team_number column to teams table via Drizzle migration
+
 ### October 2025 - Schedule Editing Reorganization
 - **Consolidated Schedule Editing**: Moved all game schedule editing functionality to the Admin Portal's Edit Games tab
   - GameResultEditor component now includes fields for date, time, location, and sub-venue editing
