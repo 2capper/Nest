@@ -61,7 +61,7 @@ function TeamEditDialog({ team, onSuccess }: { team: Team; onSuccess: () => void
         rosterLink,
       };
 
-      await apiRequest('PATCH', `/api/teams/${team.id}`, updateData);
+      await apiRequest('PUT', `/api/teams/${team.id}`, updateData);
 
       toast({
         title: "Team Updated",
