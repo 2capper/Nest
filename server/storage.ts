@@ -30,6 +30,7 @@ import { db } from "./db";
 import { eq, and, sql } from "drizzle-orm";
 import { generateBracketGames, getPlayoffTeamsFromStandings } from "@shared/bracketGeneration";
 import { calculateStandings } from "@shared/standingsCalculation";
+import { withRetry } from "./dbRetry";
 
 export interface IStorage {
   // User methods - required for Replit Auth
@@ -192,8 +193,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateTeam(id: string, team: Partial<InsertTeam>): Promise<Team> {
-    const [result] = await db.update(teams).set(team).where(eq(teams.id, id)).returning();
-    return result;
+    return await withRetry(async () => {
+      const [result] = await db.update(teams).set(team).where(eq(teams.id, id)).returning();
+      return result;
+    });
   }
 
   async updateTeamRoster(id: string, rosterData: string): Promise<Team> {
@@ -219,41 +222,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateGame(id: string, game: Partial<InsertGame>): Promise<Game> {
-    const [result] = await db.update(games).set(game).where(eq(games.id, id)).returning();
-    return result;
+    return await withRetry(async () => {
+      const [result] = await db.update(games).set(game).where(eq(games.id, id)).returning();
+      return result;
+    });
   }
 
   async updateGameWithAudit(id: string, updates: GameUpdate, userId: string, metadata?: any): Promise<Game> {
     // Use database transaction to ensure atomic operation and prevent race conditions
-    return await db.transaction(async (tx) => {
-      // Get current game state for audit trail
-      const [currentGame] = await tx.select().from(games).where(eq(games.id, id));
-      if (!currentGame) {
-        throw new Error("Game not found");
-      }
+    return await withRetry(async () => {
+      return await db.transaction(async (tx) => {
+        // Get current game state for audit trail
+        const [currentGame] = await tx.select().from(games).where(eq(games.id, id));
+        if (!currentGame) {
+          throw new Error("Game not found");
+        }
 
-      // Perform the update within transaction
-      const [updatedGame] = await tx.update(games).set(updates).where(eq(games.id, id)).returning();
+        // Perform the update within transaction
+        const [updatedGame] = await tx.update(games).set(updates).where(eq(games.id, id)).returning();
 
-      // Create audit log entry within same transaction
-      await tx.insert(auditLogs).values({
-        userId,
-        action: "score_update",
-        entityType: "game",
-        entityId: id,
-        oldValues: {
-          homeScore: currentGame.homeScore,
-          awayScore: currentGame.awayScore,
-          homeInningsBatted: currentGame.homeInningsBatted,
-          awayInningsBatted: currentGame.awayInningsBatted,
-          status: currentGame.status,
-          forfeitStatus: currentGame.forfeitStatus
-        },
-        newValues: updates,
-        metadata
+        // Create audit log entry within same transaction
+        await tx.insert(auditLogs).values({
+          userId,
+          action: "score_update",
+          entityType: "game",
+          entityId: id,
+          oldValues: {
+            homeScore: currentGame.homeScore,
+            awayScore: currentGame.awayScore,
+            homeInningsBatted: currentGame.homeInningsBatted,
+            awayInningsBatted: currentGame.awayInningsBatted,
+            status: currentGame.status,
+            forfeitStatus: currentGame.forfeitStatus
+          },
+          newValues: updates,
+          metadata
+        });
+
+        return updatedGame;
       });
-
-      return updatedGame;
     });
   }
 
@@ -368,12 +375,16 @@ export class DatabaseStorage implements IStorage {
   // Bulk operations
   async bulkCreateTeams(teamsList: InsertTeam[]): Promise<Team[]> {
     if (teamsList.length === 0) return [];
-    return await db.insert(teams).values(teamsList).returning();
+    return await withRetry(async () => {
+      return await db.insert(teams).values(teamsList).returning();
+    });
   }
 
   async bulkCreateGames(gamesList: InsertGame[]): Promise<Game[]> {
     if (gamesList.length === 0) return [];
-    return await db.insert(games).values(gamesList).returning();
+    return await withRetry(async () => {
+      return await db.insert(games).values(gamesList).returning();
+    });
   }
 
   async clearTournamentData(tournamentId: string): Promise<void> {
