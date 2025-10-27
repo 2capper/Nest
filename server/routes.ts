@@ -271,6 +271,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Team routes
   app.get("/api/tournaments/:tournamentId/teams", async (req, res) => {
     try {
+      // Prevent caching to ensure mobile devices get fresh data
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       const teams = await storage.getTeams(req.params.tournamentId);
       res.json(teams);
     } catch (error) {
