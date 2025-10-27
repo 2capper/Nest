@@ -431,11 +431,41 @@ export class DatabaseStorage implements IStorage {
       ));
 
     // Calculate standings to determine seeding
-    const standings = calculateStandings(divisionTeams, poolGames);
+    let standingsForSeeding: Array<{ teamId: string; rank: number; poolId: string }>;
+    
+    if (tournament.playoffFormat === 'top_8_four_pools') {
+      // For four pools format, calculate standings within each pool separately
+      standingsForSeeding = [];
+      const poolMap = new Map<string, typeof divisionTeams>();
+      
+      // Group teams by pool
+      divisionTeams.forEach(team => {
+        if (!poolMap.has(team.poolId)) {
+          poolMap.set(team.poolId, []);
+        }
+        poolMap.get(team.poolId)!.push(team);
+      });
+      
+      // Calculate standings for each pool independently
+      poolMap.forEach((poolTeams, poolId) => {
+        const poolStandings = calculateStandings(poolTeams, poolGames);
+        poolStandings.forEach(standing => {
+          standingsForSeeding.push({
+            teamId: standing.teamId,
+            rank: standing.rank, // This is now pool-specific rank (1, 2, 3, 4)
+            poolId: standing.poolId,
+          });
+        });
+      });
+    } else {
+      // For other formats, use global standings
+      const standings = calculateStandings(divisionTeams, poolGames);
+      standingsForSeeding = standings.map(s => ({ teamId: s.teamId, rank: s.rank, poolId: s.poolId }));
+    }
     
     // Get playoff teams based on format and standings
     const seededTeams = getPlayoffTeamsFromStandings(
-      standings.map(s => ({ teamId: s.teamId, rank: s.rank, poolId: s.poolId })),
+      standingsForSeeding,
       tournament.playoffFormat
     );
 

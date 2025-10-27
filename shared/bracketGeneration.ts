@@ -84,18 +84,19 @@ export function getPlayoffTeamsFromStandings(
       }
     });
     
-    // Sort each pool by rank and take top 2
+    // Sort each pool by rank (within pool) and take top 2
+    // Note: rank is global, so we need to re-rank within each pool
     const poolsArray = Array.from(teamsByPool.entries())
-      .sort(([poolIdA], [poolIdB]) => poolIdA.localeCompare(poolIdB)) // Sort pools alphabetically
+      .sort(([poolIdA], [poolIdB]) => poolIdA.localeCompare(poolIdB)) // Sort pools alphabetically (A, B, C, D)
       .map(([poolId, teams]) => {
+        // Re-rank teams within this pool based on their global rank (lower is better)
         const sortedTeams = teams.sort((a, b) => a.rank - b.rank).slice(0, 2);
-        return sortedTeams;
+        return { poolId, teams: sortedTeams };
       });
     
-    // Flatten and assign seeds
-    // Pool A (1st, 2nd) = seeds 1-2, Pool B (1st, 2nd) = seeds 3-4, etc.
+    // Assign seeds: Pool A (1st, 2nd) = seeds 1-2, Pool B (1st, 2nd) = seeds 3-4, etc.
     const playoffTeams: Array<{ teamId: string; seed: number }> = [];
-    poolsArray.forEach(poolTeams => {
+    poolsArray.forEach(({ poolId, teams: poolTeams }) => {
       poolTeams.forEach(team => {
         playoffTeams.push({
           teamId: team.teamId,
