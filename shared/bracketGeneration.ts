@@ -62,7 +62,7 @@ export function generateBracketGames(options: BracketGenerationOptions): Generat
 }
 
 export function getPlayoffTeamsFromStandings(
-  standings: Array<{ teamId: string; rank: number }>,
+  standings: Array<{ teamId: string; rank: number; poolId?: string }>,
   playoffFormat: string
 ): Array<{ teamId: string; seed: number }> {
   // Extract playoff team count from format
@@ -70,6 +70,42 @@ export function getPlayoffTeamsFromStandings(
   // 'single_elim_8' -> 8, 'double_elim_12' -> 12
   // 'championship_consolation' -> 4
   // 'top_8_four_pools' -> 8
+  
+  // Special handling for four pools format
+  if (playoffFormat === 'top_8_four_pools') {
+    // Group teams by pool
+    const teamsByPool = new Map<string, Array<{ teamId: string; rank: number; poolId?: string }>>();
+    standings.forEach(team => {
+      if (team.poolId) {
+        if (!teamsByPool.has(team.poolId)) {
+          teamsByPool.set(team.poolId, []);
+        }
+        teamsByPool.get(team.poolId)!.push(team);
+      }
+    });
+    
+    // Sort each pool by rank and take top 2
+    const poolsArray = Array.from(teamsByPool.entries())
+      .sort(([poolIdA], [poolIdB]) => poolIdA.localeCompare(poolIdB)) // Sort pools alphabetically
+      .map(([poolId, teams]) => {
+        const sortedTeams = teams.sort((a, b) => a.rank - b.rank).slice(0, 2);
+        return sortedTeams;
+      });
+    
+    // Flatten and assign seeds
+    // Pool A (1st, 2nd) = seeds 1-2, Pool B (1st, 2nd) = seeds 3-4, etc.
+    const playoffTeams: Array<{ teamId: string; seed: number }> = [];
+    poolsArray.forEach(poolTeams => {
+      poolTeams.forEach(team => {
+        playoffTeams.push({
+          teamId: team.teamId,
+          seed: playoffTeams.length + 1,
+        });
+      });
+    });
+    
+    return playoffTeams;
+  }
   
   let playoffTeamCount = 0;
   
@@ -79,9 +115,6 @@ export function getPlayoffTeamsFromStandings(
   } else if (playoffFormat === 'championship_consolation') {
     // Championship & Consolation: Top 4 teams (seeds 1-4)
     playoffTeamCount = 4;
-  } else if (playoffFormat === 'top_8_four_pools') {
-    // Four pools format: Top 8 teams (2 from each of 4 pools)
-    playoffTeamCount = 8;
   } else if (playoffFormat.startsWith('top_')) {
     // Pool play formats: top_4, top_6, top_8
     playoffTeamCount = parseInt(playoffFormat.replace('top_', ''), 10);

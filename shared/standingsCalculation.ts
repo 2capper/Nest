@@ -14,6 +14,7 @@ interface TeamStats {
 interface TeamStanding {
   teamId: string;
   teamName: string;
+  poolId: string;
   wins: number;
   losses: number;
   ties: number;
@@ -78,6 +79,7 @@ export function calculateStandings(teams: Team[], games: Game[]): TeamStanding[]
     return {
       teamId: team.id,
       teamName: team.name,
+      poolId: team.poolId,
       wins: stats.wins,
       losses: stats.losses,
       ties: stats.ties,
