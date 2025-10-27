@@ -275,15 +275,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAuditLogs(entityType?: string, entityId?: string): Promise<AuditLog[]> {
-    let query = db.select().from(auditLogs);
-    
     if (entityType && entityId) {
-      query = query.where(and(eq(auditLogs.entityType, entityType), eq(auditLogs.entityId, entityId)));
+      return await db.select().from(auditLogs)
+        .where(and(eq(auditLogs.entityType, entityType), eq(auditLogs.entityId, entityId)))
+        .orderBy(sql`${auditLogs.timestamp} DESC`);
     } else if (entityType) {
-      query = query.where(eq(auditLogs.entityType, entityType));
+      return await db.select().from(auditLogs)
+        .where(eq(auditLogs.entityType, entityType))
+        .orderBy(sql`${auditLogs.timestamp} DESC`);
     }
     
-    return await query.orderBy(sql`${auditLogs.timestamp} DESC`);
+    return await db.select().from(auditLogs).orderBy(sql`${auditLogs.timestamp} DESC`);
   }
 
   // Admin request methods
@@ -293,13 +295,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAdminRequests(status?: string): Promise<AdminRequest[]> {
-    let query = db.select().from(adminRequests);
-    
     if (status) {
-      query = query.where(eq(adminRequests.status, status));
+      return await db.select().from(adminRequests)
+        .where(eq(adminRequests.status, status))
+        .orderBy(sql`${adminRequests.createdAt} DESC`);
     }
     
-    return await query.orderBy(sql`${adminRequests.createdAt} DESC`);
+    return await db.select().from(adminRequests).orderBy(sql`${adminRequests.createdAt} DESC`);
   }
 
   async getUserAdminRequest(userId: string): Promise<AdminRequest | undefined> {

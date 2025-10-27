@@ -15,6 +15,7 @@ import { TeamIdScanner } from '@/components/tournament/team-id-scanner';
 import { PasswordResetTool } from '@/components/tournament/password-reset-tool';
 import { AdminRequestsTab } from '@/components/admin-requests-tab';
 import { TeamEditor } from '@/components/tournament/team-editor';
+import { PlayoffBracketGenerator } from '@/components/tournament/playoff-bracket-generator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { isUnauthorizedError } from '@/lib/authUtils';
@@ -230,11 +231,12 @@ export default function AdminPortal() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-forest">
-          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-3 md:grid-cols-6' : 'grid-cols-3 md:grid-cols-5'} w-full gap-1 h-auto`}>
+          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-3 md:grid-cols-7' : 'grid-cols-3 md:grid-cols-6'} w-full gap-1 h-auto`}>
             <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
             <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>
             <TabsTrigger value="teams" className="text-xs md:text-sm py-2">Edit Teams</TabsTrigger>
             <TabsTrigger value="games" className="text-xs md:text-sm py-2">Edit Games</TabsTrigger>
+            <TabsTrigger value="playoffs" className="text-xs md:text-sm py-2">Playoffs</TabsTrigger>
             <TabsTrigger value="reports" className="text-xs md:text-sm py-2">Reports</TabsTrigger>
             {(user as any)?.isSuperAdmin && (
               <TabsTrigger value="admin-requests" className="text-xs md:text-sm py-2">
@@ -305,8 +307,10 @@ export default function AdminPortal() {
               tournamentId={currentTournamentId}
             />
           </TabsContent>
-          
-          
+
+          <TabsContent value="playoffs" className="mt-6">
+            <PlayoffBracketGenerator tournamentId={currentTournamentId} />
+          </TabsContent>
           
           <TabsContent value="manage" className="mt-6">
             <Card>
