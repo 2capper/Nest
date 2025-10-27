@@ -12,11 +12,12 @@ interface Team {
   id: string;
   name: string;
   division: string;
-  rosterLink?: string;
-  rosterData?: string;
-  pitchCountAppName?: string;
-  pitchCountName?: string;
-  gameChangerName?: string;
+  rosterLink?: string | null;
+  teamNumber?: string | null;
+  rosterData?: string | null;
+  pitchCountAppName?: string | null;
+  pitchCountName?: string | null;
+  gameChangerName?: string | null;
 }
 
 interface TeamsTabProps {
@@ -309,7 +310,7 @@ export function TeamsTab({ teams, pools, ageDivisions }: TeamsTabProps) {
         </div>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="border rounded-lg overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -317,7 +318,6 @@ export function TeamsTab({ teams, pools, ageDivisions }: TeamsTabProps) {
               <TableHead>Division</TableHead>
               <TableHead>Roster Status</TableHead>
               <TableHead>Roster Link</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -339,7 +339,7 @@ export function TeamsTab({ teams, pools, ageDivisions }: TeamsTabProps) {
                       href={team.rosterLink} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                      className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm whitespace-nowrap"
                     >
                       View Roster
                       <ExternalLink className="w-3 h-3" />
@@ -347,12 +347,6 @@ export function TeamsTab({ teams, pools, ageDivisions }: TeamsTabProps) {
                   ) : (
                     <span className="text-gray-400 text-sm">No link</span>
                   )}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button size="sm" variant="ghost" disabled>
-                    <Users className="w-4 h-4 mr-2" />
-                    Contact Organizer
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}
