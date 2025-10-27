@@ -69,6 +69,7 @@ export function getPlayoffTeamsFromStandings(
   // Examples: 'top_4' -> 4, 'top_6' -> 6, 'top_8' -> 8
   // 'single_elim_8' -> 8, 'double_elim_12' -> 12
   // 'championship_consolation' -> 4
+  // 'top_8_four_pools' -> 8
   
   let playoffTeamCount = 0;
   
@@ -78,6 +79,9 @@ export function getPlayoffTeamsFromStandings(
   } else if (playoffFormat === 'championship_consolation') {
     // Championship & Consolation: Top 4 teams (seeds 1-4)
     playoffTeamCount = 4;
+  } else if (playoffFormat === 'top_8_four_pools') {
+    // Four pools format: Top 8 teams (2 from each of 4 pools)
+    playoffTeamCount = 8;
   } else if (playoffFormat.startsWith('top_')) {
     // Pool play formats: top_4, top_6, top_8
     playoffTeamCount = parseInt(playoffFormat.replace('top_', ''), 10);

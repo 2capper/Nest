@@ -4,6 +4,7 @@ export type PlayoffFormat =
   | 'top_4'
   | 'top_6'
   | 'top_8'
+  | 'top_8_four_pools'
   | 'all_seeded'
   | 'championship_consolation'
   | 'single_elim_4'
@@ -45,6 +46,13 @@ export const poolPlayFormats: PlayoffFormatOption[] = [
     value: 'top_8',
     label: 'Top 8 Teams',
     description: 'Pool winners + top remaining teams (8 total)',
+    minTeams: 16,
+    numberOfPlayoffTeams: 8,
+  },
+  {
+    value: 'top_8_four_pools',
+    label: 'Top 8 - Four Pools',
+    description: 'Top 2 from each of 4 pools (16 teams total, 8 advance)',
     minTeams: 16,
     numberOfPlayoffTeams: 8,
   },
