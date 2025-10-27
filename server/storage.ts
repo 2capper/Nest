@@ -435,7 +435,7 @@ export class DatabaseStorage implements IStorage {
     
     // Get playoff teams based on format and standings
     const seededTeams = getPlayoffTeamsFromStandings(
-      standings.map(s => ({ teamId: s.teamId, rank: s.rank })),
+      standings.map(s => ({ teamId: s.teamId, rank: s.rank, poolId: s.poolId })),
       tournament.playoffFormat
     );
 
