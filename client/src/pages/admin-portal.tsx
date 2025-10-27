@@ -31,20 +31,12 @@ export default function AdminPortal() {
   const currentTournament = tournaments.find(t => t.id === currentTournamentId);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  // Check authentication
+  // Check authentication - redirect to home instead of login to avoid loops
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
+      setLocation("/");
     }
-  }, [isAuthenticated, authLoading, toast]);
+  }, [isAuthenticated, authLoading, setLocation]);
 
   const handleNewTournament = () => {
     // Switch to tournaments tab where the creation form is

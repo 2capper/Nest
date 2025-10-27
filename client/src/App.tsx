@@ -41,10 +41,26 @@ function Landing() {
 
 function RedirectToAdminPortal() {
   const [, setLocation] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
   
   useEffect(() => {
-    setLocation("/admin-portal");
-  }, [setLocation]);
+    // Only redirect if authenticated and not loading
+    if (!isLoading && isAuthenticated) {
+      setLocation("/admin-portal");
+    }
+  }, [isLoading, isAuthenticated, setLocation]);
+  
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
   
   return null;
 }
