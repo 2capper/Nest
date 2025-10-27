@@ -285,13 +285,12 @@ const PlayoffScoreDialog = ({
 export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, tournament }: PlayoffsTabProps) => {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const { isAuthenticated } = useAuth();
-  const divisionPlayoffTeams = useMemo(() => {
-    if (!teams.length || !games.length || !ageDivisions.length) return {};
+  
+  // Get playoff games and teams per division
+  const divisionPlayoffData = useMemo(() => {
+    if (!teams.length || !ageDivisions.length) return {};
     
-    const result: Record<string, any[]> = {};
-    
-    // Determine the number of playoff teams based on tournament format
-    const playoffTeamCount = getPlayoffTeamCount(tournament.playoffFormat as any, tournament.numberOfTeams || 0);
+    const result: Record<string, { games: Game[]; teams: any[] }> = {};
     
     // Process each division separately
     ageDivisions.forEach(division => {
@@ -301,70 +300,71 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
       
       // Get teams in this division
       const divisionTeams = teams.filter(team => divisionPoolIds.includes(team.poolId));
-      
-      // Get games for teams in this division
       const divisionTeamIds = divisionTeams.map(t => t.id);
-      const divisionGames = games.filter(g => 
+      
+      // Get ALL playoff games for this division (don't filter by recalculated standings)
+      const divisionPlayoffGames = games.filter(g => 
+        g.isPlayoff && 
+        divisionTeamIds.some(teamId => teamId === g.homeTeamId || teamId === g.awayTeamId)
+      );
+      
+      // Extract teams that are actually in playoff games
+      const playoffTeamIds = new Set<string>();
+      divisionPlayoffGames.forEach(g => {
+        if (g.homeTeamId) playoffTeamIds.add(g.homeTeamId);
+        if (g.awayTeamId) playoffTeamIds.add(g.awayTeamId);
+      });
+      
+      // Get all games for this division (pool play only, for stats calculation)
+      const poolGames = games.filter(g => 
+        !g.isPlayoff &&
         g.homeTeamId && g.awayTeamId && 
         divisionTeamIds.includes(g.homeTeamId) && divisionTeamIds.includes(g.awayTeamId)
       );
       
-      // Calculate standings for division teams
-      const allTeamsWithStats = divisionTeams.map(team => {
-        const stats = calculateStats(team.id, divisionGames);
-        return {
-          ...team,
-          ...stats,
-          points: (stats.wins * 2) + (stats.ties * 1),
-          runsAgainstPerInning: stats.defensiveInnings > 0 ? (stats.runsAgainst / stats.defensiveInnings) : 0,
-          runsForPerInning: stats.offensiveInnings > 0 ? (stats.runsFor / stats.offensiveInnings) : 0,
-        };
+      // Calculate stats for teams that are in the playoffs
+      const playoffTeamsWithStats = Array.from(playoffTeamIds)
+        .map(teamId => {
+          const team = divisionTeams.find(t => t.id === teamId);
+          if (!team) return null;
+          
+          const stats = calculateStats(team.id, poolGames);
+          return {
+            ...team,
+            ...stats,
+            points: (stats.wins * 2) + (stats.ties * 1),
+            runsAgainstPerInning: stats.defensiveInnings > 0 ? (stats.runsAgainst / stats.defensiveInnings) : 0,
+            runsForPerInning: stats.offensiveInnings > 0 ? (stats.runsFor / stats.offensiveInnings) : 0,
+          };
+        })
+        .filter((team): team is NonNullable<typeof team> => team !== null);
+      
+      // Sort teams by points, then tiebreakers
+      playoffTeamsWithStats.sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+        if (a.runsAgainstPerInning !== b.runsAgainstPerInning) return a.runsAgainstPerInning - b.runsAgainstPerInning;
+        return b.runsForPerInning - a.runsForPerInning;
       });
-
-      // Sort all teams by points first
-      allTeamsWithStats.sort((a, b) => b.points - a.points);
       
-      // Group teams by points and resolve ties
-      const groups: any[][] = [];
-      if (allTeamsWithStats.length > 0) {
-        let currentGroup = [allTeamsWithStats[0]];
-        
-        for (let i = 1; i < allTeamsWithStats.length; i++) {
-          if (allTeamsWithStats[i].points === currentGroup[0].points) {
-            currentGroup.push(allTeamsWithStats[i]);
-          } else {
-            groups.push(currentGroup);
-            currentGroup = [allTeamsWithStats[i]];
-          }
-        }
-        if (currentGroup.length > 0) groups.push(currentGroup);
-      }
-      
-      // Apply tie-breaker logic to each group and flatten the results
-      const sortedTeams = groups.flatMap(group => resolveTie(group, divisionGames));
-      
-      // Store playoff teams based on format (or all teams if playoffTeamCount is 0 or equals total teams)
-      const teamsToShow = playoffTeamCount === 0 || playoffTeamCount >= sortedTeams.length 
-        ? sortedTeams 
-        : sortedTeams.slice(0, playoffTeamCount);
-      result[division.id] = teamsToShow;
+      result[division.id] = {
+        games: divisionPlayoffGames,
+        teams: playoffTeamsWithStats,
+      };
     });
     
     return result;
-  }, [teams, games, pools, ageDivisions, tournament]);
+  }, [teams, games, pools, ageDivisions]);
 
-  // Check if any division has playoff teams
-  const playoffTeamCount = getPlayoffTeamCount(tournament.playoffFormat as any, tournament.numberOfTeams || 0);
-  const minTeamsRequired = playoffTeamCount > 0 ? playoffTeamCount : 4; // Minimum 4 teams for a bracket
-  const hasAnyPlayoffTeams = Object.values(divisionPlayoffTeams).some(teams => teams.length >= minTeamsRequired);
+  // Check if any division has playoff games
+  const hasAnyPlayoffGames = Object.values(divisionPlayoffData).some(data => data.games.length > 0);
   
-  if (!hasAnyPlayoffTeams) {
+  if (!hasAnyPlayoffGames) {
     return (
       <div className="p-6">
         <div className="text-center p-8 bg-gray-50 rounded-xl">
           <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Playoff Bracket Not Ready</h3>
-          <p className="text-gray-500">Not enough completed games to determine playoff bracket.</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Playoff Games</h3>
+          <p className="text-gray-500">No playoff bracket has been generated yet.</p>
         </div>
       </div>
     );
@@ -397,26 +397,21 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
         </TabsList>
         
         {ageDivisions.map((division) => {
-          const playoffTeams = divisionPlayoffTeams[division.id] || [];
-          const hasEnoughTeams = playoffTeams.length >= minTeamsRequired;
+          const divisionData = divisionPlayoffData[division.id] || { games: [], teams: [] };
+          const divisionPlayoffGames = divisionData.games;
+          const playoffTeams = divisionData.teams;
           
-          if (!hasEnoughTeams) {
+          if (divisionPlayoffGames.length === 0) {
             return (
               <TabsContent key={division.id} value={division.id} className="mt-6">
                 <div className="text-center p-8 bg-gray-50 rounded-xl">
                   <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">{division.name} Playoff Bracket Not Ready</h3>
-                  <p className="text-gray-500">Not enough completed games to determine playoff bracket.</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">{division.name} Playoff Bracket Not Generated</h3>
+                  <p className="text-gray-500">No playoff bracket has been generated for this division yet.</p>
                 </div>
               </TabsContent>
             );
           }
-          
-          // Get playoff games for this division
-          const divisionPlayoffGames = games.filter(g => 
-            g.isPlayoff && 
-            playoffTeams.some(t => t.id === g.homeTeamId || t.id === g.awayTeamId)
-          );
 
           // Group games by round
           const gamesByRound: Record<number, typeof divisionPlayoffGames> = {};
