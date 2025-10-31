@@ -396,7 +396,7 @@ export default function AdminPortal() {
 
           {/* Desktop Navigation - Wrapping Tabs */}
           <div className="hidden md:block mb-4">
-            <TabsList className="flex flex-wrap w-full gap-1 h-auto justify-start">
+            <TabsList className="flex flex-wrap w-full gap-1 h-auto">
               <TabsTrigger value="tournaments" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-tournaments">Tournaments</TabsTrigger>
               <TabsTrigger value="import" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-import">Data Import</TabsTrigger>
               <TabsTrigger value="teams" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-teams">Edit Teams</TabsTrigger>
