@@ -1,6 +1,7 @@
 import { 
   users, 
   organizations,
+  organizationAdmins,
   tournaments, 
   ageDivisions, 
   pools, 
@@ -14,6 +15,8 @@ import {
   type UpsertUser,
   type Organization,
   type InsertOrganization,
+  type OrganizationAdmin,
+  type InsertOrganizationAdmin,
   type Tournament,
   type InsertTournament,
   type AgeDivision,
@@ -50,6 +53,13 @@ export interface IStorage {
   createOrganization(organization: InsertOrganization): Promise<Organization>;
   updateOrganization(id: string, organization: Partial<InsertOrganization>): Promise<Organization>;
   deleteOrganization(id: string): Promise<void>;
+  
+  // Organization admin methods
+  assignOrganizationAdmin(userId: string, organizationId: string, role?: string): Promise<OrganizationAdmin>;
+  removeOrganizationAdmin(userId: string, organizationId: string): Promise<void>;
+  getOrganizationAdmins(organizationId: string): Promise<OrganizationAdmin[]>;
+  getUserOrganizations(userId: string): Promise<Organization[]>;
+  isOrganizationAdmin(userId: string, organizationId: string): Promise<boolean>;
   
   // Tournament methods
   getTournaments(organizationId?: string): Promise<Tournament[]>;
@@ -159,6 +169,63 @@ export class DatabaseStorage implements IStorage {
 
   async deleteOrganization(id: string): Promise<void> {
     await db.delete(organizations).where(eq(organizations.id, id));
+  }
+
+  // Organization admin methods
+  async assignOrganizationAdmin(userId: string, organizationId: string, role: string = "admin"): Promise<OrganizationAdmin> {
+    const [result] = await db
+      .insert(organizationAdmins)
+      .values({ userId, organizationId, role })
+      .returning();
+    return result;
+  }
+
+  async removeOrganizationAdmin(userId: string, organizationId: string): Promise<void> {
+    await db
+      .delete(organizationAdmins)
+      .where(
+        and(
+          eq(organizationAdmins.userId, userId),
+          eq(organizationAdmins.organizationId, organizationId)
+        )
+      );
+  }
+
+  async getOrganizationAdmins(organizationId: string): Promise<OrganizationAdmin[]> {
+    return await db
+      .select()
+      .from(organizationAdmins)
+      .where(eq(organizationAdmins.organizationId, organizationId));
+  }
+
+  async getUserOrganizations(userId: string): Promise<Organization[]> {
+    const adminRecords = await db
+      .select()
+      .from(organizationAdmins)
+      .where(eq(organizationAdmins.userId, userId));
+    
+    if (adminRecords.length === 0) {
+      return [];
+    }
+    
+    const orgIds = adminRecords.map(record => record.organizationId);
+    return await db
+      .select()
+      .from(organizations)
+      .where(sql`${organizations.id} = ANY(${orgIds})`);
+  }
+
+  async isOrganizationAdmin(userId: string, organizationId: string): Promise<boolean> {
+    const [result] = await db
+      .select()
+      .from(organizationAdmins)
+      .where(
+        and(
+          eq(organizationAdmins.userId, userId),
+          eq(organizationAdmins.organizationId, organizationId)
+        )
+      );
+    return !!result;
   }
 
   // Tournament methods
