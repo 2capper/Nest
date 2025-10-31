@@ -52,7 +52,7 @@ export const FeatureManagement = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--forest-green)]" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--field-green)' }} />
       </div>
     );
   }
@@ -75,12 +75,12 @@ export const FeatureManagement = () => {
                   <CardTitle className="text-xl flex items-center gap-2">
                     {flag.displayName}
                     {flag.isEnabled && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-normal">
+                      <span className="text-xs px-2 py-1 rounded-full font-normal" style={{ backgroundColor: 'rgba(58, 107, 53, 0.15)', color: 'var(--field-green)' }}>
                         Active
                       </span>
                     )}
                     {!flag.isEnabled && (
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full font-normal">
+                      <span className="text-xs px-2 py-1 rounded-full font-normal" style={{ backgroundColor: 'rgba(43, 58, 74, 0.1)', color: 'var(--deep-navy)' }}>
                         Disabled
                       </span>
                     )}
@@ -101,12 +101,12 @@ export const FeatureManagement = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                 <p className="mb-2">
-                  <span className="font-semibold">Feature Key:</span> <code className="bg-gray-100 px-2 py-1 rounded">{flag.featureKey}</code>
+                  <span className="font-semibold">Feature Key:</span> <code className="px-2 py-1 rounded" style={{ backgroundColor: 'rgba(43, 58, 74, 0.05)' }}>{flag.featureKey}</code>
                 </p>
                 {flag.comingSoonText && (
-                  <p className="italic text-gray-500">
+                  <p className="italic" style={{ color: 'var(--text-secondary)' }}>
                     "{flag.comingSoonText}"
                   </p>
                 )}

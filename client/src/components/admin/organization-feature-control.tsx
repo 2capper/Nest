@@ -98,7 +98,7 @@ export const OrganizationFeatureControl = ({ organizationId }: OrganizationFeatu
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--forest-green)]" data-testid="loader-feature-flags" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--field-green)' }} data-testid="loader-feature-flags" />
       </div>
     );
   }
@@ -123,19 +123,19 @@ export const OrganizationFeatureControl = ({ organizationId }: OrganizationFeatu
                     
                     {/* Effective Status Badge */}
                     {flag.effectivelyEnabled && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-normal" data-testid={`badge-status-${flag.featureKey}`}>
+                      <span className="text-xs px-2 py-1 rounded-full font-normal" style={{ backgroundColor: 'rgba(58, 107, 53, 0.15)', color: 'var(--field-green)' }} data-testid={`badge-status-${flag.featureKey}`}>
                         Active
                       </span>
                     )}
                     {!flag.effectivelyEnabled && (
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full font-normal" data-testid={`badge-status-${flag.featureKey}`}>
+                      <span className="text-xs px-2 py-1 rounded-full font-normal" style={{ backgroundColor: 'rgba(43, 58, 74, 0.1)', color: 'var(--deep-navy)' }} data-testid={`badge-status-${flag.featureKey}`}>
                         Disabled
                       </span>
                     )}
                     
                     {/* Organization Override Badge */}
                     {flag.orgEnabled !== null && (
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-normal flex items-center gap-1" data-testid={`badge-override-${flag.featureKey}`}>
+                      <span className="text-xs px-2 py-1 rounded-full font-normal flex items-center gap-1" style={{ backgroundColor: 'rgba(185, 78, 72, 0.15)', color: 'var(--clay-red)' }} data-testid={`badge-override-${flag.featureKey}`}>
                         <Building2 className="w-3 h-3" />
                         Org Override
                       </span>
@@ -161,23 +161,23 @@ export const OrganizationFeatureControl = ({ organizationId }: OrganizationFeatu
                 {/* Global and Org Status */}
                 <div className="text-sm space-y-2">
                   <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-gray-500" />
+                    <Globe className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
                     <span className="font-semibold">Global Setting:</span>
-                    <span className={flag.isEnabled ? "text-green-600" : "text-gray-500"} data-testid={`text-global-${flag.featureKey}`}>
+                    <span style={{ color: flag.isEnabled ? 'var(--field-green)' : 'var(--text-secondary)' }} data-testid={`text-global-${flag.featureKey}`}>
                       {flag.isEnabled ? "Enabled" : "Disabled"}
                     </span>
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-gray-500" />
+                    <Building2 className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
                     <span className="font-semibold">Organization Setting:</span>
                     <span data-testid={`text-org-setting-${flag.featureKey}`}>
                       {flag.orgEnabled === null ? (
-                        <span className="text-gray-500 italic">Using default (global setting)</span>
+                        <span className="italic" style={{ color: 'var(--text-secondary)' }}>Using default (global setting)</span>
                       ) : flag.orgEnabled ? (
-                        <span className="text-green-600">Enabled</span>
+                        <span style={{ color: 'var(--field-green)' }}>Enabled</span>
                       ) : (
-                        <span className="text-red-600">Disabled</span>
+                        <span style={{ color: 'var(--clay-red)' }}>Disabled</span>
                       )}
                     </span>
                   </div>
@@ -199,15 +199,15 @@ export const OrganizationFeatureControl = ({ organizationId }: OrganizationFeatu
                 )}
 
                 {/* Feature Key */}
-                <div className="text-sm text-gray-600 pt-2 border-t">
+                <div className="text-sm pt-2 border-t" style={{ color: 'var(--text-secondary)' }}>
                   <p className="mb-2">
                     <span className="font-semibold">Feature Key:</span>{' '}
-                    <code className="bg-gray-100 px-2 py-1 rounded" data-testid={`code-key-${flag.featureKey}`}>
+                    <code className="px-2 py-1 rounded" style={{ backgroundColor: 'rgba(43, 58, 74, 0.05)' }} data-testid={`code-key-${flag.featureKey}`}>
                       {flag.featureKey}
                     </code>
                   </p>
                   {flag.comingSoonText && (
-                    <p className="italic text-gray-500">
+                    <p className="italic" style={{ color: 'var(--text-secondary)' }}>
                       "{flag.comingSoonText}"
                     </p>
                   )}
