@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
+  insertOrganizationSchema,
   insertTournamentSchema, 
   insertAgeDivisionSchema, 
   insertPoolSchema, 
@@ -141,6 +142,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: error.message });
       }
       res.status(500).json({ error: "Failed to update feature flag" });
+    }
+  });
+
+  // Organization routes
+  app.get("/api/organizations", async (req, res) => {
+    try {
+      const organizations = await storage.getOrganizations();
+      res.json(organizations);
+    } catch (error) {
+      console.error("Error fetching organizations:", error);
+      res.status(500).json({ error: "Failed to fetch organizations" });
+    }
+  });
+
+  app.get("/api/organizations/:slug", async (req, res) => {
+    try {
+      const organization = await storage.getOrganizationBySlug(req.params.slug);
+      if (!organization) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+      res.json(organization);
+    } catch (error) {
+      console.error("Error fetching organization:", error);
+      res.status(500).json({ error: "Failed to fetch organization" });
+    }
+  });
+
+  app.get("/api/organizations/:slug/tournaments", async (req, res) => {
+    try {
+      const organization = await storage.getOrganizationBySlug(req.params.slug);
+      if (!organization) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+      const tournaments = await storage.getTournaments(organization.id);
+      res.json(tournaments);
+    } catch (error) {
+      console.error("Error fetching organization tournaments:", error);
+      res.status(500).json({ error: "Failed to fetch tournaments" });
+    }
+  });
+
+  app.post("/api/organizations", requireSuperAdmin, async (req, res) => {
+    try {
+      const validatedData = insertOrganizationSchema.parse(req.body);
+      const organization = await storage.createOrganization(validatedData);
+      res.status(201).json(organization);
+    } catch (error) {
+      console.error("Error creating organization:", error);
+      res.status(400).json({ error: "Invalid organization data" });
+    }
+  });
+
+  app.put("/api/organizations/:id", requireSuperAdmin, async (req, res) => {
+    try {
+      const validatedData = insertOrganizationSchema.partial().parse(req.body);
+      const organization = await storage.updateOrganization(req.params.id, validatedData);
+      res.json(organization);
+    } catch (error) {
+      console.error("Error updating organization:", error);
+      res.status(400).json({ error: "Failed to update organization" });
+    }
+  });
+
+  app.delete("/api/organizations/:id", requireSuperAdmin, async (req, res) => {
+    try {
+      await storage.deleteOrganization(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting organization:", error);
+      res.status(500).json({ error: "Failed to delete organization" });
     }
   });
 
