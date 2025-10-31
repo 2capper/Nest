@@ -1,5 +1,6 @@
 import { 
   users, 
+  organizations,
   tournaments, 
   ageDivisions, 
   pools, 
@@ -11,6 +12,8 @@ import {
   type User, 
   type InsertUser,
   type UpsertUser,
+  type Organization,
+  type InsertOrganization,
   type Tournament,
   type InsertTournament,
   type AgeDivision,
@@ -40,8 +43,16 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   
+  // Organization methods
+  getOrganizations(): Promise<Organization[]>;
+  getOrganization(id: string): Promise<Organization | undefined>;
+  getOrganizationBySlug(slug: string): Promise<Organization | undefined>;
+  createOrganization(organization: InsertOrganization): Promise<Organization>;
+  updateOrganization(id: string, organization: Partial<InsertOrganization>): Promise<Organization>;
+  deleteOrganization(id: string): Promise<void>;
+  
   // Tournament methods
-  getTournaments(): Promise<Tournament[]>;
+  getTournaments(organizationId?: string): Promise<Tournament[]>;
   getTournament(id: string): Promise<Tournament | undefined>;
   createTournament(tournament: InsertTournament): Promise<Tournament>;
   updateTournament(id: string, tournament: Partial<InsertTournament>): Promise<Tournament>;
@@ -118,8 +129,43 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  // Organization methods
+  async getOrganizations(): Promise<Organization[]> {
+    return await db.select().from(organizations);
+  }
+
+  async getOrganization(id: string): Promise<Organization | undefined> {
+    const [org] = await db.select().from(organizations).where(eq(organizations.id, id));
+    return org || undefined;
+  }
+
+  async getOrganizationBySlug(slug: string): Promise<Organization | undefined> {
+    const [org] = await db.select().from(organizations).where(eq(organizations.slug, slug));
+    return org || undefined;
+  }
+
+  async createOrganization(organization: InsertOrganization): Promise<Organization> {
+    const [result] = await db.insert(organizations).values(organization).returning();
+    return result;
+  }
+
+  async updateOrganization(id: string, organization: Partial<InsertOrganization>): Promise<Organization> {
+    const [result] = await db.update(organizations).set({
+      ...organization,
+      updatedAt: new Date(),
+    }).where(eq(organizations.id, id)).returning();
+    return result;
+  }
+
+  async deleteOrganization(id: string): Promise<void> {
+    await db.delete(organizations).where(eq(organizations.id, id));
+  }
+
   // Tournament methods
-  async getTournaments(): Promise<Tournament[]> {
+  async getTournaments(organizationId?: string): Promise<Tournament[]> {
+    if (organizationId) {
+      return await db.select().from(tournaments).where(eq(tournaments.organizationId, organizationId));
+    }
     return await db.select().from(tournaments);
   }
 
