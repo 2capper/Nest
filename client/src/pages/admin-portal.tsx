@@ -19,6 +19,7 @@ import { PlayoffBracketGenerator } from '@/components/tournament/playoff-bracket
 import { FeatureManagement } from '@/components/admin/feature-management';
 import { OrganizationSettings } from '@/components/admin/organization-settings';
 import { OrganizationAdminManagement } from '@/components/admin/organization-admin-management';
+import { OrganizationCreationForm } from '@/components/admin/organization-creation-form';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { isUnauthorizedError } from '@/lib/authUtils';
@@ -236,7 +237,7 @@ export default function AdminPortal() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-forest">
-          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-3 md:grid-cols-10' : 'grid-cols-3 md:grid-cols-6'} w-full gap-1 h-auto`}>
+          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-3 md:grid-cols-11' : 'grid-cols-3 md:grid-cols-6'} w-full gap-1 h-auto`}>
             <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
             <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>
             <TabsTrigger value="teams" className="text-xs md:text-sm py-2">Edit Teams</TabsTrigger>
@@ -245,6 +246,10 @@ export default function AdminPortal() {
             <TabsTrigger value="reports" className="text-xs md:text-sm py-2">Reports</TabsTrigger>
             {(user as any)?.isSuperAdmin && (
               <>
+                <TabsTrigger value="create-org" className="text-xs md:text-sm py-2">
+                  <Plus className="w-3 h-3 mr-1" />
+                  Create Org
+                </TabsTrigger>
                 <TabsTrigger value="org-settings" className="text-xs md:text-sm py-2">
                   <Settings className="w-3 h-3 mr-1" />
                   Org Settings
@@ -428,6 +433,10 @@ export default function AdminPortal() {
 
           {(user as any)?.isSuperAdmin && (
             <>
+              <TabsContent value="create-org" className="mt-6">
+                <OrganizationCreationForm />
+              </TabsContent>
+
               <TabsContent value="org-settings" className="mt-6">
                 <Card>
                   <CardHeader>
