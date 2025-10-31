@@ -17,7 +17,7 @@ interface TournamentLogoProps {
 }
 
 const TournamentLogo = ({ tournament, isAdminPage }: TournamentLogoProps) => {
-  const adminColor = 'hsl(215, 25%, 27%)'; // Theme navy from --splash-navy
+  const adminColor = '#2B3A4A'; // Deep Navy from Dugout Desk branding
   const logoColor = isAdminPage ? adminColor : (tournament?.primaryColor || '#22c55e');
   
   // Show custom logo if provided, otherwise show trophy icon
@@ -65,9 +65,9 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Use admin theme colors when on admin page, otherwise use tournament colors
-  const adminPrimaryColor = 'hsl(215, 25%, 27%)'; // Theme navy from --splash-navy
-  const adminSecondaryColor = 'hsl(13, 88%, 48%)'; // Theme orange from --splash-orange
+  // Use Dugout Desk branding colors when on admin page, otherwise use tournament colors
+  const adminPrimaryColor = '#2B3A4A'; // Deep Navy from Dugout Desk branding
+  const adminSecondaryColor = '#3A6B35'; // Field Green from Dugout Desk branding
   
   const primaryColor = currentPage === 'admin' 
     ? adminPrimaryColor 
