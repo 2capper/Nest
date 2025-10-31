@@ -412,7 +412,7 @@ export const GameResultEditor = ({ games, teams, tournamentId }: GameResultEdito
                           <Button 
                             onClick={handleSave}
                             disabled={updateGameMutation.isPending}
-                            className="min-h-[44px] font-semibold"
+                            className="min-h-[48px] font-semibold"
                             style={{ backgroundColor: 'var(--clay-red)', color: 'white' }}
                             data-testid="button-save-game"
                           >

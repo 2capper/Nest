@@ -30,8 +30,8 @@ export const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
           <div className="flex items-center">
             <TournamentLogo />
             <div className="text-white ml-4">
-              <h1 className="text-xl font-bold">Tournament Manager</h1>
-              <p className="text-sm opacity-80">Baseball Tournaments</p>
+              <h1 className="text-xl font-bold">DUGOUT DESK</h1>
+              <p className="text-sm opacity-80">Your Tournament Command Center</p>
             </div>
           </div>
           

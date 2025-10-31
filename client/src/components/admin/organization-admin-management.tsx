@@ -82,7 +82,11 @@ function AssignAdminDialog({ organization, onSuccess }: AssignAdminDialogProps) 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" data-testid={`button-assign-admin-${organization.slug}`}>
+        <Button 
+          className="min-h-[48px] font-semibold"
+          style={{ backgroundColor: 'var(--clay-red)', color: 'white' }}
+          data-testid={`button-assign-admin-${organization.slug}`}
+        >
           <UserPlus className="w-4 h-4 mr-2" />
           Assign Admin
         </Button>
@@ -124,7 +128,7 @@ function AssignAdminDialog({ organization, onSuccess }: AssignAdminDialogProps) 
             <Button
               type="submit"
               disabled={assignMutation.isPending}
-              className="min-h-[44px] font-semibold"
+              className="min-h-[48px] font-semibold"
               style={{ backgroundColor: 'var(--clay-red)', color: 'white' }}
               data-testid="button-confirm-assign"
             >

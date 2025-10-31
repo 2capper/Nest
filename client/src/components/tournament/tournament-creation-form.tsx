@@ -479,7 +479,8 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
             <Button 
               type="submit" 
               disabled={createTournamentMutation.isPending}
-              className="bg-[var(--falcons-green)] text-[#32343c] hover:bg-[var(--falcons-dark-green)]"
+              className="min-h-[48px] font-semibold"
+              style={{ backgroundColor: 'var(--clay-red)', color: 'white' }}
             >
               {createTournamentMutation.isPending ? (
                 <>

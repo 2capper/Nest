@@ -205,7 +205,7 @@ function EditOrganizationDialog({ organization, onSuccess }: EditOrganizationDia
             <Button
               type="submit"
               disabled={updateMutation.isPending}
-              className="min-h-[44px] font-semibold"
+              className="min-h-[48px] font-semibold"
               style={{ backgroundColor: 'var(--clay-red)', color: 'white' }}
               data-testid="button-save-settings"
             >
