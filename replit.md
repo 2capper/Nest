@@ -61,6 +61,24 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 2025 - Feature Flag System & Coming Soon Pages
+- **Feature Flag Infrastructure**: Implemented database-backed feature flag system with super admin controls
+  - Added `featureFlags` table to database with featureKey, displayName, description, and isEnabled status
+  - Added `isSuperAdmin` boolean field to users table for elevated permissions
+  - Created three initial feature flags: `tournament_registration`, `tournament_comms`, and `schedule_builder`
+- **Feature Management Panel**: Built dedicated admin interface for super admins
+  - Accessible via "Feature Management" tab in Admin Portal (visible only to super admins)
+  - Real-time toggle controls for enabling/disabling features
+  - Clear status indicators showing which features are active
+  - API routes protected with `requireSuperAdmin` middleware
+- **Coming Soon Showcase Pages**: Created informational pages for planned features
+  - Tournament Registration Portal: Online team signups with payment processing
+  - Tournament Communications: Multi-channel messaging (email, SMS, in-app)
+  - Visual Schedule Builder: Drag-and-drop scheduling with conflict detection
+  - Reusable ComingSoonPage component with feature benefits and descriptions
+  - Public routes accessible at `/coming-soon/*` paths
+- **Future Feature Planning**: Three major features in development pipeline with toggle capability
+
 ### October 2025 - Team Number and Roster Management Enhancement
 - **Team Number Feature**: Added simple 6-digit team number field for PlayOBA roster integration
   - Admins can enter team numbers directly in the Team Editor dialog
