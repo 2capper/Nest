@@ -1,7 +1,7 @@
 # Tournament Management System
 
 ## Overview
-This is a full-stack tournament management system designed for the Forest Glade Falcons baseball organization. Its primary purpose is to provide real-time tournament management capabilities, including team registration, game scheduling, score tracking, standings calculation, and playoff bracket management. The system aims to streamline the complexities of running baseball tournaments, offering an intuitive platform for organizers and participants.
+This is a multi-organization tournament management system that enables multiple baseball organizations to manage their tournaments on a single platform. The system provides real-time tournament management capabilities including team registration, game scheduling, score tracking, standings calculation, and playoff bracket management. Each organization has its own branded pages and shareable URLs, while maintaining centralized administrative capabilities. The system streamlines the complexities of running baseball tournaments for multiple organizations simultaneously.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -60,6 +60,37 @@ Preferred communication style: Simple, everyday language.
 - **Web Scraping**: Python-based service for OBA roster data (utilizes `urllib.parse` for security)
 
 ## Recent Changes
+
+### October 2025 - Multi-Organization Architecture
+- **Organizations Table**: Added dedicated organizations table with support for multiple baseball organizations on one platform
+  - Organization schema includes: name, slug (URL-friendly identifier), description, branding (logo, colors), contact info, and Stripe integration
+  - Tournaments now link to organizations via `organizationId` (nullable for backward compatibility)
+  - Migrated existing 9 tournaments to default "Forest Glade Falcons" organization
+- **Professional Homepage**: Created public homepage at `/` showcasing all organizations and tournaments
+  - Displays organization cards with logos, descriptions, and tournament counts
+  - Groups tournaments by organization for easy browsing
+  - Includes call-to-action for admin access
+  - Fully public - no authentication required
+- **Organization Detail Pages**: Built dedicated pages at `/org/:slug` for each organization
+  - Organization header with branding, description, and contact information
+  - Filtered tournament listings showing only that organization's tournaments
+  - Clean, shareable URLs (e.g., `/org/forest-glade-falcons`)
+  - Links to organization website and contact email
+- **Tournament Creation Enhancement**: Updated tournament creation to require organization selection
+  - Dropdown selector in tournament creation form
+  - Validates organization exists before allowing tournament creation
+  - Clear messaging when no organizations are available
+- **API Layer**: Complete organization CRUD operations and filtering
+  - `GET /api/organizations` - List all organizations
+  - `GET /api/organizations/:slug` - Get single organization by slug
+  - `GET /api/organizations/:slug/tournaments` - Get organization's tournaments
+  - `POST /api/organizations` - Create new organization (admin only)
+  - `PATCH /api/organizations/:id` - Update organization (admin only)
+  - `DELETE /api/organizations/:id` - Delete organization (admin only)
+- **Storage Layer**: Added organization management methods to IStorage interface
+  - `getAllOrganizations()`, `getOrganizationBySlug()`, `getOrganizationById()`
+  - `createOrganization()`, `updateOrganization()`, `deleteOrganization()`
+  - `getTournamentsByOrganizationSlug()` for filtered tournament queries
 
 ### October 2025 - Feature Flag System & Coming Soon Pages
 - **Feature Flag Infrastructure**: Implemented database-backed feature flag system with super admin controls
