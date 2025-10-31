@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays, Users, Trophy, LogIn, Building2, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
-import dugoutDeskLogo from "@assets/Gemini_Generated_Image_cj7rofcj7rofcj7r_1761932343083.png";
+import dugoutDeskLogo from "@assets/tinywow_Gemini_Generated_Image_cj7rofcj7rofcj7r_85636863_1761934089236.png";
 import { FeatureShowcase } from "@/components/feature-showcase";
 
 export default function Home() {
