@@ -110,9 +110,9 @@ export default function AdminPortal() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-[var(--splash-light-gray)] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--light-gray)' }}>
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[var(--forest-green)] mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" style={{ color: 'var(--field-green)' }} />
           <p className="text-[var(--text-secondary)]">{authLoading ? "Checking authentication..." : "Loading admin portal..."}</p>
         </div>
       </div>
@@ -126,12 +126,13 @@ export default function AdminPortal() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[var(--splash-light-gray)] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--light-gray)' }}>
         <div className="text-center">
           <p className="text-[var(--destructive)] mb-4">Error loading tournament data: {error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="bg-[var(--forest-green)] text-[var(--yellow)] px-4 py-2 rounded hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
+            className="px-4 py-2 rounded transition-colors font-semibold"
+            style={{ backgroundColor: 'var(--clay-red)', color: 'white' }}
           >
             Retry
           </button>
@@ -144,7 +145,7 @@ export default function AdminPortal() {
   const scheduledGames = games.filter(g => g.status === 'scheduled').length;
 
   return (
-    <div className="min-h-screen bg-[var(--splash-light-gray)]">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--light-gray)' }}>
       <SimpleNavigation 
         tournamentId={currentTournamentId} 
         currentPage="admin" 
@@ -155,13 +156,13 @@ export default function AdminPortal() {
       <div className="px-4 py-4 md:py-8">
         
         {/* Warning Banner with Logout */}
-        <div className="mb-4 p-3 border border-[var(--forest-green)] bg-[var(--yellow)]/10 rounded-lg">
+        <div className="mb-4 p-3 border rounded-lg" style={{ borderColor: 'var(--field-green)', backgroundColor: 'rgba(58, 107, 53, 0.1)' }}>
           <div className="flex items-start justify-between">
             <div className="flex items-start">
-              <Shield className="w-5 h-5 text-[var(--forest-green)] mr-2 flex-shrink-0 mt-0.5" />
+              <Shield className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" style={{ color: 'var(--field-green)' }} />
               <div>
-                <h3 className="text-base font-semibold text-[var(--forest-green)]">Admin Access Only</h3>
-                <p className="text-sm text-[var(--splash-navy)] mt-1">
+                <h3 className="text-base font-semibold" style={{ color: 'var(--field-green)' }}>Admin Access Only</h3>
+                <p className="text-sm mt-1" style={{ color: 'var(--deep-navy)' }}>
                   This portal is restricted to tournament administrators.
                 </p>
               </div>
@@ -182,40 +183,40 @@ export default function AdminPortal() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center">
-              <Database className="h-6 w-6 text-[var(--forest-green)] mr-3" />
+              <Database className="h-6 w-6 mr-3" style={{ color: 'var(--field-green)' }} />
               <div>
                 <p className="text-xs text-[var(--text-secondary)]">Divisions</p>
-                <p className="text-xl font-bold text-[var(--splash-navy)]">{ageDivisions.length}</p>
+                <p className="text-xl font-bold" style={{ color: 'var(--deep-navy)' }}>{ageDivisions.length}</p>
               </div>
             </div>
           </div>
           
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center">
-              <Users className="h-6 w-6 text-[var(--forest-green)] mr-3" />
+              <Users className="h-6 w-6 mr-3" style={{ color: 'var(--field-green)' }} />
               <div>
                 <p className="text-xs text-[var(--text-secondary)]">Teams</p>
-                <p className="text-xl font-bold text-[var(--splash-navy)]">{teams.length}</p>
+                <p className="text-xl font-bold" style={{ color: 'var(--deep-navy)' }}>{teams.length}</p>
               </div>
             </div>
           </div>
           
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center">
-              <Calendar className="h-6 w-6 text-[var(--forest-green)] mr-3" />
+              <Calendar className="h-6 w-6 mr-3" style={{ color: 'var(--field-green)' }} />
               <div>
                 <p className="text-xs text-[var(--text-secondary)]">Completed</p>
-                <p className="text-xl font-bold text-[var(--splash-navy)]">{completedGames}</p>
+                <p className="text-xl font-bold" style={{ color: 'var(--deep-navy)' }}>{completedGames}</p>
               </div>
             </div>
           </div>
           
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center">
-              <Calendar className="h-6 w-6 text-[var(--splash-orange)] mr-3" />
+              <Calendar className="h-6 w-6 mr-3" style={{ color: 'var(--clay-red)' }} />
               <div>
                 <p className="text-xs text-[var(--text-secondary)]">Scheduled</p>
-                <p className="text-xl font-bold text-[var(--splash-navy)]">{scheduledGames}</p>
+                <p className="text-xl font-bold" style={{ color: 'var(--deep-navy)' }}>{scheduledGames}</p>
               </div>
             </div>
           </div>
@@ -225,7 +226,8 @@ export default function AdminPortal() {
         <div className="flex justify-end mb-4">
           <Button 
             onClick={handleExportData}
-            className="bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors text-sm"
+            className="text-sm font-semibold transition-colors"
+            style={{ backgroundColor: 'var(--field-green)', color: 'white' }}
           >
             <Download className="w-4 h-4 mr-1" />
             Export Data
@@ -298,7 +300,7 @@ export default function AdminPortal() {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-[var(--splash-light-gray)] px-2 text-[var(--text-secondary)]">Or fix existing data</span>
+                  <span className="px-2 text-[var(--text-secondary)]" style={{ backgroundColor: 'var(--light-gray)' }}>Or fix existing data</span>
                 </div>
               </div>
               
@@ -338,7 +340,7 @@ export default function AdminPortal() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <h4 className="font-semibold text-[var(--splash-navy)] mb-2">Tournament Data</h4>
+                      <h4 className="font-semibold mb-2" style={{ color: 'var(--deep-navy)' }}>Tournament Data</h4>
                       <p className="text-sm text-[var(--text-secondary)] mb-3">
                         Current tournament has {teams.length} teams across {pools.length} pools
                       </p>
@@ -352,7 +354,7 @@ export default function AdminPortal() {
                     </div>
                     
                     <div>
-                      <h4 className="font-semibold text-[var(--splash-navy)] mb-2">Game Status</h4>
+                      <h4 className="font-semibold mb-2" style={{ color: 'var(--deep-navy)' }}>Game Status</h4>
                       <p className="text-sm text-[var(--text-secondary)] mb-3">
                         {completedGames} completed, {scheduledGames} scheduled
                       </p>
@@ -378,40 +380,41 @@ export default function AdminPortal() {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-[var(--splash-navy)] mb-2">Tournament Overview</h4>
+                    <h4 className="font-semibold mb-2" style={{ color: 'var(--deep-navy)' }}>Tournament Overview</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div className="bg-white border border-[var(--card-border)] p-3 rounded">
                         <p className="text-[var(--text-secondary)]">Age Divisions</p>
-                        <p className="text-xl font-bold text-[var(--splash-navy)]">{ageDivisions.length}</p>
+                        <p className="text-xl font-bold" style={{ color: 'var(--deep-navy)' }}>{ageDivisions.length}</p>
                       </div>
                       <div className="bg-white border border-[var(--card-border)] p-3 rounded">
                         <p className="text-[var(--text-secondary)]">Pools</p>
-                        <p className="text-xl font-bold text-[var(--splash-navy)]">{pools.length}</p>
+                        <p className="text-xl font-bold" style={{ color: 'var(--deep-navy)' }}>{pools.length}</p>
                       </div>
                       <div className="bg-white border border-[var(--card-border)] p-3 rounded">
                         <p className="text-[var(--text-secondary)]">Teams</p>
-                        <p className="text-xl font-bold text-[var(--splash-navy)]">{teams.length}</p>
+                        <p className="text-xl font-bold" style={{ color: 'var(--deep-navy)' }}>{teams.length}</p>
                       </div>
                       <div className="bg-white border border-[var(--card-border)] p-3 rounded">
                         <p className="text-[var(--text-secondary)]">Total Games</p>
-                        <p className="text-xl font-bold text-[var(--splash-navy)]">{games.length}</p>
+                        <p className="text-xl font-bold" style={{ color: 'var(--deep-navy)' }}>{games.length}</p>
                       </div>
                     </div>
                   </div>
                   
                   <div>
-                    <h4 className="font-semibold text-[var(--splash-navy)] mb-2">Game Progress</h4>
+                    <h4 className="font-semibold mb-2" style={{ color: 'var(--deep-navy)' }}>Game Progress</h4>
                     <div className="bg-white border border-[var(--card-border)] p-4 rounded">
                       <div className="flex justify-between items-center">
                         <span className="text-[var(--text-secondary)]">Completion Rate</span>
-                        <span className="font-semibold text-[var(--splash-navy)]">
+                        <span className="font-semibold" style={{ color: 'var(--deep-navy)' }}>
                           {games.length > 0 ? Math.round((completedGames / games.length) * 100) : 0}%
                         </span>
                       </div>
-                      <div className="w-full bg-[var(--splash-light-gray)] rounded-full h-2 mt-2">
+                      <div className="w-full rounded-full h-2 mt-2" style={{ backgroundColor: 'var(--light-gray)' }}>
                         <div 
-                          className="bg-[var(--forest-green)] h-2 rounded-full" 
+                          className="h-2 rounded-full" 
                           style={{ 
+                            backgroundColor: 'var(--field-green)',
                             width: `${games.length > 0 ? (completedGames / games.length) * 100 : 0}%` 
                           }}
                         ></div>
