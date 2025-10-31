@@ -39,7 +39,7 @@ export default function Home() {
               Professional tournament organization for sports leagues and organizations
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/api/login">
+              <a href="/api/login">
                 <Button 
                   size="lg" 
                   className="bg-white text-[var(--forest-green)] hover:bg-gray-100"
@@ -48,7 +48,7 @@ export default function Home() {
                   <LogIn className="w-5 h-5 mr-2" />
                   Admin Login
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
