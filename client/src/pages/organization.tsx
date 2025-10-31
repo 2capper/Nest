@@ -10,11 +10,12 @@ export default function OrganizationPage() {
   const { slug } = useParams();
 
   const { data: organization, isLoading: orgLoading } = useQuery<Organization>({
-    queryKey: ['/api/organizations', slug],
+    queryKey: [`/api/organizations/${slug}`],
+    enabled: !!slug,
   });
 
   const { data: tournaments, isLoading: tournamentsLoading } = useQuery<Tournament[]>({
-    queryKey: ['/api/organizations', slug, 'tournaments'],
+    queryKey: [`/api/organizations/${slug}/tournaments`],
     enabled: !!slug,
   });
 
