@@ -272,7 +272,8 @@ const PlayoffScoreDialog = ({
           <Button
             type="submit"
             disabled={updateGameMutation.isPending}
-            className="flex-1 bg-[var(--falcons-green)] hover:bg-[var(--falcons-green)]/90"
+            className="flex-1 min-h-[48px] text-base font-semibold"
+            style={{ backgroundColor: 'var(--clay-red)', color: 'white' }}
           >
             {updateGameMutation.isPending ? 'Updating...' : 'Submit Score'}
           </Button>

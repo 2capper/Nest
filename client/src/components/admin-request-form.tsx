@@ -138,7 +138,8 @@ export function AdminRequestForm() {
           <Button
             type="submit"
             disabled={requestMutation.isPending}
-            className="w-full bg-[var(--falcons-green)] hover:bg-[var(--falcons-green)]/90"
+            className="w-full min-h-[48px] text-base font-semibold"
+            style={{ backgroundColor: 'var(--clay-red)', color: 'white' }}
             data-testid="button-submit-admin-request"
           >
             {requestMutation.isPending ? (

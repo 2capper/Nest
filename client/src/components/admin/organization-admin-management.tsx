@@ -124,6 +124,8 @@ function AssignAdminDialog({ organization, onSuccess }: AssignAdminDialogProps) 
             <Button
               type="submit"
               disabled={assignMutation.isPending}
+              className="min-h-[44px] font-semibold"
+              style={{ backgroundColor: 'var(--clay-red)', color: 'white' }}
               data-testid="button-confirm-assign"
             >
               {assignMutation.isPending ? (

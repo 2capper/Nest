@@ -316,7 +316,8 @@ export const HierarchicalScoreInput = ({
           <Button 
             type="submit" 
             disabled={updateGameMutation.isPending || !selectedGameId} 
-            className="w-full bg-[var(--forest-green)] text-[var(--yellow)] hover:bg-[var(--yellow)] hover:text-[var(--forest-green)] transition-colors"
+            className="w-full min-h-[48px] text-base font-semibold"
+            style={{ backgroundColor: 'var(--clay-red)', color: 'white' }}
           >
             {updateGameMutation.isPending ? (
               <>
