@@ -1,63 +1,75 @@
-/* Import fonts from StyleMix Baseball website */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;900&family=Oswald:wght@300;400;500;600;700&display=swap');
+/* Import fonts for Dugout Desk - Oswald for headings, Inter for body/UI */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Oswald:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: hsl(0, 0%, 100%);
-  --foreground: hsl(0, 0%, 13%);
-  --muted: hsl(0, 0%, 96%);
+  --background: hsl(220, 11%, 96%);
+  --foreground: hsl(210, 27%, 22%);
+  --muted: hsl(220, 11%, 96%);
   --muted-foreground: hsl(0, 0%, 45%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(0, 0%, 13%);
+  --popover-foreground: hsl(210, 27%, 22%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(0, 0%, 13%);
+  --card-foreground: hsl(210, 27%, 22%);
   --border: hsl(0, 0%, 89%);
   --input: hsl(0, 0%, 89%);
-  --primary: hsl(13, 88%, 48%);
+  --primary: hsl(5, 42%, 50%);
   --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(0, 0%, 96%);
-  --secondary-foreground: hsl(0, 0%, 13%);
-  --accent: hsl(13, 88%, 48%);
+  --secondary: hsl(113, 35%, 31%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(5, 42%, 50%);
   --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 84%, 60%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --ring: hsl(13, 88%, 48%);
+  --ring: hsl(5, 42%, 50%);
   --radius: 0rem;
 
-  /* StyleMix Baseball theme colors */
-  --splash-orange: hsl(13, 88%, 48%); /* Main orange from website */
-  --splash-dark-orange: hsl(13, 88%, 38%); /* Darker orange */
-  --splash-navy: hsl(215, 25%, 27%); /* Navy blue */
-  --splash-dark-navy: hsl(215, 25%, 20%); /* Darker navy */
-  --splash-white: hsl(0, 0%, 100%); /* Pure white */
-  --splash-light-gray: hsl(0, 0%, 96%); /* Light gray background */
-  --splash-gray: hsl(0, 0%, 45%); /* Medium gray text */
-  --splash-dark-gray: hsl(0, 0%, 13%); /* Dark gray/black text */
+  /* Dugout Desk Brand Colors */
+  --deep-navy: hsl(210, 27%, 22%); /* Primary structure & trust */
+  --field-green: hsl(113, 35%, 31%); /* Secondary brand accent */
+  --clay-red: hsl(5, 42%, 50%); /* Action/CTA buttons */
+  --light-gray: hsl(220, 11%, 96%); /* Main background for sunlight readability */
+  --white: hsl(0, 0%, 100%); /* Card backgrounds */
   
-  /* Text colors from StyleMix Baseball */
-  --text-primary: hsl(0, 0%, 13%);
+  /* Legacy color aliases for backwards compatibility */
+  --splash-orange: hsl(5, 42%, 50%);
+  --splash-dark-orange: hsl(5, 42%, 40%);
+  --splash-navy: hsl(210, 27%, 22%);
+  --splash-dark-navy: hsl(210, 27%, 18%);
+  --splash-white: hsl(0, 0%, 100%);
+  --splash-light-gray: hsl(220, 11%, 96%);
+  --splash-gray: hsl(0, 0%, 45%);
+  --splash-dark-gray: hsl(210, 27%, 22%);
+  
+  /* Forest Green for backward compatibility */
+  --forest-green: hsl(113, 35%, 31%);
+  --falcons-green: hsl(113, 35%, 31%);
+  --yellow: hsl(45, 100%, 51%);
+  
+  /* Text colors using Deep Navy */
+  --text-primary: hsl(210, 27%, 22%);
   --text-secondary: hsl(0, 0%, 45%);
   --text-light: hsl(0, 0%, 60%);
   --text-white: hsl(0, 0%, 100%);
   
-  /* Background colors from StyleMix Baseball */
+  /* Background colors using Dugout Desk palette */
   --bg-primary: hsl(0, 0%, 100%);
-  --bg-secondary: hsl(0, 0%, 96%);
-  --bg-dark: hsl(215, 25%, 27%);
-  --bg-darker: hsl(215, 25%, 20%);
-  --bg-hero: linear-gradient(135deg, hsl(13, 88%, 48%) 0%, hsl(215, 25%, 27%) 100%);
+  --bg-secondary: hsl(220, 11%, 96%);
+  --bg-dark: hsl(210, 27%, 22%);
+  --bg-darker: hsl(210, 27%, 18%);
+  --bg-hero: linear-gradient(135deg, hsl(5, 42%, 50%) 0%, hsl(210, 27%, 22%) 100%);
   
-  /* Component colors from StyleMix Baseball */
-  --header-bg: hsl(215, 25%, 27%);
+  /* Component colors using Dugout Desk palette */
+  --header-bg: hsl(210, 27%, 22%);
   --header-text: hsl(0, 0%, 100%);
   --card-bg: hsl(0, 0%, 100%);
   --card-border: hsl(0, 0%, 89%);
-  --table-header: hsl(0, 0%, 96%);
+  --table-header: hsl(220, 11%, 96%);
   --table-row-even: hsl(0, 0%, 98%);
-  --table-row-hover: hsl(0, 0%, 96%);
+  --table-row-hover: hsl(220, 11%, 96%);
   
   /* Shadow and effects */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -67,36 +79,48 @@
 }
 
 .dark {
-  --background: hsl(215, 25%, 20%);
+  --background: hsl(210, 27%, 18%);
   --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(215, 25%, 15%);
+  --muted: hsl(210, 27%, 15%);
   --muted-foreground: hsl(0, 0%, 60%);
-  --popover: hsl(215, 25%, 20%);
+  --popover: hsl(210, 27%, 18%);
   --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(215, 25%, 25%);
+  --card: hsl(210, 27%, 22%);
   --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(215, 25%, 35%);
-  --input: hsl(215, 25%, 35%);
-  --primary: hsl(13, 88%, 48%);
+  --border: hsl(210, 27%, 32%);
+  --input: hsl(210, 27%, 32%);
+  --primary: hsl(5, 42%, 50%);
   --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(215, 25%, 15%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(13, 88%, 48%);
+  --secondary: hsl(113, 35%, 31%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(5, 42%, 50%);
   --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 84%, 60%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --ring: hsl(13, 88%, 48%);
+  --ring: hsl(5, 42%, 50%);
   --radius: 0rem;
 
-  /* StyleMix Baseball theme colors for dark mode */
-  --splash-orange: hsl(13, 88%, 48%);
-  --splash-dark-orange: hsl(13, 88%, 38%);
-  --splash-navy: hsl(215, 25%, 20%);
-  --splash-dark-navy: hsl(215, 25%, 15%);
+  /* Dugout Desk Brand Colors - Dark Mode */
+  --deep-navy: hsl(210, 27%, 18%);
+  --field-green: hsl(113, 35%, 31%);
+  --clay-red: hsl(5, 42%, 50%);
+  --light-gray: hsl(210, 27%, 22%);
+  --white: hsl(0, 0%, 100%);
+  
+  /* Legacy color aliases for dark mode */
+  --splash-orange: hsl(5, 42%, 50%);
+  --splash-dark-orange: hsl(5, 42%, 40%);
+  --splash-navy: hsl(210, 27%, 18%);
+  --splash-dark-navy: hsl(210, 27%, 15%);
   --splash-white: hsl(0, 0%, 100%);
-  --splash-light-gray: hsl(215, 25%, 25%);
+  --splash-light-gray: hsl(210, 27%, 22%);
   --splash-gray: hsl(0, 0%, 60%);
   --splash-dark-gray: hsl(0, 0%, 98%);
+  
+  /* Forest Green for backward compatibility */
+  --forest-green: hsl(113, 35%, 31%);
+  --falcons-green: hsl(113, 35%, 31%);
+  --yellow: hsl(45, 100%, 51%);
   
   /* Text colors for dark mode */
   --text-primary: hsl(0, 0%, 98%);
@@ -105,20 +129,20 @@
   --text-white: hsl(0, 0%, 100%);
   
   /* Background colors for dark mode */
-  --bg-primary: hsl(215, 25%, 20%);
-  --bg-secondary: hsl(215, 25%, 25%);
-  --bg-dark: hsl(215, 25%, 15%);
-  --bg-darker: hsl(215, 25%, 10%);
-  --bg-hero: linear-gradient(135deg, hsl(13, 88%, 48%) 0%, hsl(215, 25%, 15%) 100%);
+  --bg-primary: hsl(210, 27%, 18%);
+  --bg-secondary: hsl(210, 27%, 22%);
+  --bg-dark: hsl(210, 27%, 15%);
+  --bg-darker: hsl(210, 27%, 12%);
+  --bg-hero: linear-gradient(135deg, hsl(5, 42%, 50%) 0%, hsl(210, 27%, 15%) 100%);
   
   /* Component colors for dark mode */
-  --header-bg: hsl(215, 25%, 15%);
+  --header-bg: hsl(210, 27%, 15%);
   --header-text: hsl(0, 0%, 100%);
-  --card-bg: hsl(215, 25%, 25%);
-  --card-border: hsl(215, 25%, 35%);
-  --table-header: hsl(215, 25%, 20%);
-  --table-row-even: hsl(215, 25%, 22%);
-  --table-row-hover: hsl(215, 25%, 30%);
+  --card-bg: hsl(210, 27%, 22%);
+  --card-border: hsl(210, 27%, 32%);
+  --table-header: hsl(210, 27%, 18%);
+  --table-row-even: hsl(210, 27%, 20%);
+  --table-row-hover: hsl(210, 27%, 28%);
   
   /* Shadow and effects for dark mode */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
@@ -134,7 +158,7 @@
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
     font-weight: 400;
     line-height: 1.6;
   }
