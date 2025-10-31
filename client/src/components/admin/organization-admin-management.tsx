@@ -314,14 +314,14 @@ function OrganizationAdminCard({ organization }: OrganizationAdminCardProps) {
                       <Users className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <p className="font-medium">
+                      <div className="font-medium">
                         {admin.user?.firstName} {admin.user?.lastName}
                         {admin.user?.isSuperAdmin && (
                           <Badge variant="secondary" className="ml-2 text-xs">
                             Super Admin
                           </Badge>
                         )}
-                      </p>
+                      </div>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Mail className="w-3 h-3" />
                         {admin.user?.email || 'No email'}
