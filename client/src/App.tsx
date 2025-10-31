@@ -8,6 +8,9 @@ import Dashboard from "@/pages/dashboard";
 import CoachScoreInput from "@/pages/coach-score-input";
 import AdminPortal from "@/pages/admin-portal";
 import TournamentDashboard from "@/pages/tournament-dashboard";
+import TournamentRegistrationComingSoon from "@/pages/coming-soon/tournament-registration";
+import TournamentCommsComingSoon from "@/pages/coming-soon/tournament-comms";
+import ScheduleBuilderComingSoon from "@/pages/coming-soon/schedule-builder";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 
@@ -74,6 +77,11 @@ function Router() {
       <Route path="/dashboard/:tournamentId" component={Dashboard} />
       <Route path="/tournament/:tournamentId" component={TournamentDashboard} />
       <Route path="/coach-score-input/:tournamentId" component={CoachScoreInput} />
+      
+      {/* Coming Soon pages */}
+      <Route path="/coming-soon/tournament-registration" component={TournamentRegistrationComingSoon} />
+      <Route path="/coming-soon/tournament-comms" component={TournamentCommsComingSoon} />
+      <Route path="/coming-soon/schedule-builder" component={ScheduleBuilderComingSoon} />
       
       {/* Protected admin routes */}
       {isLoading || !isAuthenticated ? (

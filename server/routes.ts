@@ -119,6 +119,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Feature flag routes
+  app.get('/api/feature-flags', async (req, res) => {
+    try {
+      const flags = await storage.getFeatureFlags();
+      res.json(flags);
+    } catch (error) {
+      console.error("Error fetching feature flags:", error);
+      res.status(500).json({ error: "Failed to fetch feature flags" });
+    }
+  });
+
+  app.put('/api/feature-flags/:id', requireSuperAdmin, async (req, res) => {
+    try {
+      const { isEnabled } = req.body;
+      const updatedFlag = await storage.updateFeatureFlag(req.params.id, { isEnabled });
+      res.json(updatedFlag);
+    } catch (error: any) {
+      console.error("Error updating feature flag:", error);
+      if (error.message === 'Feature flag not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: "Failed to update feature flag" });
+    }
+  });
+
   // Tournament routes
   app.get("/api/tournaments", async (req: any, res) => {
     try {

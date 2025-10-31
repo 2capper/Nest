@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
-import { Loader2, Shield, Database, Users, Calendar, Plus, Download, Edit3, LogOut } from 'lucide-react';
+import { Loader2, Shield, Database, Users, Calendar, Plus, Download, Edit3, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +16,7 @@ import { PasswordResetTool } from '@/components/tournament/password-reset-tool';
 import { AdminRequestsTab } from '@/components/admin-requests-tab';
 import { TeamEditor } from '@/components/tournament/team-editor';
 import { PlayoffBracketGenerator } from '@/components/tournament/playoff-bracket-generator';
+import { FeatureManagement } from '@/components/admin/feature-management';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { isUnauthorizedError } from '@/lib/authUtils';
@@ -231,7 +232,7 @@ export default function AdminPortal() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-forest">
-          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-3 md:grid-cols-7' : 'grid-cols-3 md:grid-cols-6'} w-full gap-1 h-auto`}>
+          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-3 md:grid-cols-8' : 'grid-cols-3 md:grid-cols-6'} w-full gap-1 h-auto`}>
             <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
             <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>
             <TabsTrigger value="teams" className="text-xs md:text-sm py-2">Edit Teams</TabsTrigger>
@@ -239,10 +240,16 @@ export default function AdminPortal() {
             <TabsTrigger value="playoffs" className="text-xs md:text-sm py-2">Playoffs</TabsTrigger>
             <TabsTrigger value="reports" className="text-xs md:text-sm py-2">Reports</TabsTrigger>
             {(user as any)?.isSuperAdmin && (
-              <TabsTrigger value="admin-requests" className="text-xs md:text-sm py-2">
-                <Shield className="w-3 h-3 mr-1" />
-                Admin Requests
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="features" className="text-xs md:text-sm py-2">
+                  <Settings className="w-3 h-3 mr-1" />
+                  Features
+                </TabsTrigger>
+                <TabsTrigger value="admin-requests" className="text-xs md:text-sm py-2">
+                  <Shield className="w-3 h-3 mr-1" />
+                  Admin Requests
+                </TabsTrigger>
+              </>
             )}
           </TabsList>
           
@@ -407,9 +414,25 @@ export default function AdminPortal() {
           </TabsContent>
 
           {(user as any)?.isSuperAdmin && (
-            <TabsContent value="admin-requests" className="mt-6">
-              <AdminRequestsTab />
-            </TabsContent>
+            <>
+              <TabsContent value="features" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="w-5 h-5" />
+                      Feature Management
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <FeatureManagement />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="admin-requests" className="mt-6">
+                <AdminRequestsTab />
+              </TabsContent>
+            </>
           )}
         </Tabs>
       </div>

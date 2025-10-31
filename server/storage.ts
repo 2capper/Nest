@@ -7,6 +7,7 @@ import {
   games,
   auditLogs,
   adminRequests,
+  featureFlags,
   type User, 
   type InsertUser,
   type UpsertUser,
@@ -24,7 +25,9 @@ import {
   type InsertAuditLog,
   type GameUpdate,
   type AdminRequest,
-  type InsertAdminRequest
+  type InsertAdminRequest,
+  type FeatureFlag,
+  type InsertFeatureFlag
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql } from "drizzle-orm";
@@ -78,6 +81,11 @@ export interface IStorage {
   getUserAdminRequest(userId: string): Promise<AdminRequest | undefined>;
   approveAdminRequest(requestId: string, reviewerId: string): Promise<AdminRequest>;
   rejectAdminRequest(requestId: string, reviewerId: string): Promise<AdminRequest>;
+  
+  // Feature flag methods
+  getFeatureFlags(): Promise<FeatureFlag[]>;
+  getFeatureFlag(featureKey: string): Promise<FeatureFlag | undefined>;
+  updateFeatureFlag(id: string, updates: Partial<InsertFeatureFlag>): Promise<FeatureFlag>;
   
   // Bulk operations
   bulkCreateTeams(teams: InsertTeam[]): Promise<Team[]>;
@@ -372,6 +380,33 @@ export class DatabaseStorage implements IStorage {
     }
 
     return updatedRequest;
+  }
+
+  // Feature flag methods
+  async getFeatureFlags(): Promise<FeatureFlag[]> {
+    return await db.select().from(featureFlags);
+  }
+
+  async getFeatureFlag(featureKey: string): Promise<FeatureFlag | undefined> {
+    const [flag] = await db.select().from(featureFlags)
+      .where(eq(featureFlags.featureKey, featureKey));
+    return flag;
+  }
+
+  async updateFeatureFlag(id: string, updates: Partial<InsertFeatureFlag>): Promise<FeatureFlag> {
+    const [updatedFlag] = await db.update(featureFlags)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(featureFlags.id, id))
+      .returning();
+    
+    if (!updatedFlag) {
+      throw new Error('Feature flag not found');
+    }
+
+    return updatedFlag;
   }
 
   // Bulk operations

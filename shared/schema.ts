@@ -144,6 +144,19 @@ export const adminRequests = pgTable("admin_requests", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Feature flags table for controlling feature availability
+export const featureFlags = pgTable("feature_flags", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  featureKey: varchar("feature_key", { length: 100 }).notNull().unique(), // "tournament_registration" | "tournament_comms" | "schedule_builder"
+  displayName: text("display_name").notNull(),
+  description: text("description").notNull(),
+  isEnabled: boolean("is_enabled").notNull().default(false),
+  icon: text("icon"), // Lucide icon name for UI display
+  comingSoonText: text("coming_soon_text"), // Custom text for coming soon page
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Relations
 export const tournamentsRelations = relations(tournaments, ({ many }) => ({
   ageDivisions: many(ageDivisions),
@@ -239,6 +252,11 @@ export const insertAdminRequestSchema = createInsertSchema(adminRequests).omit({
   createdAt: true,
   reviewedAt: true,
 });
+export const insertFeatureFlagSchema = createInsertSchema(featureFlags).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
 // Game update validation schema with strict score validation
 export const gameUpdateSchema = insertGameSchema.partial().extend({
@@ -298,3 +316,6 @@ export type TournamentCreation = z.infer<typeof tournamentCreationSchema>;
 
 export type AdminRequest = typeof adminRequests.$inferSelect;
 export type InsertAdminRequest = z.infer<typeof insertAdminRequestSchema>;
+
+export type FeatureFlag = typeof featureFlags.$inferSelect;
+export type InsertFeatureFlag = z.infer<typeof insertFeatureFlagSchema>;
