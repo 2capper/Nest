@@ -2,7 +2,6 @@ import { Link, useLocation } from 'wouter';
 import { Trophy, Home, FileText, Shield, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import fLogo from '@assets/519-fsu-falcons.webp';
 
 interface TournamentBranding {
   name: string;
@@ -18,29 +17,39 @@ interface TournamentLogoProps {
 }
 
 const TournamentLogo = ({ tournament, isAdminPage }: TournamentLogoProps) => {
-  const adminColor = '#2d5016'; // Forest green
+  const adminColor = 'hsl(215, 25%, 27%)'; // Theme navy from --splash-navy
   const logoColor = isAdminPage ? adminColor : (tournament?.primaryColor || '#22c55e');
+  
+  // Show custom logo if provided, otherwise show trophy icon
+  const showCustomLogo = tournament?.logoUrl;
   
   return (
     <div className="flex items-center">
-      <img 
-        src={tournament?.logoUrl || fLogo} 
-        alt={tournament?.customName || tournament?.name || "Tournament"} 
-        className="h-10 w-auto mr-2"
-        onError={(e) => {
-          // Fallback to default logo if custom logo fails to load
-          if (tournament?.logoUrl && e.currentTarget.src !== fLogo) {
-            e.currentTarget.src = fLogo;
-          }
-        }}
-        data-testid="img-tournament-nav-logo"
-      />
+      {showCustomLogo ? (
+        <img 
+          src={tournament.logoUrl!} 
+          alt={tournament?.customName || tournament?.name || "Tournament"} 
+          className="h-10 w-auto mr-2"
+          onError={(e) => {
+            // Remove image and show nothing if it fails to load
+            e.currentTarget.style.display = 'none';
+          }}
+          data-testid="img-tournament-nav-logo"
+        />
+      ) : (
+        <div 
+          className="flex items-center justify-center h-10 w-10 rounded-md mr-2"
+          style={{ backgroundColor: logoColor }}
+        >
+          <Trophy className="w-6 h-6 text-white" />
+        </div>
+      )}
       <span 
         className="font-bold text-lg"
         style={{ color: logoColor }}
         data-testid="text-tournament-nav-name"
       >
-        {tournament?.customName || tournament?.name || "The Nest"}
+        {tournament?.customName || tournament?.name || "Tournament"}
       </span>
     </div>
   );
@@ -57,8 +66,8 @@ export const SimpleNavigation = ({ tournamentId, currentPage, tournament }: Simp
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Use admin theme colors when on admin page, otherwise use tournament colors
-  const adminPrimaryColor = '#2d5016'; // Forest green
-  const adminSecondaryColor = '#f4e409'; // Yellow
+  const adminPrimaryColor = 'hsl(215, 25%, 27%)'; // Theme navy from --splash-navy
+  const adminSecondaryColor = 'hsl(13, 88%, 48%)'; // Theme orange from --splash-orange
   
   const primaryColor = currentPage === 'admin' 
     ? adminPrimaryColor 

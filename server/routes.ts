@@ -11,7 +11,7 @@ import {
   gameUpdateSchema,
   insertAdminRequestSchema
 } from "@shared/schema";
-import { setupAuth, isAuthenticated, requireAdmin, requireSuperAdmin } from "./replitAuth";
+import { setupAuth, isAuthenticated, requireAdmin, requireSuperAdmin, requireOrgAdmin } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -212,6 +212,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting organization:", error);
       res.status(500).json({ error: "Failed to delete organization" });
+    }
+  });
+
+  // Organization admin management routes
+  app.post("/api/organizations/:organizationId/admins", requireSuperAdmin, async (req, res) => {
+    try {
+      const { organizationId } = req.params;
+      const { userId, role } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ error: "userId is required" });
+      }
+
+      const admin = await storage.assignOrganizationAdmin(userId, organizationId, role);
+      res.status(201).json(admin);
+    } catch (error) {
+      console.error("Error assigning organization admin:", error);
+      res.status(400).json({ error: "Failed to assign organization admin" });
+    }
+  });
+
+  app.delete("/api/organizations/:organizationId/admins/:userId", requireSuperAdmin, async (req, res) => {
+    try {
+      const { organizationId, userId } = req.params;
+      await storage.removeOrganizationAdmin(userId, organizationId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error removing organization admin:", error);
+      res.status(400).json({ error: "Failed to remove organization admin" });
+    }
+  });
+
+  app.get("/api/organizations/:organizationId/admins", requireOrgAdmin, async (req, res) => {
+    try {
+      const { organizationId } = req.params;
+      const admins = await storage.getOrganizationAdmins(organizationId);
+      res.json(admins);
+    } catch (error) {
+      console.error("Error fetching organization admins:", error);
+      res.status(500).json({ error: "Failed to fetch organization admins" });
+    }
+  });
+
+  app.get("/api/users/:userId/organizations", isAuthenticated, async (req: any, res) => {
+    try {
+      const requestingUserId = req.user.claims.sub;
+      const targetUserId = req.params.userId;
+      
+      // Users can only view their own organizations unless they're a super admin
+      if (requestingUserId !== targetUserId) {
+        const user = await storage.getUser(requestingUserId);
+        if (!user || !user.isSuperAdmin) {
+          return res.status(403).json({ error: "Forbidden - Cannot view other users' organizations" });
+        }
+      }
+      
+      const organizations = await storage.getUserOrganizations(targetUserId);
+      res.json(organizations);
+    } catch (error) {
+      console.error("Error fetching user organizations:", error);
+      res.status(500).json({ error: "Failed to fetch user organizations" });
     }
   });
 
