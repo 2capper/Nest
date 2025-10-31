@@ -36,7 +36,7 @@ import {
   type InsertFeatureFlag
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 import { generateBracketGames, getPlayoffTeamsFromStandings } from "@shared/bracketGeneration";
 import { calculateStandings } from "@shared/standingsCalculation";
 import { withRetry } from "./dbRetry";
@@ -212,7 +212,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(organizations)
-      .where(sql`${organizations.id} = ANY(${orgIds})`);
+      .where(inArray(organizations.id, orgIds));
   }
 
   async isOrganizationAdmin(userId: string, organizationId: string): Promise<boolean> {

@@ -239,3 +239,72 @@ export const requireSuperAdmin: RequestHandler = async (req, res, next) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// Middleware to check if user is an organization admin (or super admin)
+// Extracts organizationId from request params, body, or tournament association
+export const requireOrgAdmin: RequestHandler = async (req, res, next) => {
+  const user = req.user as any;
+
+  // First check if user is authenticated
+  if (!req.isAuthenticated() || !user.expires_at) {
+    return res.status(401).json({ message: "Unauthorized - Please login first" });
+  }
+
+  // Refresh token if needed
+  const now = Math.floor(Date.now() / 1000);
+  if (now > user.expires_at) {
+    const refreshToken = user.refresh_token;
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Unauthorized - Session expired" });
+    }
+
+    try {
+      const config = await getOidcConfig();
+      const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
+      updateUserSession(user, tokenResponse);
+    } catch (error) {
+      return res.status(401).json({ message: "Unauthorized - Session expired" });
+    }
+  }
+
+  // Check organization admin permissions
+  try {
+    const { storage } = await import("./storage");
+    const userId = user.claims.sub;
+    const dbUser = await storage.getUser(userId);
+    
+    if (!dbUser) {
+      return res.status(403).json({ message: "Forbidden - User not found" });
+    }
+
+    // Super admins can access everything
+    if (dbUser.isSuperAdmin) {
+      return next();
+    }
+
+    // Extract organizationId from request (params, body, or query)
+    let organizationId = req.params.organizationId || req.body.organizationId || (req.query.organizationId as string);
+
+    // If not directly provided, try to get it from tournament
+    if (!organizationId && req.params.tournamentId) {
+      const tournament = await storage.getTournament(req.params.tournamentId);
+      organizationId = tournament?.organizationId;
+    }
+
+    if (!organizationId) {
+      return res.status(400).json({ message: "Organization context required" });
+    }
+
+    // Check if user is an admin of this organization
+    const isOrgAdmin = await storage.isOrganizationAdmin(userId, organizationId);
+    
+    if (!isOrgAdmin) {
+      return res.status(403).json({ message: "Forbidden - Organization admin access required" });
+    }
+
+    return next();
+  } catch (error) {
+    console.error("Error checking organization admin status:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
