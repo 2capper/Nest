@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CalendarDays, Users, Trophy, LogIn, Building2, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import dugoutDeskLogo from "@assets/Gemini_Generated_Image_cj7rofcj7rofcj7r_1761932343083.png";
+import { FeatureShowcase } from "@/components/feature-showcase";
 
 export default function Home() {
   const { data: organizations, isLoading: orgsLoading } = useQuery<Organization[]>({
@@ -106,6 +107,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Feature Showcase */}
+      <FeatureShowcase />
 
       {/* Main Content */}
       <div id="tournaments-section" className="container mx-auto px-4 py-12">
