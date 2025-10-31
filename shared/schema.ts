@@ -55,8 +55,21 @@ export const organizations = pgTable("organizations", {
   websiteUrl: text("website_url"),
   contactEmail: text("contact_email"),
   stripeAccountId: text("stripe_account_id"), // For future payment processing
+  timezone: text("timezone").default("America/Toronto"), // IANA timezone identifier
+  defaultPrimaryColor: text("default_primary_color").default("#22c55e"), // Default color for new tournaments
+  defaultSecondaryColor: text("default_secondary_color").default("#ffffff"), // Default secondary color for new tournaments
+  defaultPlayoffFormat: text("default_playoff_format").default("top_6"), // Default playoff format for new tournaments
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Organization admins junction table
+export const organizationAdmins = pgTable("organization_admins", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  organizationId: varchar("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  role: text("role").notNull().default("admin"), // "admin" | "owner" - for future role expansion
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const tournaments = pgTable("tournaments", {
@@ -176,6 +189,22 @@ export const featureFlags = pgTable("feature_flags", {
 // Relations
 export const organizationsRelations = relations(organizations, ({ many }) => ({
   tournaments: many(tournaments),
+  admins: many(organizationAdmins),
+}));
+
+export const organizationAdminsRelations = relations(organizationAdmins, ({ one }) => ({
+  user: one(users, {
+    fields: [organizationAdmins.userId],
+    references: [users.id],
+  }),
+  organization: one(organizations, {
+    fields: [organizationAdmins.organizationId],
+    references: [organizations.id],
+  }),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  organizationAdmins: many(organizationAdmins),
 }));
 
 export const tournamentsRelations = relations(tournaments, ({ one, many }) => ({
@@ -288,6 +317,11 @@ export const insertFeatureFlagSchema = createInsertSchema(featureFlags).omit({
   updatedAt: true,
 });
 
+export const insertOrganizationAdminSchema = createInsertSchema(organizationAdmins).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Game update validation schema with strict score validation
 export const gameUpdateSchema = insertGameSchema.partial().extend({
   homeScore: z.number().int().min(0).max(50).optional().nullable(),
@@ -353,3 +387,6 @@ export type InsertAdminRequest = z.infer<typeof insertAdminRequestSchema>;
 
 export type FeatureFlag = typeof featureFlags.$inferSelect;
 export type InsertFeatureFlag = z.infer<typeof insertFeatureFlagSchema>;
+
+export type OrganizationAdmin = typeof organizationAdmins.$inferSelect;
+export type InsertOrganizationAdmin = z.infer<typeof insertOrganizationAdminSchema>;
