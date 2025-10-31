@@ -3,8 +3,9 @@ import { Link } from "wouter";
 import type { Organization, Tournament } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarDays, Users, Trophy, LogIn, Building2 } from "lucide-react";
+import { CalendarDays, Users, Trophy, LogIn, Building2, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
+import dugoutDeskLogo from "@assets/Gemini_Generated_Image_cj7rofcj7rofcj7r_1761932343083.png";
 
 export default function Home() {
   const { data: organizations, isLoading: orgsLoading } = useQuery<Organization[]>({
@@ -25,24 +26,76 @@ export default function Home() {
     return acc;
   }, {} as Record<string, Tournament[]>) || {};
 
+  // Calculate platform stats
+  const totalTournaments = allTournaments?.length || 0;
+  const totalOrgs = organizations?.length || 0;
+  const totalTeams = allTournaments?.reduce((sum, t) => sum + (t.numberOfTeams || 0), 0) || 0;
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--light-gray)' }}>
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-[var(--forest-green)] to-green-700 text-white">
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-4xl mx-auto text-center">
-            <Trophy className="w-16 h-16 mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="text-homepage-title">
-              Tournament Management Platform
+      <div className="text-white" style={{ backgroundColor: 'var(--deep-navy)' }}>
+        <div className="container mx-auto px-4 py-12 md:py-16">
+          <div className="max-w-5xl mx-auto text-center">
+            {/* Logo */}
+            <img 
+              src={dugoutDeskLogo} 
+              alt="Dugout Desk Logo" 
+              className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-6"
+              data-testid="img-dugout-desk-logo"
+            />
+            
+            {/* Title & Tagline */}
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4" data-testid="text-homepage-title">
+              DUGOUT DESK
             </h1>
-            <p className="text-xl mb-8 opacity-90" data-testid="text-homepage-subtitle">
-              Professional tournament organization for sports leagues and organizations
+            <p className="text-xl md:text-2xl mb-3 font-medium" data-testid="text-homepage-subtitle">
+              Your Tournament Command Center
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <p className="text-base md:text-lg mb-8 opacity-90 max-w-2xl mx-auto">
+              Organize. Track. Win. Built for Ontario Baseball.
+            </p>
+            
+            {/* Platform Stats */}
+            <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto mb-8">
+              <div className="text-center">
+                <div className="text-2xl md:text-4xl font-bold" style={{ color: 'var(--clay-red)' }}>
+                  {totalOrgs}
+                </div>
+                <div className="text-xs md:text-sm opacity-80 uppercase tracking-wide">Organizations</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-4xl font-bold" style={{ color: 'var(--field-green)' }}>
+                  {totalTournaments}
+                </div>
+                <div className="text-xs md:text-sm opacity-80 uppercase tracking-wide">Tournaments</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-4xl font-bold" style={{ color: 'var(--clay-red)' }}>
+                  {totalTeams}
+                </div>
+                <div className="text-xs md:text-sm opacity-80 uppercase tracking-wide">Teams</div>
+              </div>
+            </div>
+            
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                size="lg" 
+                className="min-h-[48px] px-8 text-base font-semibold"
+                style={{ backgroundColor: 'var(--field-green)', color: 'white' }}
+                onClick={() => document.getElementById('tournaments-section')?.scrollIntoView({ behavior: 'smooth' })}
+                data-testid="button-view-tournaments"
+              >
+                <Trophy className="w-5 h-5 mr-2" />
+                Explore Tournaments
+              </Button>
               <a href="/api/login">
                 <Button 
                   size="lg" 
-                  className="bg-white text-[var(--forest-green)] hover:bg-gray-100"
+                  variant="outline"
+                  className="min-h-[48px] px-8 text-base font-semibold bg-white hover:bg-gray-100"
+                  style={{ color: 'var(--deep-navy)' }}
                   data-testid="button-admin-login"
                 >
                   <LogIn className="w-5 h-5 mr-2" />
@@ -55,12 +108,12 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
+      <div id="tournaments-section" className="container mx-auto px-4 py-12">
         {isLoading ? (
           <div className="flex justify-center items-center py-12">
             <div className="text-center">
-              <div className="w-12 h-12 border-4 border-[var(--forest-green)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading tournaments...</p>
+              <div className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4" style={{ borderColor: 'var(--field-green)', borderTopColor: 'transparent' }}></div>
+              <p style={{ color: 'var(--text-secondary)' }}>Loading tournaments...</p>
             </div>
           </div>
         ) : organizations && organizations.length > 0 ? (
@@ -71,20 +124,25 @@ export default function Home() {
               return (
                 <div key={org.id} className="space-y-6" data-testid={`org-section-${org.slug}`}>
                   {/* Organization Header */}
-                  <div className="flex items-center justify-between border-b pb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-4 gap-4" style={{ borderColor: 'var(--border)' }}>
                     <div className="flex items-center gap-3">
-                      <Building2 className="w-8 h-8 text-[var(--forest-green)]" />
+                      <Building2 className="w-8 h-8" style={{ color: 'var(--field-green)' }} />
                       <div>
-                        <h2 className="text-3xl font-bold text-gray-900" data-testid={`text-org-name-${org.slug}`}>
+                        <h2 className="text-2xl md:text-3xl font-bold" style={{ color: 'var(--deep-navy)' }} data-testid={`text-org-name-${org.slug}`}>
                           {org.name}
                         </h2>
                         {org.description && (
-                          <p className="text-gray-600 mt-1">{org.description}</p>
+                          <p className="text-sm md:text-base mt-1" style={{ color: 'var(--text-secondary)' }}>{org.description}</p>
                         )}
                       </div>
                     </div>
                     <Link href={`/org/${org.slug}`}>
-                      <Button variant="outline" data-testid={`button-view-org-${org.slug}`}>
+                      <Button 
+                        variant="outline" 
+                        className="min-h-[44px] w-full sm:w-auto"
+                        style={{ borderColor: 'var(--field-green)', color: 'var(--field-green)' }}
+                        data-testid={`button-view-org-${org.slug}`}
+                      >
                         View All
                       </Button>
                     </Link>
@@ -96,11 +154,12 @@ export default function Home() {
                       {orgTournaments.map((tournament) => (
                         <Link key={tournament.id} href={`/tournament/${tournament.id}`}>
                           <Card 
-                            className="hover:shadow-lg transition-shadow cursor-pointer h-full"
+                            className="hover:shadow-lg transition-all cursor-pointer h-full hover:-translate-y-1"
                             data-testid={`card-tournament-${tournament.id}`}
+                            style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)' }}
                           >
                             <CardHeader>
-                              <CardTitle className="text-xl" data-testid={`text-tournament-name-${tournament.id}`}>
+                              <CardTitle className="text-lg md:text-xl" style={{ color: 'var(--deep-navy)' }} data-testid={`text-tournament-name-${tournament.id}`}>
                                 {tournament.customName || tournament.name}
                               </CardTitle>
                               <CardDescription>
@@ -113,14 +172,14 @@ export default function Home() {
                               </CardDescription>
                             </CardHeader>
                             <CardContent>
-                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
                                 <Users className="w-4 h-4" />
                                 <span data-testid={`text-tournament-teams-${tournament.id}`}>
                                   {tournament.numberOfTeams} Teams
                                 </span>
                               </div>
                               {tournament.numberOfPools && (
-                                <div className="text-sm text-gray-600 mt-1">
+                                <div className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
                                   {tournament.numberOfPools} Pool{tournament.numberOfPools > 1 ? 's' : ''}
                                 </div>
                               )}
@@ -130,7 +189,7 @@ export default function Home() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8" style={{ color: 'var(--text-secondary)' }}>
                       No tournaments scheduled for this organization yet.
                     </div>
                   )}
