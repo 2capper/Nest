@@ -15,6 +15,7 @@ Preferred communication style: Simple, everyday language.
 - **UI Components**: Radix UI primitives with shadcn/ui components
 - **Styling**: Tailwind CSS with CSS variables for theming
 - **Build Tool**: Vite
+- **Timezone Support**: date-fns-tz for organization-specific timezone formatting
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js
@@ -54,12 +55,40 @@ Preferred communication style: Simple, everyday language.
 - **UI Framework**: Radix UI, shadcn/ui
 - **Styling**: Tailwind CSS
 - **Forms**: React Hook Form with Zod validation
-- **Date Handling**: `date-fns`
+- **Date Handling**: `date-fns`, `date-fns-tz` (timezone support)
 - **Session Management**: `connect-pg-simple`, `express-session`
 - **Authentication**: `openid-client`, `passport`, `memoizee`
 - **Web Scraping**: Python-based service for OBA roster data (utilizes `urllib.parse` for security)
 
 ## Recent Changes
+
+### October 2025 - Phase 1: Organization Admin Infrastructure & Feature Control
+- **Organization Settings Interface**: Super admins can now configure organization defaults
+  - Timezone selection (IANA timezone identifiers like "America/Toronto", "America/New_York")
+  - Default primary and secondary colors for new tournaments
+  - Default playoff format (top_6, top_4, single_elimination)
+  - Settings stored in organizations table and applied to new tournaments
+- **Organization Admin Management**: Two-tier admin system with role-based access control
+  - Super admins can assign organization-specific administrators
+  - Organization admins have permissions scoped to their organization only
+  - User lookup system for admin assignment with email search
+  - organizationAdmins junction table tracks admin assignments
+- **Org-Level Feature Control**: Granular feature flag system with two-tier control
+  - Global feature flags controlled by super admins (enable/disable features platform-wide)
+  - Organization-level flags controlled by org admins (enable/disable within their org)
+  - Features must be enabled both globally AND for the organization to be active
+  - organizationFeatureFlags junction table with unique constraint prevents duplicates
+  - API endpoint `/api/organizations/:organizationId/features/:featureKey/enabled` for checking feature status
+  - React hook `useFeatureEnabled(orgId, featureKey)` for frontend feature checks
+- **Timezone Display Infrastructure**: Utilities and hooks for timezone-aware date/time formatting
+  - `formatInTimezone()` utility function for formatting dates in specific timezones
+  - `useTournamentTimezone()` hook to get organization timezone for a tournament
+  - Organization timezone field used for all date/time display (defaults to "America/Toronto")
+  - date-fns-tz library integrated for proper timezone handling
+- **Admin Portal Enhancements**: New tabs for super admins and org admins
+  - "Organization Settings" tab: Configure org defaults (super admin only)
+  - "Organization Admins" tab: Assign/remove org admins (super admin only)
+  - "Feature Control" tab: Toggle org-level features (org admin only, when implemented)
 
 ### October 2025 - Multi-Organization Architecture
 - **Organizations Table**: Added dedicated organizations table with support for multiple baseball organizations on one platform

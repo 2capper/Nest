@@ -167,6 +167,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get organization by ID (for internal use, e.g., from tournament.organizationId)
+  app.get("/api/organizations/by-id/:id", async (req, res) => {
+    try {
+      const organization = await storage.getOrganization(req.params.id);
+      if (!organization) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+      res.json(organization);
+    } catch (error) {
+      console.error("Error fetching organization:", error);
+      res.status(500).json({ error: "Failed to fetch organization" });
+    }
+  });
+
+  // Get organization by slug (for public pages)
   app.get("/api/organizations/:slug", async (req, res) => {
     try {
       const organization = await storage.getOrganizationBySlug(req.params.slug);
@@ -340,6 +355,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error removing organization feature flag:", error);
       res.status(500).json({ error: "Failed to remove organization feature flag" });
+    }
+  });
+
+  // Check if a feature is enabled for an organization (public endpoint)
+  app.get("/api/organizations/:organizationId/features/:featureKey/enabled", async (req, res) => {
+    try {
+      const { organizationId, featureKey } = req.params;
+      const isEnabled = await storage.isFeatureEnabledForOrganization(organizationId, featureKey);
+      res.json({ enabled: isEnabled });
+    } catch (error) {
+      console.error("Error checking feature enabled status:", error);
+      res.status(500).json({ error: "Failed to check feature status" });
     }
   });
 
