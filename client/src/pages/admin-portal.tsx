@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
-import { Loader2, Shield, Database, Users, Calendar, Plus, Download, Edit3, LogOut, Settings } from 'lucide-react';
+import { Loader2, Shield, Database, Users, Calendar, Plus, Download, Edit3, LogOut, Settings, Menu, Trophy, FileInput, Edit, Target, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useTournamentData } from '@/hooks/use-tournament-data';
 import { AdminPortalNew } from '@/components/tournament/admin-portal-new';
 import { SimpleNavigation } from '@/components/tournament/simple-navigation';
@@ -35,6 +36,7 @@ export default function AdminPortal() {
 
   const currentTournament = tournaments.find(t => t.id === currentTournamentId);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Check authentication - redirect to home instead of login to avoid loops
   useEffect(() => {
@@ -235,40 +237,200 @@ export default function AdminPortal() {
           </Button>
         </div>
 
-        {/* Admin Tabs */}
+        {/* Admin Tabs - Responsive Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-forest">
-          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-3 md:grid-cols-11' : 'grid-cols-3 md:grid-cols-6'} w-full gap-1 h-auto`}>
-            <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
-            <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>
-            <TabsTrigger value="teams" className="text-xs md:text-sm py-2">Edit Teams</TabsTrigger>
-            <TabsTrigger value="games" className="text-xs md:text-sm py-2">Edit Games</TabsTrigger>
-            <TabsTrigger value="playoffs" className="text-xs md:text-sm py-2">Playoffs</TabsTrigger>
-            <TabsTrigger value="reports" className="text-xs md:text-sm py-2">Reports</TabsTrigger>
-            {(user as any)?.isSuperAdmin && (
-              <>
-                <TabsTrigger value="create-org" className="text-xs md:text-sm py-2">
-                  <Plus className="w-3 h-3 mr-1" />
-                  Create Org
-                </TabsTrigger>
-                <TabsTrigger value="org-settings" className="text-xs md:text-sm py-2">
-                  <Settings className="w-3 h-3 mr-1" />
-                  Org Settings
-                </TabsTrigger>
-                <TabsTrigger value="org-admins" className="text-xs md:text-sm py-2">
-                  <Users className="w-3 h-3 mr-1" />
-                  Org Admins
-                </TabsTrigger>
-                <TabsTrigger value="features" className="text-xs md:text-sm py-2">
-                  <Settings className="w-3 h-3 mr-1" />
-                  Features
-                </TabsTrigger>
-                <TabsTrigger value="admin-requests" className="text-xs md:text-sm py-2">
-                  <Shield className="w-3 h-3 mr-1" />
-                  Admin Requests
-                </TabsTrigger>
-              </>
-            )}
-          </TabsList>
+          {/* Mobile Navigation - Hamburger Menu */}
+          <div className="md:hidden mb-4">
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full min-h-[48px] justify-between font-semibold"
+                  style={{ borderColor: 'var(--deep-navy)', color: 'var(--deep-navy)' }}
+                  data-testid="button-mobile-menu"
+                >
+                  <div className="flex items-center gap-2">
+                    <Menu className="w-5 h-5" />
+                    <span>Menu</span>
+                  </div>
+                  <span className="text-sm opacity-70">
+                    {activeTab === 'tournaments' && 'Tournaments'}
+                    {activeTab === 'import' && 'Data Import'}
+                    {activeTab === 'teams' && 'Edit Teams'}
+                    {activeTab === 'games' && 'Edit Games'}
+                    {activeTab === 'playoffs' && 'Playoffs'}
+                    {activeTab === 'reports' && 'Reports'}
+                    {activeTab === 'create-org' && 'Create Org'}
+                    {activeTab === 'org-settings' && 'Org Settings'}
+                    {activeTab === 'org-admins' && 'Org Admins'}
+                    {activeTab === 'features' && 'Features'}
+                    {activeTab === 'admin-requests' && 'Admin Requests'}
+                  </span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[280px] overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle style={{ color: 'var(--deep-navy)' }}>Admin Menu</SheetTitle>
+                </SheetHeader>
+                <TabsList className="mt-6 flex flex-col gap-2 w-full h-auto bg-transparent">
+                  <TabsTrigger 
+                    value="tournaments" 
+                    className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                    style={activeTab === 'tournaments' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                    onClick={() => setMobileMenuOpen(false)}
+                    data-testid="nav-tournaments"
+                  >
+                    <Trophy className="w-5 h-5" />
+                    Tournaments
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="import" 
+                    className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                    style={activeTab === 'import' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                    onClick={() => setMobileMenuOpen(false)}
+                    data-testid="nav-import"
+                  >
+                    <FileInput className="w-5 h-5" />
+                    Data Import
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="teams" 
+                    className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                    style={activeTab === 'teams' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                    onClick={() => setMobileMenuOpen(false)}
+                    data-testid="nav-teams"
+                  >
+                    <Users className="w-5 h-5" />
+                    Edit Teams
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="games" 
+                    className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                    style={activeTab === 'games' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                    onClick={() => setMobileMenuOpen(false)}
+                    data-testid="nav-games"
+                  >
+                    <Edit className="w-5 h-5" />
+                    Edit Games
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="playoffs" 
+                    className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                    style={activeTab === 'playoffs' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                    onClick={() => setMobileMenuOpen(false)}
+                    data-testid="nav-playoffs"
+                  >
+                    <Target className="w-5 h-5" />
+                    Playoffs
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="reports" 
+                    className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                    style={activeTab === 'reports' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                    onClick={() => setMobileMenuOpen(false)}
+                    data-testid="nav-reports"
+                  >
+                    <FileText className="w-5 h-5" />
+                    Reports
+                  </TabsTrigger>
+                  {(user as any)?.isSuperAdmin && (
+                    <>
+                      <div className="h-px bg-gray-200 my-2" />
+                      <p className="text-xs uppercase font-semibold text-[var(--text-secondary)] px-4 mb-1">Super Admin</p>
+                      <TabsTrigger 
+                        value="create-org" 
+                        className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                        style={activeTab === 'create-org' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                        onClick={() => setMobileMenuOpen(false)}
+                        data-testid="nav-create-org"
+                      >
+                        <Plus className="w-5 h-5" />
+                        Create Org
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="org-settings" 
+                        className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                        style={activeTab === 'org-settings' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                        onClick={() => setMobileMenuOpen(false)}
+                        data-testid="nav-org-settings"
+                      >
+                        <Settings className="w-5 h-5" />
+                        Org Settings
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="org-admins" 
+                        className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                        style={activeTab === 'org-admins' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                        onClick={() => setMobileMenuOpen(false)}
+                        data-testid="nav-org-admins"
+                      >
+                        <Users className="w-5 h-5" />
+                        Org Admins
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="features" 
+                        className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                        style={activeTab === 'features' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                        onClick={() => setMobileMenuOpen(false)}
+                        data-testid="nav-features"
+                      >
+                        <Settings className="w-5 h-5" />
+                        Features
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="admin-requests" 
+                        className="flex items-center gap-3 px-4 py-3 justify-start w-full data-[state=active]:text-white"
+                        style={activeTab === 'admin-requests' ? { backgroundColor: 'var(--clay-red)' } : {}}
+                        onClick={() => setMobileMenuOpen(false)}
+                        data-testid="nav-admin-requests"
+                      >
+                        <Shield className="w-5 h-5" />
+                        Admin Requests
+                      </TabsTrigger>
+                    </>
+                  )}
+                </TabsList>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Desktop Navigation - Wrapping Tabs */}
+          <div className="hidden md:block mb-4">
+            <TabsList className="flex flex-wrap w-full gap-1 h-auto justify-start">
+              <TabsTrigger value="tournaments" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-tournaments">Tournaments</TabsTrigger>
+              <TabsTrigger value="import" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-import">Data Import</TabsTrigger>
+              <TabsTrigger value="teams" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-teams">Edit Teams</TabsTrigger>
+              <TabsTrigger value="games" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-games">Edit Games</TabsTrigger>
+              <TabsTrigger value="playoffs" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-playoffs">Playoffs</TabsTrigger>
+              <TabsTrigger value="reports" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-reports">Reports</TabsTrigger>
+              {(user as any)?.isSuperAdmin && (
+                <>
+                  <div className="w-full h-0 basis-full" />
+                  <div className="text-xs uppercase font-semibold text-[var(--text-secondary)] px-2 py-2 flex items-center">Super Admin</div>
+                  <TabsTrigger value="create-org" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-create-org">
+                    <Plus className="w-3 h-3 mr-1" />
+                    Create Org
+                  </TabsTrigger>
+                  <TabsTrigger value="org-settings" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-org-settings">
+                    <Settings className="w-3 h-3 mr-1" />
+                    Org Settings
+                  </TabsTrigger>
+                  <TabsTrigger value="org-admins" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-org-admins">
+                    <Users className="w-3 h-3 mr-1" />
+                    Org Admins
+                  </TabsTrigger>
+                  <TabsTrigger value="features" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-features">
+                    <Settings className="w-3 h-3 mr-1" />
+                    Features
+                  </TabsTrigger>
+                  <TabsTrigger value="admin-requests" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-admin-requests">
+                    <Shield className="w-3 h-3 mr-1" />
+                    Admin Requests
+                  </TabsTrigger>
+                </>
+              )}
+            </TabsList>
+          </div>
           
           <TabsContent value="tournaments" className="mt-6">
             <div className="space-y-6">
