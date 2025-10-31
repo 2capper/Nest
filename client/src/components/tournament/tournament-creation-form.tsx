@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Calendar, Type, Loader2, Users, Trophy, Palette, Image } from 'lucide-react';
+import { Plus, Calendar, Type, Loader2, Users, Trophy, Palette, Image, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { tournamentCreationSchema } from '@shared/schema';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { tournamentCreationSchema, type Organization } from '@shared/schema';
 import { getAvailablePlayoffFormats, getDefaultPlayoffFormat, type PlayoffFormat } from '@shared/playoffFormats';
 
 interface TournamentCreationFormProps {
@@ -20,6 +20,7 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
   const [formData, setFormData] = useState({
     id: '',
     name: '',
+    organizationId: '',
     startDate: '',
     endDate: '',
     type: 'pool_play' as const,
@@ -37,6 +38,11 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch organizations for selection
+  const { data: organizations, isLoading: orgsLoading } = useQuery<Organization[]>({
+    queryKey: ['/api/organizations'],
+  });
   
   // Update form visibility when showForm prop changes
   useEffect(() => {
@@ -70,13 +76,15 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
       queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
       setFormData({ 
         id: '', 
-        name: '', 
+        name: '',
+        organizationId: '',
         startDate: '', 
         endDate: '', 
         type: 'pool_play' as const,
         numberOfTeams: 8,
         numberOfPools: 2,
         numberOfPlayoffTeams: 6,
+        playoffFormat: null,
         showTiebreakers: true,
         customName: '',
         primaryColor: '#22c55e',
@@ -174,7 +182,42 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
               placeholder="e.g., Spring Championship 2024"
               required
               className="mt-1"
+              data-testid="input-tournament-name"
             />
+          </div>
+
+          <div>
+            <Label htmlFor="organization">
+              <Building2 className="w-4 h-4 inline mr-1" />
+              Organization
+            </Label>
+            {orgsLoading ? (
+              <div className="mt-1 p-2 border rounded-md bg-gray-50 text-gray-500 text-sm">
+                Loading organizations...
+              </div>
+            ) : organizations && organizations.length > 0 ? (
+              <Select 
+                value={formData.organizationId} 
+                onValueChange={(value) => handleInputChange('organizationId', value)}
+                required
+              >
+                <SelectTrigger className="mt-1" data-testid="select-organization">
+                  <SelectValue placeholder="Select an organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {organizations.map((org) => (
+                    <SelectItem key={org.id} value={org.id} data-testid={`option-org-${org.slug}`}>
+                      {org.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="mt-1 p-3 border border-yellow-300 rounded-md bg-yellow-50 text-yellow-800 text-sm">
+                <p className="font-medium mb-1">No organizations available</p>
+                <p className="text-xs">Please contact a super admin to create an organization first.</p>
+              </div>
+            )}
           </div>
           
           <div className="grid grid-cols-2 gap-4">
