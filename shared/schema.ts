@@ -44,6 +44,21 @@ export const obaTeams = pgTable("oba_teams", {
   rosterData: jsonb("roster_data"), // Cached roster data if available
 });
 
+export const organizations = pgTable("organizations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(), // URL-friendly identifier (e.g., "forest-glade-falcons")
+  description: text("description"),
+  logoUrl: text("logo_url"),
+  primaryColor: text("primary_color").default("#22c55e"),
+  secondaryColor: text("secondary_color").default("#ffffff"),
+  websiteUrl: text("website_url"),
+  contactEmail: text("contact_email"),
+  stripeAccountId: text("stripe_account_id"), // For future payment processing
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const tournaments = pgTable("tournaments", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -59,6 +74,7 @@ export const tournaments = pgTable("tournaments", {
   primaryColor: text("primary_color").default("#22c55e"), // Primary theme color (default: green)
   secondaryColor: text("secondary_color").default("#ffffff"), // Secondary theme color (default: white)
   logoUrl: text("logo_url"), // URL to custom tournament logo
+  organizationId: varchar("organization_id").references(() => organizations.id, { onDelete: "cascade" }),
   createdBy: varchar("created_by").references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -158,7 +174,15 @@ export const featureFlags = pgTable("feature_flags", {
 });
 
 // Relations
-export const tournamentsRelations = relations(tournaments, ({ many }) => ({
+export const organizationsRelations = relations(organizations, ({ many }) => ({
+  tournaments: many(tournaments),
+}));
+
+export const tournamentsRelations = relations(tournaments, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [tournaments.organizationId],
+    references: [organizations.id],
+  }),
   ageDivisions: many(ageDivisions),
   pools: many(pools),
   teams: many(teams),
@@ -231,6 +255,12 @@ export const upsertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 });
 
+export const insertOrganizationSchema = createInsertSchema(organizations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertTournamentSchema = createInsertSchema(tournaments).omit({
   createdAt: true,
 });
@@ -274,6 +304,7 @@ export const gameUpdateSchema = insertGameSchema.partial().extend({
 
 // Enhanced tournament creation schema with tournament configuration
 export const tournamentCreationSchema = insertTournamentSchema.extend({
+  organizationId: z.string().min(1, "Organization is required"),
   type: z.enum(["single_elimination", "double_elimination", "pool_play"]).default("pool_play"),
   numberOfTeams: z.number().int().min(4).max(64).default(8),
   numberOfPools: z.number().int().min(1).max(8).default(2),
@@ -290,6 +321,9 @@ export const tournamentCreationSchema = insertTournamentSchema.extend({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+export type Organization = typeof organizations.$inferSelect;
+export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
 
 export type Tournament = typeof tournaments.$inferSelect;
 export type InsertTournament = z.infer<typeof insertTournamentSchema>;
