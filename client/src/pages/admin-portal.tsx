@@ -17,6 +17,8 @@ import { AdminRequestsTab } from '@/components/admin-requests-tab';
 import { TeamEditor } from '@/components/tournament/team-editor';
 import { PlayoffBracketGenerator } from '@/components/tournament/playoff-bracket-generator';
 import { FeatureManagement } from '@/components/admin/feature-management';
+import { OrganizationSettings } from '@/components/admin/organization-settings';
+import { OrganizationAdminManagement } from '@/components/admin/organization-admin-management';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { isUnauthorizedError } from '@/lib/authUtils';
@@ -232,7 +234,7 @@ export default function AdminPortal() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-forest">
-          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-3 md:grid-cols-8' : 'grid-cols-3 md:grid-cols-6'} w-full gap-1 h-auto`}>
+          <TabsList className={`grid ${(user as any)?.isSuperAdmin ? 'grid-cols-3 md:grid-cols-10' : 'grid-cols-3 md:grid-cols-6'} w-full gap-1 h-auto`}>
             <TabsTrigger value="tournaments" className="text-xs md:text-sm py-2">Tournaments</TabsTrigger>
             <TabsTrigger value="import" className="text-xs md:text-sm py-2">Data Import</TabsTrigger>
             <TabsTrigger value="teams" className="text-xs md:text-sm py-2">Edit Teams</TabsTrigger>
@@ -241,6 +243,14 @@ export default function AdminPortal() {
             <TabsTrigger value="reports" className="text-xs md:text-sm py-2">Reports</TabsTrigger>
             {(user as any)?.isSuperAdmin && (
               <>
+                <TabsTrigger value="org-settings" className="text-xs md:text-sm py-2">
+                  <Settings className="w-3 h-3 mr-1" />
+                  Org Settings
+                </TabsTrigger>
+                <TabsTrigger value="org-admins" className="text-xs md:text-sm py-2">
+                  <Users className="w-3 h-3 mr-1" />
+                  Org Admins
+                </TabsTrigger>
                 <TabsTrigger value="features" className="text-xs md:text-sm py-2">
                   <Settings className="w-3 h-3 mr-1" />
                   Features
@@ -415,6 +425,34 @@ export default function AdminPortal() {
 
           {(user as any)?.isSuperAdmin && (
             <>
+              <TabsContent value="org-settings" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="w-5 h-5" />
+                      Organization Settings
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <OrganizationSettings />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="org-admins" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      Organization Admins
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <OrganizationAdminManagement />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
               <TabsContent value="features" className="mt-6">
                 <Card>
                   <CardHeader>

@@ -29,6 +29,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User list endpoint - super admin only
+  app.get('/api/users', requireSuperAdmin, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
   // Admin request routes
   app.post('/api/admin-requests', isAuthenticated, async (req: any, res) => {
     try {
@@ -273,6 +284,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user organizations:", error);
       res.status(500).json({ error: "Failed to fetch user organizations" });
+    }
+  });
+
+  // Organization feature flag routes
+  app.get("/api/organizations/:organizationId/feature-flags", requireOrgAdmin, async (req, res) => {
+    try {
+      const { organizationId } = req.params;
+      
+      // Get all global feature flags
+      const globalFlags = await storage.getFeatureFlags();
+      
+      // Get organization-specific flag settings
+      const orgFlags = await storage.getOrganizationFeatureFlags(organizationId);
+      
+      // Merge the data
+      const flagsWithOrgSettings = globalFlags.map(flag => {
+        const orgFlag = orgFlags.find(of => of.featureFlagId === flag.id);
+        return {
+          ...flag,
+          orgEnabled: orgFlag ? orgFlag.isEnabled : null, // null means org hasn't set preference
+          effectivelyEnabled: flag.isEnabled && (orgFlag ? orgFlag.isEnabled : true),
+        };
+      });
+      
+      res.json(flagsWithOrgSettings);
+    } catch (error) {
+      console.error("Error fetching organization feature flags:", error);
+      res.status(500).json({ error: "Failed to fetch organization feature flags" });
+    }
+  });
+
+  app.post("/api/organizations/:organizationId/feature-flags/:featureFlagId", requireOrgAdmin, async (req, res) => {
+    try {
+      const { organizationId, featureFlagId } = req.params;
+      const { isEnabled } = req.body;
+      
+      if (typeof isEnabled !== 'boolean') {
+        return res.status(400).json({ error: "isEnabled must be a boolean" });
+      }
+      
+      const orgFlag = await storage.setOrganizationFeatureFlag(organizationId, featureFlagId, isEnabled);
+      res.json(orgFlag);
+    } catch (error) {
+      console.error("Error setting organization feature flag:", error);
+      res.status(500).json({ error: "Failed to set organization feature flag" });
+    }
+  });
+
+  app.delete("/api/organizations/:organizationId/feature-flags/:featureFlagId", requireOrgAdmin, async (req, res) => {
+    try {
+      const { organizationId, featureFlagId } = req.params;
+      await storage.removeOrganizationFeatureFlag(organizationId, featureFlagId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error removing organization feature flag:", error);
+      res.status(500).json({ error: "Failed to remove organization feature flag" });
     }
   });
 

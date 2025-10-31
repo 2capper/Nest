@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, index, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, index, varchar, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -71,6 +71,18 @@ export const organizationAdmins = pgTable("organization_admins", {
   role: text("role").notNull().default("admin"), // "admin" | "owner" - for future role expansion
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+// Organization feature flags junction table
+export const organizationFeatureFlags = pgTable("organization_feature_flags", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  featureFlagId: varchar("feature_flag_id").notNull().references(() => featureFlags.id, { onDelete: "cascade" }),
+  isEnabled: boolean("is_enabled").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("org_feature_flags_uniq_idx").on(table.organizationId, table.featureFlagId),
+]);
 
 export const tournaments = pgTable("tournaments", {
   id: text("id").primaryKey(),
@@ -322,6 +334,12 @@ export const insertOrganizationAdminSchema = createInsertSchema(organizationAdmi
   createdAt: true,
 });
 
+export const insertOrganizationFeatureFlagSchema = createInsertSchema(organizationFeatureFlags).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Game update validation schema with strict score validation
 export const gameUpdateSchema = insertGameSchema.partial().extend({
   homeScore: z.number().int().min(0).max(50).optional().nullable(),
@@ -390,3 +408,6 @@ export type InsertFeatureFlag = z.infer<typeof insertFeatureFlagSchema>;
 
 export type OrganizationAdmin = typeof organizationAdmins.$inferSelect;
 export type InsertOrganizationAdmin = z.infer<typeof insertOrganizationAdminSchema>;
+
+export type OrganizationFeatureFlag = typeof organizationFeatureFlags.$inferSelect;
+export type InsertOrganizationFeatureFlag = z.infer<typeof insertOrganizationFeatureFlagSchema>;

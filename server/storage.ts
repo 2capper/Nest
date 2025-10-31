@@ -2,6 +2,7 @@ import {
   users, 
   organizations,
   organizationAdmins,
+  organizationFeatureFlags,
   tournaments, 
   ageDivisions, 
   pools, 
@@ -17,6 +18,8 @@ import {
   type InsertOrganization,
   type OrganizationAdmin,
   type InsertOrganizationAdmin,
+  type OrganizationFeatureFlag,
+  type InsertOrganizationFeatureFlag,
   type Tournament,
   type InsertTournament,
   type AgeDivision,
@@ -44,6 +47,7 @@ import { withRetry } from "./dbRetry";
 export interface IStorage {
   // User methods - required for Replit Auth
   getUser(id: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
   upsertUser(user: UpsertUser): Promise<User>;
   
   // Organization methods
@@ -108,6 +112,12 @@ export interface IStorage {
   getFeatureFlag(featureKey: string): Promise<FeatureFlag | undefined>;
   updateFeatureFlag(id: string, updates: Partial<InsertFeatureFlag>): Promise<FeatureFlag>;
   
+  // Organization feature flag methods
+  getOrganizationFeatureFlags(organizationId: string): Promise<OrganizationFeatureFlag[]>;
+  setOrganizationFeatureFlag(organizationId: string, featureFlagId: string, isEnabled: boolean): Promise<OrganizationFeatureFlag>;
+  removeOrganizationFeatureFlag(organizationId: string, featureFlagId: string): Promise<void>;
+  isFeatureEnabledForOrganization(organizationId: string, featureKey: string): Promise<boolean>;
+  
   // Bulk operations
   bulkCreateTeams(teams: InsertTeam[]): Promise<Team[]>;
   bulkCreateGames(games: InsertGame[]): Promise<Game[]>;
@@ -122,6 +132,10 @@ export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
@@ -520,6 +534,98 @@ export class DatabaseStorage implements IStorage {
     }
 
     return updatedFlag;
+  }
+
+  // Organization feature flag methods
+  async getOrganizationFeatureFlags(organizationId: string): Promise<OrganizationFeatureFlag[]> {
+    return await db.select()
+      .from(organizationFeatureFlags)
+      .where(eq(organizationFeatureFlags.organizationId, organizationId));
+  }
+
+  async setOrganizationFeatureFlag(organizationId: string, featureFlagId: string, isEnabled: boolean): Promise<OrganizationFeatureFlag> {
+    // Check if the flag already exists
+    const [existing] = await db.select()
+      .from(organizationFeatureFlags)
+      .where(
+        and(
+          eq(organizationFeatureFlags.organizationId, organizationId),
+          eq(organizationFeatureFlags.featureFlagId, featureFlagId)
+        )
+      );
+
+    if (existing) {
+      // Update existing flag
+      const [updated] = await db.update(organizationFeatureFlags)
+        .set({
+          isEnabled,
+          updatedAt: new Date(),
+        })
+        .where(eq(organizationFeatureFlags.id, existing.id))
+        .returning();
+      
+      if (!updated) {
+        throw new Error('Failed to update organization feature flag');
+      }
+
+      return updated;
+    } else {
+      // Insert new flag
+      const [inserted] = await db.insert(organizationFeatureFlags)
+        .values({
+          organizationId,
+          featureFlagId,
+          isEnabled,
+        })
+        .returning();
+      
+      if (!inserted) {
+        throw new Error('Failed to create organization feature flag');
+      }
+
+      return inserted;
+    }
+  }
+
+  async removeOrganizationFeatureFlag(organizationId: string, featureFlagId: string): Promise<void> {
+    await db.delete(organizationFeatureFlags)
+      .where(
+        and(
+          eq(organizationFeatureFlags.organizationId, organizationId),
+          eq(organizationFeatureFlags.featureFlagId, featureFlagId)
+        )
+      );
+  }
+
+  async isFeatureEnabledForOrganization(organizationId: string, featureKey: string): Promise<boolean> {
+    // First check if the global feature flag is enabled
+    const [globalFlag] = await db.select()
+      .from(featureFlags)
+      .where(eq(featureFlags.featureKey, featureKey));
+
+    if (!globalFlag || !globalFlag.isEnabled) {
+      // Global flag is disabled, so org-level doesn't matter
+      return false;
+    }
+
+    // Check if organization has explicitly enabled/disabled this feature
+    const [orgFlag] = await db.select()
+      .from(organizationFeatureFlags)
+      .innerJoin(featureFlags, eq(organizationFeatureFlags.featureFlagId, featureFlags.id))
+      .where(
+        and(
+          eq(organizationFeatureFlags.organizationId, organizationId),
+          eq(featureFlags.featureKey, featureKey)
+        )
+      );
+
+    if (orgFlag) {
+      // Organization has explicitly set this flag
+      return orgFlag.organization_feature_flags.isEnabled;
+    }
+
+    // Organization hasn't set this flag, default to enabled (since global is enabled)
+    return true;
   }
 
   // Bulk operations
