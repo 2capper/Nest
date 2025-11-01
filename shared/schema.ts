@@ -59,6 +59,7 @@ export const organizations = pgTable("organizations", {
   defaultPrimaryColor: text("default_primary_color").default("#22c55e"), // Default color for new tournaments
   defaultSecondaryColor: text("default_secondary_color").default("#ffffff"), // Default secondary color for new tournaments
   defaultPlayoffFormat: text("default_playoff_format").default("top_6"), // Default playoff format for new tournaments
+  defaultSeedingPattern: text("default_seeding_pattern").default("standard"), // Default seeding pattern for new tournaments
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -94,6 +95,7 @@ export const tournaments = pgTable("tournaments", {
   numberOfPools: integer("number_of_pools").default(2),
   numberOfPlayoffTeams: integer("number_of_playoff_teams").default(6), // DEPRECATED: Use playoffFormat instead
   playoffFormat: text("playoff_format"), // "top_4" | "top_6" | "top_8" | "all_seeded" | "championship_consolation" | "double_elim_12" | etc
+  seedingPattern: text("seeding_pattern"), // "standard" | "cross_pool_4" | "cross_pool_3" | "custom" | etc - Determines matchup structure for playoffs
   showTiebreakers: boolean("show_tiebreakers").notNull().default(true),
   customName: text("custom_name"), // Custom display name for tournament branding
   primaryColor: text("primary_color").default("#22c55e"), // Primary theme color (default: green)

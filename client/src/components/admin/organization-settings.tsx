@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import type { Organization } from '@shared/schema';
 import { poolPlayFormats, type PlayoffFormatOption } from '@shared/playoffFormats';
+import { seedingPatternOptions, type SeedingPattern } from '@shared/seedingPatterns';
 
 interface EditOrganizationDialogProps {
   organization: Organization;
@@ -27,6 +28,7 @@ function EditOrganizationDialog({ organization, onSuccess }: EditOrganizationDia
     defaultPrimaryColor: organization.defaultPrimaryColor || '#22c55e',
     defaultSecondaryColor: organization.defaultSecondaryColor || '#ffffff',
     defaultPlayoffFormat: organization.defaultPlayoffFormat || 'top_6',
+    defaultSeedingPattern: organization.defaultSeedingPattern || 'standard',
   });
 
   const updateMutation = useMutation({
@@ -189,6 +191,32 @@ function EditOrganizationDialog({ organization, onSuccess }: EditOrganizationDia
             </Select>
             <p className="text-sm text-muted-foreground">
               {playoffFormats.find(f => f.value === formData.defaultPlayoffFormat)?.description || 'Select a playoff format'}
+            </p>
+          </div>
+          
+          {/* Default Seeding Pattern */}
+          <div className="space-y-2">
+            <Label htmlFor="seedingPattern" className="flex items-center gap-2">
+              <Trophy className="w-4 h-4" />
+              Default Seeding Pattern
+            </Label>
+            <Select
+              value={formData.defaultSeedingPattern}
+              onValueChange={(value) => setFormData({ ...formData, defaultSeedingPattern: value })}
+            >
+              <SelectTrigger id="seedingPattern" data-testid="select-seeding-pattern">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {seedingPatternOptions.map((pattern) => (
+                  <SelectItem key={pattern.value} value={pattern.value}>
+                    {pattern.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-muted-foreground">
+              {seedingPatternOptions.find(p => p.value === formData.defaultSeedingPattern)?.description || 'Select a seeding pattern'}
             </p>
           </div>
 

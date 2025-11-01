@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { tournamentCreationSchema, type Organization } from '@shared/schema';
 import { getAvailablePlayoffFormats, getDefaultPlayoffFormat, type PlayoffFormat } from '@shared/playoffFormats';
+import { getAvailableSeedingPatterns, getDefaultSeedingPattern, type SeedingPattern } from '@shared/seedingPatterns';
 
 interface TournamentCreationFormProps {
   onSuccess?: (tournament: any) => void;
@@ -28,6 +29,7 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
     numberOfPools: 2,
     numberOfPlayoffTeams: 6, // DEPRECATED - for backwards compatibility
     playoffFormat: null as PlayoffFormat | null,
+    seedingPattern: null as SeedingPattern | null,
     showTiebreakers: true,
     customName: '',
     primaryColor: '#22c55e',
@@ -85,6 +87,7 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
         numberOfPools: 2,
         numberOfPlayoffTeams: 6,
         playoffFormat: null,
+        seedingPattern: null,
         showTiebreakers: true,
         customName: '',
         primaryColor: '#22c55e',
@@ -140,7 +143,21 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
         updatedData.type,
         updatedData.numberOfTeams
       );
-      setFormData(prev => ({ ...prev, playoffFormat: defaultFormat }));
+      const defaultSeeding = getDefaultSeedingPattern(
+        defaultFormat,
+        updatedData.numberOfPools
+      );
+      setFormData(prev => ({ ...prev, playoffFormat: defaultFormat, seedingPattern: defaultSeeding }));
+    }
+    
+    // Auto-select default seeding pattern when playoff format or pool count changes
+    if (field === 'playoffFormat' || field === 'numberOfPools') {
+      const updatedData = { ...formData, [field]: value };
+      const defaultSeeding = getDefaultSeedingPattern(
+        updatedData.playoffFormat,
+        updatedData.numberOfPools
+      );
+      setFormData(prev => ({ ...prev, seedingPattern: defaultSeeding }));
     }
   };
   
@@ -148,6 +165,11 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
   const availablePlayoffFormats = useMemo(() => {
     return getAvailablePlayoffFormats(formData.type, formData.numberOfTeams);
   }, [formData.type, formData.numberOfTeams]);
+  
+  // Calculate available seeding patterns based on playoff format and pool count
+  const availableSeedingPatterns = useMemo(() => {
+    return getAvailableSeedingPatterns(formData.playoffFormat, formData.numberOfPools);
+  }, [formData.playoffFormat, formData.numberOfPools]);
 
 
 
@@ -318,7 +340,7 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
                 value={formData.playoffFormat || ''} 
                 onValueChange={(value) => handleInputChange('playoffFormat', value)}
               >
-                <SelectTrigger className="mt-1">
+                <SelectTrigger className="mt-1" data-testid="select-playoff-format">
                   <SelectValue placeholder="Select playoff format" />
                 </SelectTrigger>
                 <SelectContent>
@@ -335,6 +357,32 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
                 </p>
               )}
             </div>
+            
+            {formData.type === 'pool_play' && formData.playoffFormat && availableSeedingPatterns.length > 0 && (
+              <div>
+                <Label htmlFor="seedingPattern">Seeding Pattern</Label>
+                <Select 
+                  value={formData.seedingPattern || ''} 
+                  onValueChange={(value) => handleInputChange('seedingPattern', value)}
+                >
+                  <SelectTrigger className="mt-1" data-testid="select-seeding-pattern">
+                    <SelectValue placeholder="Select seeding pattern" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableSeedingPatterns.map((pattern) => (
+                      <SelectItem key={pattern.value} value={pattern.value}>
+                        {pattern.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formData.seedingPattern && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {availableSeedingPatterns.find(p => p.value === formData.seedingPattern)?.description}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
           
           {/* Branding & Appearance Section */}
