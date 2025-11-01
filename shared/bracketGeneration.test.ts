@@ -127,21 +127,31 @@ function createPoolPlayGames(): Game[] {
   games.push(createGame(`game-${gameId++}`, 'pool-A', 'team-A2', 'team-A4', 9, 3));
   games.push(createGame(`game-${gameId++}`, 'pool-A', 'team-A3', 'team-A4', 7, 5));
   
-  // Pool B - 2-way tie for 1st: B1 and B2 both 2-1, B1 wins head-to-head
-  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B1', 'team-B2', 8, 7));
-  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B1', 'team-B3', 10, 5));
-  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B1', 'team-B4', 6, 9));
-  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B2', 'team-B3', 11, 4));
-  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B2', 'team-B4', 5, 8));
-  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B3', 'team-B4', 6, 10));
+  // Pool B - 3-way tie (B1, B2, B3 all 2-1; B4 is 0-3)
+  // Testing: Skip head-to-head for 3+ teams, use RA/DIP among tied teams
+  // B1: 2-1, allows 12 runs in 18 innings = 0.667 RA/DIP (best - 1st place)
+  // B2: 2-1, allows 15 runs in 18 innings = 0.833 RA/DIP (middle - 2nd place)
+  // B3: 2-1, allows 18 runs in 18 innings = 1.000 RA/DIP (worst - 3rd place)
+  // B4: 0-3 (last place)
+  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B1', 'team-B2', 7, 4));   // B1 wins, B1 allows 4, B2 allows 7
+  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B1', 'team-B3', 4, 6));   // B3 wins, B1 allows 6, B3 allows 4
+  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B1', 'team-B4', 8, 2));   // B1 wins, B1 total: 4+6+2=12 ✓
+  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B2', 'team-B3', 9, 5));   // B2 wins, B2 allows 5, B3 allows 9
+  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B2', 'team-B4', 10, 3));  // B2 wins, B2 total: 7+5+3=15 ✓
+  games.push(createGame(`game-${gameId++}`, 'pool-B', 'team-B3', 'team-B4', 11, 5));  // B3 wins, B3 total: 4+9+5=18 ✓
   
-  // Pool C - 3-way tie resolved by runs against ratio (C1, C2, C3 all 2-1, C4 is 0-3)
-  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C1', 'team-C2', 8, 9));
-  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C1', 'team-C3', 10, 5));
-  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C1', 'team-C4', 12, 3));
-  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C2', 'team-C3', 7, 6));
-  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C2', 'team-C4', 15, 2));
-  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C3', 'team-C4', 11, 4));
+  // Pool C - 3-way tie (C1, C2, C3 all 2-1; C4 is 0-3)
+  // Testing: Skip head-to-head for 3+ teams, use RA/DIP among tied teams
+  // C1: 2-1, allows 12 runs in 18 innings = 0.667 RA/DIP (best - 1st place)
+  // C2: 2-1, allows 15 runs in 18 innings = 0.833 RA/DIP (middle - 2nd place)
+  // C3: 2-1, allows 18 runs in 18 innings = 1.000 RA/DIP (worst - 3rd place)
+  // C4: 0-3 (last place)
+  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C1', 'team-C2', 5, 7));   // C2 wins, C1 allows 7, C2 allows 5
+  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C1', 'team-C3', 8, 4));   // C1 wins, C1 allows 4, C3 allows 8
+  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C1', 'team-C4', 9, 1));   // C1 wins, C1 total: 7+4+1=12 ✓
+  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C2', 'team-C3', 6, 7));   // C3 wins, C2 allows 7, C3 allows 6
+  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C2', 'team-C4', 11, 3));  // C2 wins, C2 total: 5+7+3=15 ✓
+  games.push(createGame(`game-${gameId++}`, 'pool-C', 'team-C3', 'team-C4', 10, 4));  // C3 wins, C3 total: 8+6+4=18 ✓
   
   // Pool D - Clear standings: D1 (3-0), D2 (2-1), D3 (1-2), D4 (0-3)
   games.push(createGame(`game-${gameId++}`, 'pool-D', 'team-D1', 'team-D2', 9, 6));
@@ -236,46 +246,57 @@ function testTieBreakers() {
   });
   console.log('Expected order: A1 (3-0), A2 (2-1), A3 (1-2), A4 (0-3) ✓');
   
-  // Test Pool B - 2-way tie resolved by head-to-head
-  console.log('\n--- Pool B: 2-Way Tie (Head-to-Head Tiebreaker) ---');
+  // Test Pool B - 3-way tie resolved by RA/DIP (skip head-to-head)
+  console.log('\n--- Pool B: 3-Way Tie (Skip Head-to-Head, Use RA/DIP) ---');
   const poolBTeams = teams.filter(t => t.poolId === 'pool-B');
+  const tiedBTeamIds = ['team-B1', 'team-B2', 'team-B3'];
+  
+  console.log('All teams with same point total (4 pts):');
   poolBTeams.forEach(team => {
     const stats = calculateTeamStats(team.id, games);
     const points = (stats.wins * 2) + stats.ties;
-    console.log(`${team.name}: ${stats.wins}-${stats.losses}-${stats.ties} (${points} pts)`);
+    const allGamesRA = stats.defensiveInnings > 0 ? stats.runsAgainst / stats.defensiveInnings : 0;
+    console.log(`${team.name}: ${stats.wins}-${stats.losses}-${stats.ties} (${points} pts), RA/DIP (all games): ${allGamesRA.toFixed(3)}`);
   });
   
-  // Check head-to-head between B1 and B2
-  const b1b2Game = games.find(g => 
-    (g.homeTeamId === 'team-B1' && g.awayTeamId === 'team-B2') ||
-    (g.homeTeamId === 'team-B2' && g.awayTeamId === 'team-B1')
-  );
-  console.log(`Head-to-head: B1 ${b1b2Game?.homeTeamId === 'team-B1' ? b1b2Game?.homeScore : b1b2Game?.awayScore} - B2 ${b1b2Game?.homeTeamId === 'team-B2' ? b1b2Game?.homeScore : b1b2Game?.awayScore}`);
-  console.log('Expected: B1 wins head-to-head, so B1 (1st), B2 (2nd) ✓');
+  console.log('\nApplying tie-breaker rules:');
+  console.log('Rule #2 (Head-to-Head): SKIPPED for 3+ team ties');
+  console.log('Rule #3 (RA/DIP among tied teams):');
   
-  // Test Pool C - 3-way tie resolved by runs against ratio
-  console.log('\n--- Pool C: 3-Way Tie (Runs Against Ratio Tiebreaker) ---');
+  tiedBTeamIds.forEach(teamId => {
+    const stats = calculateTeamStats(teamId, games, tiedBTeamIds);
+    const raPerInning = stats.defensiveInnings > 0 ? stats.runsAgainst / stats.defensiveInnings : 0;
+    const team = teams.find(t => t.id === teamId);
+    console.log(`  ${team?.name}: RA=${stats.runsAgainst}, DIP=${stats.defensiveInnings}, RA/DIP=${raPerInning.toFixed(3)}`);
+  });
+  
+  console.log('Expected order: B1 (0.667), B2 (0.833), B3 (1.000), B4 (0-3)');
+  
+  // Test Pool C - 3-way tie resolved by RA/DIP (skip head-to-head)
+  console.log('\n--- Pool C: 3-Way Tie (Skip Head-to-Head, Use RA/DIP) ---');
   const poolCTeams = teams.filter(t => t.poolId === 'pool-C');
-  const tiedTeamIds = ['team-C1', 'team-C2', 'team-C3'];
+  const tiedCTeamIds = ['team-C1', 'team-C2', 'team-C3'];
   
+  console.log('All teams with same point total (4 pts):');
   poolCTeams.forEach(team => {
     const stats = calculateTeamStats(team.id, games);
     const points = (stats.wins * 2) + stats.ties;
-    const statsAmongTied = calculateTeamStats(team.id, games, tiedTeamIds);
-    const raPerInning = statsAmongTied.defensiveInnings > 0 ? 
-      (statsAmongTied.runsAgainst / statsAmongTied.defensiveInnings).toFixed(3) : 'N/A';
-    
-    console.log(`${team.name}: ${stats.wins}-${stats.losses}-${stats.ties} (${points} pts), RA/Inning (tied): ${raPerInning}`);
+    const allGamesRA = stats.defensiveInnings > 0 ? stats.runsAgainst / stats.defensiveInnings : 0;
+    console.log(`${team.name}: ${stats.wins}-${stats.losses}-${stats.ties} (${points} pts), RA/DIP (all games): ${allGamesRA.toFixed(3)}`);
   });
-  console.log('Expected: 3-way tie for 1st (skip head-to-head), order by RA/Inning among tied teams');
   
-  // Calculate RA/Inning for tied teams
-  tiedTeamIds.forEach(teamId => {
-    const stats = calculateTeamStats(teamId, games, tiedTeamIds);
+  console.log('\nApplying tie-breaker rules:');
+  console.log('Rule #2 (Head-to-Head): SKIPPED for 3+ team ties');
+  console.log('Rule #3 (RA/DIP among tied teams):');
+  
+  tiedCTeamIds.forEach(teamId => {
+    const stats = calculateTeamStats(teamId, games, tiedCTeamIds);
     const raPerInning = stats.defensiveInnings > 0 ? stats.runsAgainst / stats.defensiveInnings : 0;
     const team = teams.find(t => t.id === teamId);
-    console.log(`  ${team?.name}: RA=${stats.runsAgainst}, DI=${stats.defensiveInnings}, RA/DI=${raPerInning.toFixed(3)}`);
+    console.log(`  ${team?.name}: RA=${stats.runsAgainst}, DIP=${stats.defensiveInnings}, RA/DIP=${raPerInning.toFixed(3)}`);
   });
+  
+  console.log('Expected order: C1 (0.667), C2 (0.833), C3 (1.000), C4 (0-3)');
   
   // Test Pool D - Clear standings
   console.log('\n--- Pool D: Clear Standings ---');
