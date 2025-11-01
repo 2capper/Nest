@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import { Loader2, Shield, Database, Users, Calendar, Plus, Download, Edit3, LogOut, Settings, Menu, Trophy, FileInput, Edit, Target, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
 import { useTournamentData } from '@/hooks/use-tournament-data';
 import { AdminPortalNew } from '@/components/tournament/admin-portal-new';
 import { SimpleNavigation } from '@/components/tournament/simple-navigation';
@@ -37,6 +39,14 @@ export default function AdminPortal() {
   const currentTournament = tournaments.find(t => t.id === currentTournamentId);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Fetch pending admin requests count for super admins
+  const { data: adminRequests } = useQuery({
+    queryKey: ['/api/admin-requests'],
+    enabled: (user as any)?.isSuperAdmin === true,
+  });
+
+  const pendingRequestsCount = adminRequests?.filter((r: any) => r.status === 'pending').length || 0;
 
   // Check authentication - redirect to home instead of login to avoid loops
   useEffect(() => {
@@ -386,6 +396,11 @@ export default function AdminPortal() {
                       >
                         <Shield className="w-5 h-5" />
                         Admin Requests
+                        {pendingRequestsCount > 0 && (
+                          <Badge className="ml-auto bg-red-500 text-white">
+                            {pendingRequestsCount}
+                          </Badge>
+                        )}
                       </TabsTrigger>
                     </>
                   )}
@@ -423,9 +438,14 @@ export default function AdminPortal() {
                     <Settings className="w-3 h-3 mr-1" />
                     Features
                   </TabsTrigger>
-                  <TabsTrigger value="admin-requests" className="text-sm py-2 px-4 flex-shrink-0" data-testid="tab-admin-requests">
+                  <TabsTrigger value="admin-requests" className="text-sm py-2 px-4 flex-shrink-0 relative" data-testid="tab-admin-requests">
                     <Shield className="w-3 h-3 mr-1" />
                     Admin Requests
+                    {pendingRequestsCount > 0 && (
+                      <Badge className="ml-2 bg-red-500 text-white px-2 py-0.5 text-xs">
+                        {pendingRequestsCount}
+                      </Badge>
+                    )}
                   </TabsTrigger>
                 </>
               )}

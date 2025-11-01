@@ -104,12 +104,37 @@ export function AdminRequestsTab() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Email:</p>
-                    <p className="text-sm font-medium">{request.userEmail}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-white rounded border">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Organization Name</p>
+                      <p className="text-sm font-semibold text-[var(--falcons-green)]">{request.organizationName}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">URL Slug</p>
+                      <p className="text-sm font-mono">{request.organizationSlug}</p>
+                    </div>
+                    {request.organizationDescription && (
+                      <div className="md:col-span-2">
+                        <p className="text-xs text-gray-500 mb-1">Description</p>
+                        <p className="text-sm">{request.organizationDescription}</p>
+                      </div>
+                    )}
+                    {request.logoUrl && (
+                      <div className="md:col-span-2">
+                        <p className="text-xs text-gray-500 mb-1">Logo Preview</p>
+                        <img src={request.logoUrl} alt="Organization Logo" className="h-12 w-auto object-contain border rounded p-1" />
+                      </div>
+                    )}
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Message:</p>
+                    <p className="text-sm text-gray-600 mb-1">Contact Info:</p>
+                    <p className="text-sm font-medium">{request.userEmail}</p>
+                    {request.contactEmail && request.contactEmail !== request.userEmail && (
+                      <p className="text-xs text-gray-500">Org Email: {request.contactEmail}</p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Request Message:</p>
                     <p className="text-sm">{request.message}</p>
                   </div>
                   <div>

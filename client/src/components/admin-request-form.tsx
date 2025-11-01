@@ -50,10 +50,7 @@ export function AdminRequestForm() {
 
   const requestMutation = useMutation({
     mutationFn: async (data: FormSchema) => {
-      return await apiRequest('/api/admin-requests', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      return await apiRequest('POST', '/api/admin-requests', data);
     },
     onSuccess: () => {
       toast({
@@ -100,17 +97,18 @@ export function AdminRequestForm() {
   }
 
   if (existingRequest) {
+    const request: any = existingRequest;
     const statusIcon = {
       pending: <Clock className="w-5 h-5 text-yellow-500" />,
       approved: <CheckCircle className="w-5 h-5 text-green-500" />,
       rejected: <XCircle className="w-5 h-5 text-red-500" />,
-    }[existingRequest.status];
+    }[request.status];
 
     const statusText = {
       pending: "Your request is pending review by a super administrator.",
       approved: "Your request has been approved! Please refresh the page to access admin features.",
       rejected: "Your request was not approved. You can submit a new request if needed.",
-    }[existingRequest.status];
+    }[request.status];
 
     return (
       <Card>
@@ -129,9 +127,9 @@ export function AdminRequestForm() {
           </Alert>
           <div className="mt-4 p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600 mb-1">Your message:</p>
-            <p className="text-sm text-gray-900">{existingRequest.message}</p>
+            <p className="text-sm text-gray-900">{request.message}</p>
             <p className="text-xs text-gray-500 mt-2">
-              Submitted: {new Date(existingRequest.createdAt).toLocaleDateString()}
+              Submitted: {new Date(request.createdAt).toLocaleDateString()}
             </p>
           </div>
         </CardContent>
