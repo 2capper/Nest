@@ -174,16 +174,31 @@ export const auditLogs = pgTable("audit_logs", {
   timestamp: timestamp("timestamp").notNull().defaultNow(),
 });
 
-// Admin request table for user admin access requests
+// Admin request table for user admin access requests with organization details
 export const adminRequests = pgTable("admin_requests", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id),
   userEmail: varchar("user_email").notNull(),
   userName: varchar("user_name").notNull(),
   message: text("message").notNull(),
+  
+  // Organization details to create upon approval
+  organizationName: text("organization_name").notNull(),
+  organizationSlug: text("organization_slug").notNull(),
+  organizationDescription: text("organization_description"),
+  logoUrl: text("logo_url"),
+  primaryColor: text("primary_color").default("#22c55e"),
+  secondaryColor: text("secondary_color").default("#ffffff"),
+  websiteUrl: text("website_url"),
+  contactEmail: text("contact_email"),
+  timezone: text("timezone").default("America/Toronto"),
+  defaultPlayoffFormat: text("default_playoff_format").default("top_6"),
+  defaultSeedingPattern: text("default_seeding_pattern").default("standard"),
+  
   status: text("status").notNull().default("pending"), // "pending" | "approved" | "rejected"
   reviewedBy: varchar("reviewed_by").references(() => users.id),
   reviewedAt: timestamp("reviewed_at"),
+  createdOrganizationId: varchar("created_organization_id").references(() => organizations.id), // Set upon approval
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
