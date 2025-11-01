@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Plus, Calendar, Type, Loader2, Users, Trophy, Palette, Image, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,7 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
     logoUrl: '',
   });
   const [isOpen, setIsOpen] = useState(showForm);
+  const lastPopulatedOrgIdRef = useRef<string | null>(null);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -50,6 +51,32 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
   useEffect(() => {
     setIsOpen(showForm);
   }, [showForm]);
+
+  // Auto-populate form fields with organization defaults when organization is selected for the first time
+  useEffect(() => {
+    // Only populate if a new organization is selected (not already populated)
+    if (formData.organizationId && 
+        formData.organizationId !== lastPopulatedOrgIdRef.current && 
+        organizations) {
+      const selectedOrg = organizations.find(org => org.id === formData.organizationId);
+      if (selectedOrg) {
+        setFormData(prev => ({
+          ...prev,
+          playoffFormat: (selectedOrg.defaultPlayoffFormat as PlayoffFormat) || prev.playoffFormat,
+          seedingPattern: (selectedOrg.defaultSeedingPattern as SeedingPattern) || prev.seedingPattern,
+          primaryColor: selectedOrg.defaultPrimaryColor || selectedOrg.primaryColor || prev.primaryColor,
+          secondaryColor: selectedOrg.defaultSecondaryColor || selectedOrg.secondaryColor || prev.secondaryColor,
+          logoUrl: selectedOrg.logoUrl || prev.logoUrl,
+        }));
+        // Track that we've populated for this organization
+        lastPopulatedOrgIdRef.current = formData.organizationId;
+      }
+    }
+    // Reset tracking when organization is cleared
+    if (!formData.organizationId) {
+      lastPopulatedOrgIdRef.current = null;
+    }
+  }, [formData.organizationId, organizations]);
 
   const createTournamentMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -94,6 +121,7 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
         secondaryColor: '#ffffff',
         logoUrl: '',
       });
+      lastPopulatedOrgIdRef.current = null; // Reset tracking for next tournament
       setIsOpen(false);
       if (onSuccess) onSuccess(tournament);
     },
