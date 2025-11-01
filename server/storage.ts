@@ -460,15 +460,46 @@ export class DatabaseStorage implements IStorage {
     }
 
     return await db.transaction(async (tx) => {
+      // Create the organization with details from the request
+      const [newOrganization] = await tx.insert(organizations).values({
+        name: request.organizationName,
+        slug: request.organizationSlug,
+        description: request.organizationDescription,
+        logoUrl: request.logoUrl,
+        primaryColor: request.primaryColor || '#22c55e',
+        secondaryColor: request.secondaryColor || '#ffffff',
+        websiteUrl: request.websiteUrl,
+        contactEmail: request.contactEmail,
+        timezone: request.timezone || 'America/Toronto',
+        defaultPrimaryColor: request.primaryColor || '#22c55e',
+        defaultSecondaryColor: request.secondaryColor || '#ffffff',
+        defaultPlayoffFormat: request.defaultPlayoffFormat || 'top_6',
+        defaultSeedingPattern: request.defaultSeedingPattern || 'standard',
+      }).returning();
+
+      if (!newOrganization) {
+        throw new Error('Failed to create organization');
+      }
+
+      // Grant admin access to the user
       await tx.update(users)
         .set({ isAdmin: true })
         .where(eq(users.id, request.userId));
 
+      // Link user as organization admin
+      await tx.insert(organizationAdmins).values({
+        userId: request.userId,
+        organizationId: newOrganization.id,
+        role: 'admin',
+      });
+
+      // Update the admin request with approval details
       const [updatedRequest] = await tx.update(adminRequests)
         .set({
           status: 'approved',
           reviewedBy: reviewerId,
           reviewedAt: new Date(),
+          createdOrganizationId: newOrganization.id,
         })
         .where(eq(adminRequests.id, requestId))
         .returning();

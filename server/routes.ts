@@ -59,11 +59,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "You already have a pending admin request" });
       }
 
+      // Check if organization slug already exists
+      const existingOrg = await storage.getOrganizationBySlug(req.body.organizationSlug);
+      if (existingOrg) {
+        return res.status(400).json({ error: "An organization with this URL slug already exists. Please choose a different slug." });
+      }
+
       const validatedData = insertAdminRequestSchema.parse({
         userId,
         userEmail: user.email || '',
         userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'Unknown',
         message: req.body.message,
+        organizationName: req.body.organizationName,
+        organizationSlug: req.body.organizationSlug,
+        organizationDescription: req.body.organizationDescription,
+        logoUrl: req.body.logoUrl,
+        primaryColor: req.body.primaryColor || '#22c55e',
+        secondaryColor: req.body.secondaryColor || '#ffffff',
+        websiteUrl: req.body.websiteUrl,
+        contactEmail: req.body.contactEmail,
+        timezone: req.body.timezone || 'America/Toronto',
+        defaultPlayoffFormat: req.body.defaultPlayoffFormat || 'top_6',
+        defaultSeedingPattern: req.body.defaultSeedingPattern || 'standard',
         status: 'pending'
       });
       
