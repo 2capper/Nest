@@ -55,6 +55,8 @@ Preferred communication style: Simple, everyday language.
 - **Location Integration**: Display of diamond GPS coordinates with Google Maps integration.
 - **Roster Management**: Manual roster import system.
 - **Public Homepage & Organization Detail Pages**: Publicly accessible pages showcasing organizations and their tournaments.
+- **Tournament Creation with Organization Defaults**: Tournament creation form auto-populates playoff format, seeding pattern, colors, and logo from selected organization's defaults while allowing per-tournament customization.
+- **Enhanced Admin Onboarding**: Admin request process captures complete organization details (name, logo, branding, timezone, defaults) for atomic organization creation upon approval with notification badges for super admins.
 
 ## External Dependencies
 
