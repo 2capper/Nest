@@ -329,8 +329,21 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
                 min="4"
                 max="64"
                 value={formData.numberOfTeams}
-                onChange={(e) => handleInputChange('numberOfTeams', parseInt(e.target.value) || 8)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '') {
+                    handleInputChange('numberOfTeams', '' as any);
+                  } else {
+                    handleInputChange('numberOfTeams', parseInt(val) || 8);
+                  }
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === '' || isNaN(parseInt(e.target.value))) {
+                    handleInputChange('numberOfTeams', 8);
+                  }
+                }}
                 className="mt-1"
+                data-testid="input-number-of-teams"
               />
             </div>
             
@@ -344,8 +357,21 @@ export const TournamentCreationForm = ({ onSuccess, showForm = false }: Tourname
                     min="1"
                     max="8"
                     value={formData.numberOfPools}
-                    onChange={(e) => handleInputChange('numberOfPools', parseInt(e.target.value) || 2)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '') {
+                        handleInputChange('numberOfPools', '' as any);
+                      } else {
+                        handleInputChange('numberOfPools', parseInt(val) || 2);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '' || isNaN(parseInt(e.target.value))) {
+                        handleInputChange('numberOfPools', 2);
+                      }
+                    }}
                     className="mt-1"
+                    data-testid="input-number-of-pools"
                   />
                 </div>
                 
