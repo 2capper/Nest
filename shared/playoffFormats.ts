@@ -50,26 +50,15 @@ export const poolPlayFormats: PlayoffFormatOption[] = [
     numberOfPlayoffTeams: 8,
   },
   {
-    value: 'top_8_four_pools',
-    label: 'Top 8 - Four Pools',
-    description: 'Top 2 from each of 4 pools (16 teams total, 8 advance)',
-    minTeams: 16,
-    numberOfPlayoffTeams: 8,
-  },
-  {
     value: 'all_seeded',
     label: 'All Teams - Single Bracket',
     description: 'All teams seeded into single elimination bracket',
     minTeams: 4,
     numberOfPlayoffTeams: 0, // All teams participate
   },
-  {
-    value: 'championship_consolation',
-    label: 'Championship & Consolation',
-    description: 'Top half compete for championship, bottom half for consolation',
-    minTeams: 8,
-    numberOfPlayoffTeams: 0, // All teams participate
-  },
+  // Note: Legacy formats below exist in type but are not exposed in UI:
+  // - top_8_four_pools: Deprecated in favor of top_8 with cross_pool_4 seeding pattern
+  // - championship_consolation: Requires dual-bracket generation logic (not implemented)
 ];
 
 // Single Elimination Formats
@@ -96,19 +85,14 @@ export const singleElimFormats: PlayoffFormatOption[] = [
     numberOfPlayoffTeams: 8,
   },
   {
-    value: 'single_elim_12',
-    label: '12-Team Single Elimination',
-    description: '12-team bracket with byes for top 4 seeds',
-    minTeams: 12,
-    numberOfPlayoffTeams: 12,
-  },
-  {
     value: 'single_elim_16',
     label: '16-Team Single Elimination',
     description: 'Standard 16-team bracket (4 rounds)',
     minTeams: 16,
     numberOfPlayoffTeams: 16,
   },
+  // Note: single_elim_12 format exists in type but is not exposed in UI
+  // as bracket template has not been created yet
 ];
 
 // Double Elimination Formats
@@ -119,13 +103,6 @@ export const doubleElimFormats: PlayoffFormatOption[] = [
     description: 'Winners and losers brackets (4-6 games)',
     minTeams: 4,
     numberOfPlayoffTeams: 4,
-  },
-  {
-    value: 'double_elim_6',
-    label: '6-Team Double Elimination',
-    description: 'Winners and losers brackets with byes',
-    minTeams: 6,
-    numberOfPlayoffTeams: 6,
   },
   {
     value: 'double_elim_8',
@@ -141,13 +118,8 @@ export const doubleElimFormats: PlayoffFormatOption[] = [
     minTeams: 12,
     numberOfPlayoffTeams: 12,
   },
-  {
-    value: 'double_elim_16',
-    label: '16-Team Double Elimination',
-    description: 'Full double elimination tournament',
-    minTeams: 16,
-    numberOfPlayoffTeams: 16,
-  },
+  // Note: double_elim_6 and double_elim_16 formats exist in type but are not exposed in UI
+  // as bracket templates have not been created yet (complex routing)
 ];
 
 /**
