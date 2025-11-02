@@ -92,6 +92,58 @@ export const BRACKET_12_TEAM_DOUBLE_ELIM: BracketTemplate = {
   ]
 };
 
+export const BRACKET_4_TEAM_SINGLE_ELIM: BracketTemplate = {
+  name: '4-Team Single Elimination',
+  teamCount: 4,
+  eliminationType: 'single',
+  matchups: [
+    // Semifinals - Round 1 (2 games)
+    { round: 1, gameNumber: 1, bracket: 'winners', team1Seed: 1, team2Seed: 4 },
+    { round: 1, gameNumber: 2, bracket: 'winners', team1Seed: 2, team2Seed: 3 },
+    
+    // Finals - Round 2 (1 game)
+    { round: 2, gameNumber: 3, bracket: 'championship', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 1, position: 'winner' }, team2Source: { gameNumber: 2, position: 'winner' } },
+  ]
+};
+
+export const BRACKET_6_TEAM_SINGLE_ELIM: BracketTemplate = {
+  name: '6-Team Single Elimination',
+  teamCount: 6,
+  eliminationType: 'single',
+  matchups: [
+    // Round 1 - Quarterfinals (2 games, seeds 1-2 get byes)
+    { round: 1, gameNumber: 1, bracket: 'winners', team1Seed: 3, team2Seed: 6 },
+    { round: 1, gameNumber: 2, bracket: 'winners', team1Seed: 4, team2Seed: 5 },
+    
+    // Round 2 - Semifinals (2 games)
+    { round: 2, gameNumber: 3, bracket: 'winners', team1Seed: 1, team2Seed: null, team2Source: { gameNumber: 2, position: 'winner' } },
+    { round: 2, gameNumber: 4, bracket: 'winners', team1Seed: 2, team2Seed: null, team2Source: { gameNumber: 1, position: 'winner' } },
+    
+    // Round 3 - Finals (1 game)
+    { round: 3, gameNumber: 5, bracket: 'championship', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 3, position: 'winner' }, team2Source: { gameNumber: 4, position: 'winner' } },
+  ]
+};
+
+export const BRACKET_8_TEAM_SINGLE_ELIM: BracketTemplate = {
+  name: '8-Team Single Elimination',
+  teamCount: 8,
+  eliminationType: 'single',
+  matchups: [
+    // Round 1 - Quarterfinals (4 games)
+    { round: 1, gameNumber: 1, bracket: 'winners', team1Seed: 1, team2Seed: 8 },
+    { round: 1, gameNumber: 2, bracket: 'winners', team1Seed: 4, team2Seed: 5 },
+    { round: 1, gameNumber: 3, bracket: 'winners', team1Seed: 3, team2Seed: 6 },
+    { round: 1, gameNumber: 4, bracket: 'winners', team1Seed: 2, team2Seed: 7 },
+    
+    // Round 2 - Semifinals (2 games)
+    { round: 2, gameNumber: 5, bracket: 'winners', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 1, position: 'winner' }, team2Source: { gameNumber: 2, position: 'winner' } },
+    { round: 2, gameNumber: 6, bracket: 'winners', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 3, position: 'winner' }, team2Source: { gameNumber: 4, position: 'winner' } },
+    
+    // Round 3 - Finals (1 game)
+    { round: 3, gameNumber: 7, bracket: 'championship', team1Seed: null, team2Seed: null, team1Source: { gameNumber: 5, position: 'winner' }, team2Source: { gameNumber: 6, position: 'winner' } },
+  ]
+};
+
 export const BRACKET_8_TEAM_FOUR_POOLS: BracketTemplate = {
   name: '8-Team Four Pools',
   teamCount: 8,
@@ -114,6 +166,12 @@ export const BRACKET_8_TEAM_FOUR_POOLS: BracketTemplate = {
 };
 
 export const BRACKET_TEMPLATES: Record<string, BracketTemplate> = {
+  'se-4': BRACKET_4_TEAM_SINGLE_ELIM,
+  'single_elim_4': BRACKET_4_TEAM_SINGLE_ELIM,
+  'se-6': BRACKET_6_TEAM_SINGLE_ELIM,
+  'single_elim_6': BRACKET_6_TEAM_SINGLE_ELIM,
+  'se-8': BRACKET_8_TEAM_SINGLE_ELIM,
+  'single_elim_8': BRACKET_8_TEAM_SINGLE_ELIM,
   'se-16': BRACKET_16_TEAM_SINGLE_ELIM,
   'single_elim_16': BRACKET_16_TEAM_SINGLE_ELIM,
   'de-12': BRACKET_12_TEAM_DOUBLE_ELIM,
