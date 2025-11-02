@@ -748,10 +748,12 @@ export class DatabaseStorage implements IStorage {
       standingsForSeeding = standings.map(s => ({ teamId: s.teamId, rank: s.rank, poolId: s.poolId }));
     }
     
-    // Get playoff teams based on format and standings
+    // Get playoff teams based on format and standings with seeding pattern support
     const seededTeams = getPlayoffTeamsFromStandings(
       standingsForSeeding,
-      tournament.playoffFormat
+      tournament.playoffFormat,
+      tournament.seedingPattern as any,
+      divisionPools.filter(p => !p.name.toLowerCase().includes('playoff')).length
     );
 
     if (seededTeams.length === 0) {
@@ -764,13 +766,24 @@ export class DatabaseStorage implements IStorage {
       throw new Error(`Insufficient teams: format requires ${expectedTeamCount} teams but only ${divisionTeams.length} available`);
     }
 
-    // Generate bracket games
+    // Enrich seeded teams with team names only (preserve pool data from getPlayoffTeamsFromStandings)
+    const enrichedSeededTeams = seededTeams.map(st => {
+      const team = divisionTeams.find(t => t.id === st.teamId);
+      
+      return {
+        ...st, // Preserve all existing fields including poolName and poolRank
+        teamName: st.teamName || team?.name, // Only add teamName if not already set
+      };
+    });
+
+    // Generate bracket games with seeding pattern support
     const bracketGames = generateBracketGames({
       tournamentId,
       divisionId,
       playoffFormat: tournament.playoffFormat,
       teamCount: seededTeams.length,
-      seededTeams,
+      seededTeams: enrichedSeededTeams,
+      seedingPattern: tournament.seedingPattern as any || undefined,
     });
 
     if (bracketGames.length === 0) {
