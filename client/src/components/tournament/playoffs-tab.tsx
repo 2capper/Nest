@@ -340,21 +340,55 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
         })
         .filter((team): team is NonNullable<typeof team> => team !== null);
       
-      // Sort teams by points, then tiebreakers
-      playoffTeamsWithStats.sort((a, b) => {
-        if (b.points !== a.points) return b.points - a.points;
-        if (a.runsAgainstPerInning !== b.runsAgainstPerInning) return a.runsAgainstPerInning - b.runsAgainstPerInning;
-        return b.runsForPerInning - a.runsForPerInning;
-      });
-      
-      result[division.id] = {
-        games: divisionPlayoffGames,
-        teams: playoffTeamsWithStats,
-      };
+      // Sort teams based on seeding pattern
+      // For cross-pool tournaments, order by pool then rank within pool (A1, A2, B1, B2, C1, C2, D1, D2)
+      // For standard tournaments, order by overall standings (points, then tiebreakers)
+      if (tournament.seedingPattern && tournament.seedingPattern.startsWith('cross_pool_')) {
+        // Cross-pool seeding: Group by pool, sort pools alphabetically, then by rank within pool
+        // Use pool name if available, otherwise fall back to pool ID (matches backend logic)
+        const poolKeys = Array.from(new Set(playoffTeamsWithStats.map(t => {
+          const pool = divisionPools.find(p => p.id === t.poolId);
+          return pool?.name || pool?.id || '';
+        }))).sort((a, b) => a.localeCompare(b));
+        
+        const sortedByPool: typeof playoffTeamsWithStats = [];
+        poolKeys.forEach(poolKey => {
+          const poolTeams = playoffTeamsWithStats
+            .filter(t => {
+              const pool = divisionPools.find(p => p.id === t.poolId);
+              const teamPoolKey = pool?.name || pool?.id || '';
+              return teamPoolKey === poolKey;
+            })
+            .sort((a, b) => {
+              // Sort within pool by points, then tiebreakers
+              if (b.points !== a.points) return b.points - a.points;
+              if (a.runsAgainstPerInning !== b.runsAgainstPerInning) return a.runsAgainstPerInning - b.runsAgainstPerInning;
+              return b.runsForPerInning - a.runsForPerInning;
+            });
+          sortedByPool.push(...poolTeams);
+        });
+        
+        result[division.id] = {
+          games: divisionPlayoffGames,
+          teams: sortedByPool,
+        };
+      } else {
+        // Standard seeding: Sort by overall standings
+        playoffTeamsWithStats.sort((a, b) => {
+          if (b.points !== a.points) return b.points - a.points;
+          if (a.runsAgainstPerInning !== b.runsAgainstPerInning) return a.runsAgainstPerInning - b.runsAgainstPerInning;
+          return b.runsForPerInning - a.runsForPerInning;
+        });
+        
+        result[division.id] = {
+          games: divisionPlayoffGames,
+          teams: playoffTeamsWithStats,
+        };
+      }
     });
     
     return result;
-  }, [teams, games, pools, ageDivisions]);
+  }, [teams, games, pools, ageDivisions, tournament.seedingPattern]);
 
   // Check if any division has playoff games
   const hasAnyPlayoffGames = Object.values(divisionPlayoffData).some(data => data.games.length > 0);
