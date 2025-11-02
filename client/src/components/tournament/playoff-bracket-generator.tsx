@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { Tournament, AgeDivision, Game } from '@shared/schema';
+import { getPlayoffTeamCount, type PlayoffFormat } from '@shared/playoffFormats';
 
 interface PlayoffBracketGeneratorProps {
   tournamentId: string;
@@ -145,7 +146,9 @@ export function PlayoffBracketGenerator({ tournamentId }: PlayoffBracketGenerato
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-gray-700">Playoff Teams:</span>
-            <span className="text-sm text-gray-900">{tournament.numberOfPlayoffTeams}</span>
+            <span className="text-sm text-gray-900">
+              {getPlayoffTeamCount(tournament.playoffFormat as PlayoffFormat, tournament.numberOfTeams || 0)}
+            </span>
           </div>
         </div>
 

@@ -138,6 +138,8 @@ function generatePoolPlayBracket(options: BracketGenerationOptions): GeneratedPl
   if (playoffFormat === 'top_6') {
     if (seedingPattern === 'standard') {
       // Standard: Top 2 seeds get byes
+      // Quarterfinals: Game 1 (3v6), Game 2 (4v5)
+      // Semifinals: Seed 1 gets easier path (winner of 4v5), Seed 2 gets harder path (winner of 3v6)
       const semifinals: GeneratedPlayoffGame[] = [
         {
           tournamentId,
@@ -147,7 +149,7 @@ function generatePoolPlayBracket(options: BracketGenerationOptions): GeneratedPl
           bracket: 'winners',
           team1Id: teamsBySeed.get(1) || null, // Seed 1 gets bye
           team2Id: null,
-          team2Source: { gameNumber: 1, position: 'winner' }, // Winner of 3v6
+          team2Source: { gameNumber: 2, position: 'winner' }, // Winner of 4v5 (easier path)
         },
         {
           tournamentId,
@@ -157,7 +159,7 @@ function generatePoolPlayBracket(options: BracketGenerationOptions): GeneratedPl
           bracket: 'winners',
           team1Id: teamsBySeed.get(2) || null, // Seed 2 gets bye
           team2Id: null,
-          team2Source: { gameNumber: 2, position: 'winner' }, // Winner of 4v5
+          team2Source: { gameNumber: 1, position: 'winner' }, // Winner of 3v6 (harder path)
         },
       ];
       games.push(...semifinals);
