@@ -85,20 +85,44 @@ const resolveTie = (tiedTeams: any[], allGames: Game[]): any[] => {
 
   const regroupAndResolve = (getMetric: (team: any) => number, descending = false) => {
     sortedTeams.sort((a, b) => descending ? getMetric(b) - getMetric(a) : getMetric(a) - getMetric(b));
+    
+    // Check if all teams have the same metric value
     if (!isEqual(getMetric(sortedTeams[0]), getMetric(sortedTeams[sortedTeams.length - 1]))) {
-      const groups: any[][] = [];
-      let currentGroup = [sortedTeams[0]];
+      // Iterative resolution: break out best team(s), then re-run on remaining teams
+      const result: any[] = [];
+      let remaining = [...sortedTeams];
       
-      for (let i = 1; i < sortedTeams.length; i++) {
-        if (isEqual(getMetric(sortedTeams[i]), getMetric(currentGroup[0]))) {
-          currentGroup.push(sortedTeams[i]);
+      while (remaining.length > 0) {
+        // Find best metric value in remaining teams
+        const bestMetricValue = getMetric(remaining[0]);
+        
+        // Find all teams with the best metric value
+        const bestTeams: any[] = [];
+        const nextRemaining: any[] = [];
+        
+        remaining.forEach(team => {
+          if (isEqual(getMetric(team), bestMetricValue)) {
+            bestTeams.push(team);
+          } else {
+            nextRemaining.push(team);
+          }
+        });
+        
+        // If only one team has the best metric, they're ranked
+        // If multiple teams have the same best metric, recursively resolve them
+        if (bestTeams.length === 1) {
+          result.push(bestTeams[0]);
         } else {
-          groups.push(currentGroup);
-          currentGroup = [sortedTeams[i]];
+          // Recursively resolve the tied best teams
+          const resolvedBest = resolveTie(bestTeams, allGames);
+          result.push(...resolvedBest);
         }
+        
+        // Continue with remaining teams
+        remaining = nextRemaining;
       }
-      groups.push(currentGroup);
-      return groups.flatMap(group => resolveTie(group, allGames));
+      
+      return result;
     }
     return null;
   };
