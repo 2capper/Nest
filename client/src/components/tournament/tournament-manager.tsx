@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash2, Edit, MoreVertical, Eye } from 'lucide-react';
 import { useLocation } from 'wouter';
@@ -35,6 +35,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { insertTournamentSchema } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
+import { getAvailablePlayoffFormats, getDefaultPlayoffFormat, type PlayoffFormat } from '@shared/playoffFormats';
+import { getAvailableSeedingPatterns, getDefaultSeedingPattern, type SeedingPattern } from '@shared/seedingPatterns';
 
 const updateTournamentSchema = insertTournamentSchema.partial();
 type UpdateTournamentData = z.infer<typeof updateTournamentSchema>;
@@ -48,6 +50,8 @@ interface Tournament {
   numberOfTeams?: number | null;
   numberOfPools?: number | null;
   numberOfPlayoffTeams?: number | null;
+  playoffFormat?: string | null;
+  seedingPattern?: string | null;
   showTiebreakers?: boolean;
   customName?: string | null;
   primaryColor?: string | null;
@@ -122,6 +126,8 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
       numberOfTeams: 8,
       numberOfPools: 2,
       numberOfPlayoffTeams: 6,
+      playoffFormat: null,
+      seedingPattern: null,
       showTiebreakers: true,
       customName: '',
       primaryColor: '#22c55e',
@@ -140,6 +146,8 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
       numberOfTeams: tournament.numberOfTeams || 8,
       numberOfPools: tournament.numberOfPools || 2,
       numberOfPlayoffTeams: tournament.numberOfPlayoffTeams || 6,
+      playoffFormat: (tournament.playoffFormat as PlayoffFormat) || null,
+      seedingPattern: (tournament.seedingPattern as SeedingPattern) || null,
       showTiebreakers: tournament.showTiebreakers ?? true,
       customName: tournament.customName || '',
       primaryColor: tournament.primaryColor || '#22c55e',
@@ -159,6 +167,22 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
       deleteMutation.mutate(deletingTournament.id);
     }
   };
+
+  // Watch form values for dynamic calculations
+  const formType = form.watch('type');
+  const formNumberOfTeams = form.watch('numberOfTeams');
+  const formNumberOfPools = form.watch('numberOfPools');
+  const formPlayoffFormat = form.watch('playoffFormat');
+
+  // Calculate available playoff formats based on current settings
+  const availablePlayoffFormats = useMemo(() => {
+    return getAvailablePlayoffFormats(formType || 'pool_play', formNumberOfTeams || 8);
+  }, [formType, formNumberOfTeams]);
+
+  // Calculate available seeding patterns based on playoff format and pool count
+  const availableSeedingPatterns = useMemo(() => {
+    return getAvailableSeedingPatterns(formPlayoffFormat, formNumberOfPools || 2);
+  }, [formPlayoffFormat, formNumberOfPools]);
 
   return (
     <>
@@ -291,8 +315,12 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
                       <FormControl>
                         <Input 
                           type="number" 
-                          {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value))} 
+                          value={field.value ?? 8}
+                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                          disabled={field.disabled}
                         />
                       </FormControl>
                       <FormMessage />
@@ -309,8 +337,12 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
                       <FormControl>
                         <Input 
                           type="number" 
-                          {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value))} 
+                          value={field.value ?? 2}
+                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                          disabled={field.disabled}
                         />
                       </FormControl>
                       <FormMessage />
@@ -323,12 +355,16 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
                   name="numberOfPlayoffTeams"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Playoff Teams</FormLabel>
+                      <FormLabel>Playoff Teams (Deprecated)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
-                          {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value))} 
+                          value={field.value ?? 6}
+                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                          disabled={field.disabled}
                         />
                       </FormControl>
                       <FormMessage />
@@ -336,6 +372,80 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
                   )}
                 />
               </div>
+
+              {formType === 'pool_play' && availablePlayoffFormats.length > 0 && (
+                <FormField
+                  control={form.control}
+                  name="playoffFormat"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Playoff Format</FormLabel>
+                      <Select 
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          const defaultSeeding = getDefaultSeedingPattern(value as PlayoffFormat, formNumberOfPools || 2);
+                          form.setValue('seedingPattern', defaultSeeding);
+                        }} 
+                        value={field.value || ''}
+                      >
+                        <FormControl>
+                          <SelectTrigger data-testid="select-playoff-format">
+                            <SelectValue placeholder="Select playoff format" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {availablePlayoffFormats.map((format) => (
+                            <SelectItem key={format.value} value={format.value}>
+                              {format.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {field.value && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {availablePlayoffFormats.find(f => f.value === field.value)?.description}
+                        </p>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {formType === 'pool_play' && formPlayoffFormat && availableSeedingPatterns.length > 0 && (
+                <FormField
+                  control={form.control}
+                  name="seedingPattern"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Seeding Pattern</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        value={field.value || ''}
+                      >
+                        <FormControl>
+                          <SelectTrigger data-testid="select-seeding-pattern">
+                            <SelectValue placeholder="Select seeding pattern" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {availableSeedingPatterns.map((pattern) => (
+                            <SelectItem key={pattern.value} value={pattern.value}>
+                              {pattern.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {field.value && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {availableSeedingPatterns.find(p => p.value === field.value)?.description}
+                        </p>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}
@@ -365,7 +475,15 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
                   <FormItem>
                     <FormLabel>Custom Display Name (Optional)</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., Forest Glade Falcons Championship" />
+                      <Input 
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                        disabled={field.disabled}
+                        placeholder="e.g., Forest Glade Falcons Championship" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -383,13 +501,19 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
                         <FormControl>
                           <Input 
                             type="color" 
-                            {...field} 
+                            value={field.value ?? '#22c55e'}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
+                            disabled={field.disabled}
                             className="w-16 h-10 p-1"
                           />
                         </FormControl>
                         <FormControl>
                           <Input 
-                            {...field} 
+                            value={field.value ?? '#22c55e'}
+                            onChange={field.onChange}
                             placeholder="#22c55e" 
                             className="font-mono text-sm"
                           />
@@ -410,13 +534,19 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
                         <FormControl>
                           <Input 
                             type="color" 
-                            {...field} 
+                            value={field.value ?? '#ffffff'}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
+                            disabled={field.disabled}
                             className="w-16 h-10 p-1"
                           />
                         </FormControl>
                         <FormControl>
                           <Input 
-                            {...field} 
+                            value={field.value ?? '#ffffff'}
+                            onChange={field.onChange}
                             placeholder="#ffffff" 
                             className="font-mono text-sm"
                           />
@@ -435,7 +565,15 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
                   <FormItem>
                     <FormLabel>Tournament Logo URL (Optional)</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="https://example.com/logo.png" />
+                      <Input 
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                        disabled={field.disabled}
+                        placeholder="https://example.com/logo.png" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
