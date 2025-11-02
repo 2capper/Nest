@@ -12,6 +12,7 @@ import {
   insertAdminRequestSchema
 } from "@shared/schema";
 import { setupAuth, isAuthenticated, requireAdmin, requireSuperAdmin, requireOrgAdmin } from "./replitAuth";
+import { generateValidationReport } from "./validationReport";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -1422,6 +1423,31 @@ Waterdown 10U AA
     } catch (error) {
       console.error("Error deleting game:", error);
       res.status(400).json({ error: "Failed to delete game" });
+    }
+  });
+
+  // Validation report generation
+  app.get("/api/tournaments/:tournamentId/validation-report", requireAdmin, async (req, res) => {
+    try {
+      const tournamentId = req.params.tournamentId;
+      
+      // Fetch all necessary data
+      const tournament = await storage.getTournament(tournamentId);
+      if (!tournament) {
+        return res.status(404).json({ error: "Tournament not found" });
+      }
+      
+      const pools = await storage.getPools(tournamentId);
+      const teams = await storage.getTeams(tournamentId);
+      const games = await storage.getGames(tournamentId);
+      
+      // Generate validation report
+      const report = generateValidationReport(tournament, pools, teams, games);
+      
+      res.json(report);
+    } catch (error) {
+      console.error("Error generating validation report:", error);
+      res.status(500).json({ error: "Failed to generate validation report" });
     }
   });
 

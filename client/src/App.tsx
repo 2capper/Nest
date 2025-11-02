@@ -10,6 +10,7 @@ import Dashboard from "@/pages/dashboard";
 import CoachScoreInput from "@/pages/coach-score-input";
 import AdminPortal from "@/pages/admin-portal";
 import TournamentDashboard from "@/pages/tournament-dashboard";
+import ValidationReport from "@/pages/validation-report";
 import TournamentRegistrationComingSoon from "@/pages/coming-soon/tournament-registration";
 import TournamentCommsComingSoon from "@/pages/coming-soon/tournament-comms";
 import ScheduleBuilderComingSoon from "@/pages/coming-soon/schedule-builder";
@@ -65,6 +66,9 @@ function Router() {
       </Route>
       <Route path="/admin/:tournamentId?">
         {() => <RequireAuth component={AdminPortal} />}
+      </Route>
+      <Route path="/admin/:tournamentId/validation-report">
+        {() => <RequireAuth component={ValidationReport} />}
       </Route>
       
       <Route component={NotFound} />

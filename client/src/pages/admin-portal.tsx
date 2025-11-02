@@ -565,7 +565,7 @@ export default function AdminPortal() {
                 <CardTitle>Tournament Reports</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div>
                     <h4 className="font-semibold mb-2" style={{ color: 'var(--deep-navy)' }}>Tournament Overview</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -607,6 +607,23 @@ export default function AdminPortal() {
                         ></div>
                       </div>
                     </div>
+                  </div>
+                  
+                  <div className="border-t pt-6">
+                    <h4 className="font-semibold mb-2" style={{ color: 'var(--deep-navy)' }}>Validation Report</h4>
+                    <p className="text-sm text-[var(--text-secondary)] mb-4">
+                      Generate a comprehensive report showing all calculations, tie-breakers, seeding logic, and playoff brackets. 
+                      This report provides transparency and can be shared with coaches to explain tournament results.
+                    </p>
+                    <Button 
+                      variant="default"
+                      onClick={() => window.open(`/admin/${currentTournamentId}/validation-report`, '_blank')}
+                      disabled={!currentTournamentId}
+                      data-testid="button-generate-validation-report"
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Generate Validation Report
+                    </Button>
                   </div>
                 </div>
               </CardContent>
