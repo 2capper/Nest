@@ -86,8 +86,8 @@ export function generateValidationReport(
 ): ValidationReport {
   const warnings: string[] = [];
   
-  // Check if pool play is complete
-  const poolPlayGames = games.filter(g => g.round === 0 || g.round === null);
+  // Check if pool play is complete (pool play games don't have bracket field set)
+  const poolPlayGames = games.filter(g => !(g as any).bracket);
   const completedPoolGames = poolPlayGames.filter(g => g.status === 'completed');
   const isComplete = completedPoolGames.length === poolPlayGames.length && poolPlayGames.length > 0;
   
@@ -126,7 +126,7 @@ function generatePoolStandingsReport(
 ): PoolStandingsReport {
   const poolTeams = allTeams.filter(t => t.poolId === pool.id);
   const poolGames = allGames.filter(g => 
-    (g.round === 0 || g.round === null) && 
+    !(g as any).bracket && 
     poolTeams.some(t => t.id === g.homeTeamId || t.id === g.awayTeamId)
   );
   

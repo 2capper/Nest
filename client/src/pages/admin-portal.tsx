@@ -41,7 +41,7 @@ export default function AdminPortal() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Fetch pending admin requests count for super admins
-  const { data: adminRequests } = useQuery({
+  const { data: adminRequests } = useQuery<any[]>({
     queryKey: ['/api/admin-requests'],
     enabled: (user as any)?.isSuperAdmin === true,
   });

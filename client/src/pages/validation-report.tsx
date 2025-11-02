@@ -371,7 +371,7 @@ export default function ValidationReportPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[...new Set(report.playoffBracket.map(g => g.round))].map(round => (
+                {Array.from(new Set(report.playoffBracket.map(g => g.round))).map(round => (
                   <div key={round}>
                     <h4 className="font-semibold mb-2" style={{ color: 'var(--deep-navy)' }}>
                       Round {round}

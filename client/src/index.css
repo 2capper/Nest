@@ -491,3 +491,85 @@
     background-color: var(--baseball-green);
   }
 }
+
+/* Print-specific styles for validation reports */
+@media print {
+  @page {
+    margin: 0.75in;
+    size: letter portrait;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Hide navigation, buttons, and interactive elements */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+
+  .print\:border {
+    border: 1px solid #e5e7eb !important;
+  }
+
+  /* Prevent page breaks inside elements */
+  .print\:break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Reset backgrounds and padding for print */
+  .print\:bg-white {
+    background-color: white !important;
+  }
+
+  .print\:px-0 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .print\:py-0 {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Display print-only elements */
+  .print\:block {
+    display: block !important;
+  }
+
+  /* Ensure tables print well */
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /* Better text rendering for print */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+
+  /* Ensure colored backgrounds and text print correctly */
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
