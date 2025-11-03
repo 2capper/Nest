@@ -57,6 +57,8 @@ Preferred communication style: Simple, everyday language.
 - **Public Homepage & Organization Detail Pages**: Publicly accessible pages showcasing organizations and their tournaments.
 - **Tournament Creation with Organization Defaults**: Tournament creation form auto-populates playoff format, seeding pattern, colors, and logo from selected organization's defaults while allowing per-tournament customization.
 - **Enhanced Admin Onboarding**: Admin request process captures complete organization details (name, logo, branding, timezone, defaults) for atomic organization creation upon approval with notification badges for super admins.
+- **Cross-Pool Playoff Bracket View**: Dedicated bracket visualization for tournaments using cross_pool_4 seeding that displays pool standings (top 2 teams per pool A/B/C/D), quarterfinal matchups with seed labels (A1 vs C2, A2 vs C1, B1 vs D2, B2 vs D1), semifinals showing winner advancement, and finals.
+- **Test Data Population**: One-click "Populate Test Data" button for tournaments with IDs containing 'test' or 'testing', creating 4 pools with 4 teams each and complete game schedules with innings data for tiebreaker validation.
 
 ## External Dependencies
 
