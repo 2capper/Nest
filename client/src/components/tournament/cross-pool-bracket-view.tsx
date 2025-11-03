@@ -1,6 +1,12 @@
 import { useMemo } from 'react';
-import { Trophy, Medal } from 'lucide-react';
+import { Trophy, Medal, ChevronDown, ArrowRight } from 'lucide-react';
 import { Game, Team } from '@shared/schema';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 interface CrossPoolBracketViewProps {
   playoffGames: Game[];
@@ -129,15 +135,101 @@ export function CrossPoolBracketView({
 
   const poolNames = Object.keys(poolStandings).sort();
 
+  // Reusable game card component
+  const GameCard = ({ game, isFinals = false }: { game: Game; isFinals?: boolean }) => {
+    const isCompleted = game.status === 'completed';
+    const homeTeam = teams.find(t => t.id === game.homeTeamId);
+    const awayTeam = teams.find(t => t.id === game.awayTeamId);
+    const winner = getWinner(game);
+    const homeScore = game.homeScore !== null && game.homeScore !== undefined ? game.homeScore : null;
+    const awayScore = game.awayScore !== null && game.awayScore !== undefined ? game.awayScore : null;
+    
+    return (
+      <div 
+        className={`rounded-lg shadow-lg border-2 cursor-pointer transition-all hover:scale-105 ${isFinals ? 'max-w-md mx-auto' : ''}`}
+        style={{
+          backgroundColor: isFinals 
+            ? secondaryColor
+            : 'rgba(0, 0, 0, 0.3)',
+          borderColor: isCompleted 
+            ? '#22c55e'
+            : isFinals 
+              ? secondaryColor
+              : 'rgba(255, 255, 255, 0.2)'
+        }}
+        onClick={() => onGameClick(game)}
+        data-testid={`bracket-game-${game.playoffGameNumber}`}
+      >
+        {/* Game Number */}
+        <div className="px-4 pt-3 pb-2 border-b border-white/20">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-white/80">
+              Game {game.playoffGameNumber}
+            </span>
+            {isCompleted && (
+              <span className="text-xs px-2 py-0.5 rounded bg-green-500 text-white font-semibold">
+                FINAL
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Teams */}
+        <div className="p-3 space-y-2">
+          {/* Home Team */}
+          <div 
+            className={`flex items-center justify-between p-2 rounded ${
+              winner === game.homeTeamId ? 'bg-green-500/30 border border-green-400' : 'bg-white/10'
+            }`}
+            data-testid={`game-${game.playoffGameNumber}-home`}
+          >
+            <div className="flex-1 min-w-0">
+              <div className="text-white font-semibold text-sm">
+                {getTeamLabel(game.homeTeamId)}
+              </div>
+            </div>
+            <div className="ml-2 text-white font-bold text-lg min-w-[2rem] text-right">
+              {homeScore !== null ? homeScore : '-'}
+            </div>
+          </div>
+
+          {/* Away Team */}
+          <div 
+            className={`flex items-center justify-between p-2 rounded ${
+              winner === game.awayTeamId ? 'bg-green-500/30 border border-green-400' : 'bg-white/10'
+            }`}
+            data-testid={`game-${game.playoffGameNumber}-away`}
+          >
+            <div className="flex-1 min-w-0">
+              <div className="text-white font-semibold text-sm">
+                {getTeamLabel(game.awayTeamId)}
+              </div>
+            </div>
+            <div className="ml-2 text-white font-bold text-lg min-w-[2rem] text-right">
+              {awayScore !== null ? awayScore : '-'}
+            </div>
+          </div>
+        </div>
+
+        {/* Game Info */}
+        <div className="px-4 pb-3 pt-2 border-t border-white/20">
+          <div className="text-xs text-white/70">
+            {game.date} • {game.time} • {game.location}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-8">
       {/* Pool Standings */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-        <h4 className="text-xl font-bold text-gray-900 mb-6">Pool Standings - Top 2 Teams</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-gray-200">
+        <h4 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6">Pool Standings - Top 2 Teams</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {poolNames.map(poolName => (
             <div key={poolName} className="border-2 rounded-lg p-4" style={{ borderColor: primaryColor }}>
-              <h5 className="text-lg font-bold mb-3 text-center" style={{ color: primaryColor }}>
+              <h5 className="text-base md:text-lg font-bold mb-3 text-center" style={{ color: primaryColor }}>
                 Pool {poolName}
               </h5>
               <div className="space-y-2">
@@ -170,8 +262,56 @@ export function CrossPoolBracketView({
         </div>
       </div>
 
-      {/* Bracket Visualization */}
-      <div className="rounded-xl p-6" style={{ backgroundColor: primaryColor }}>
+      {/* Mobile Accordion View */}
+      <div className="lg:hidden rounded-xl p-4 md:p-6" style={{ backgroundColor: primaryColor }}>
+        <Accordion type="single" collapsible defaultValue={`round-${rounds[0]}`} className="space-y-4">
+          {rounds.map(round => {
+            const roundGames = gamesByRound[round] || [];
+            const roundName = getRoundName(round);
+            const isFinals = round === totalRounds;
+            
+            return (
+              <AccordionItem 
+                key={round} 
+                value={`round-${round}`}
+                className="border-2 border-white/20 rounded-lg overflow-hidden"
+                data-testid={`accordion-round-${round}`}
+              >
+                <AccordionTrigger 
+                  className="px-4 py-3 hover:no-underline hover:bg-white/5 text-white"
+                >
+                  <div className="flex items-center justify-between w-full pr-4">
+                    <span className="text-base md:text-lg font-bold uppercase tracking-wide">
+                      {roundName}
+                    </span>
+                    <span className="text-sm font-normal text-white/70">
+                      {roundGames.length} {roundGames.length === 1 ? 'game' : 'games'}
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 pt-2">
+                  <div className="space-y-4">
+                    {roundGames.map((game) => (
+                      <GameCard key={game.id} game={game} isFinals={isFinals} />
+                    ))}
+                    {round < totalRounds && (
+                      <div className="flex items-center justify-center py-2 text-white/60">
+                        <span className="text-xs font-semibold uppercase tracking-wide mr-2">
+                          Winners advance to {getRoundName(round + 1)}
+                        </span>
+                        <ArrowRight className="w-4 h-4" />
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
+        </Accordion>
+      </div>
+
+      {/* Desktop Grid View */}
+      <div className="hidden lg:block rounded-xl p-6" style={{ backgroundColor: primaryColor }}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {rounds.map(round => {
             const roundGames = gamesByRound[round] || [];
@@ -184,96 +324,10 @@ export function CrossPoolBracketView({
                   {roundName}
                 </h4>
                 
-                <div className={`space-y-${isFinals ? '0' : '4'} ${isFinals ? 'flex justify-center' : ''}`}>
-                  {roundGames.map((game) => {
-                    const isCompleted = game.status === 'completed';
-                    const homeTeam = teams.find(t => t.id === game.homeTeamId);
-                    const awayTeam = teams.find(t => t.id === game.awayTeamId);
-                    const winner = getWinner(game);
-                    const homeScore = game.homeScore !== null && game.homeScore !== undefined ? game.homeScore : null;
-                    const awayScore = game.awayScore !== null && game.awayScore !== undefined ? game.awayScore : null;
-                    
-                    return (
-                      <div 
-                        key={game.id}
-                        className={`rounded-lg shadow-lg border-2 cursor-pointer transition-all hover:scale-105 ${isFinals ? 'max-w-md' : ''}`}
-                        style={{
-                          backgroundColor: isFinals 
-                            ? secondaryColor
-                            : 'rgba(0, 0, 0, 0.3)',
-                          borderColor: isCompleted 
-                            ? '#22c55e'
-                            : isFinals 
-                              ? secondaryColor
-                              : 'rgba(255, 255, 255, 0.2)'
-                        }}
-                        onClick={() => {
-                          if (homeTeam && awayTeam) {
-                            onGameClick(game);
-                          }
-                        }}
-                        data-testid={`bracket-game-${game.playoffGameNumber}`}
-                      >
-                        {/* Game Number */}
-                        <div className="px-4 pt-3 pb-2 border-b border-white/20">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-white/80">
-                              Game {game.playoffGameNumber}
-                            </span>
-                            {isCompleted && (
-                              <span className="text-xs px-2 py-0.5 rounded bg-green-500 text-white font-semibold">
-                                FINAL
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Teams */}
-                        <div className="p-3 space-y-2">
-                          {/* Home Team */}
-                          <div 
-                            className={`flex items-center justify-between p-2 rounded ${
-                              winner === game.homeTeamId ? 'bg-green-500/30 border border-green-400' : 'bg-white/10'
-                            }`}
-                            data-testid={`game-${game.playoffGameNumber}-home`}
-                          >
-                            <div className="flex-1 min-w-0">
-                              <div className="text-white font-semibold text-sm truncate">
-                                {getTeamLabel(game.homeTeamId)}
-                              </div>
-                            </div>
-                            <div className="ml-2 text-white font-bold text-lg min-w-[2rem] text-right">
-                              {homeScore !== null ? homeScore : '-'}
-                            </div>
-                          </div>
-
-                          {/* Away Team */}
-                          <div 
-                            className={`flex items-center justify-between p-2 rounded ${
-                              winner === game.awayTeamId ? 'bg-green-500/30 border border-green-400' : 'bg-white/10'
-                            }`}
-                            data-testid={`game-${game.playoffGameNumber}-away`}
-                          >
-                            <div className="flex-1 min-w-0">
-                              <div className="text-white font-semibold text-sm truncate">
-                                {getTeamLabel(game.awayTeamId)}
-                              </div>
-                            </div>
-                            <div className="ml-2 text-white font-bold text-lg min-w-[2rem] text-right">
-                              {awayScore !== null ? awayScore : '-'}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Game Info */}
-                        <div className="px-4 pb-3 pt-2 border-t border-white/20">
-                          <div className="text-xs text-white/70">
-                            {game.date} • {game.time} • {game.location}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className={`space-y-4 ${isFinals ? 'flex justify-center' : ''}`}>
+                  {roundGames.map((game) => (
+                    <GameCard key={game.id} game={game} isFinals={isFinals} />
+                  ))}
                 </div>
               </div>
             );
