@@ -1744,39 +1744,39 @@ Waterdown 10U AA
         D: ["Orangeville", "Caledon", "Bolton", "Shelburne"]
       };
       
-      // Game results for each pool
+      // Game results for each pool (with innings batted for tiebreaker calculations)
       const poolResults = {
         A: [
-          { home: "Chatham", away: "Leamington", homeScore: 8, awayScore: 5 },
-          { home: "Chatham", away: "Sarnia", homeScore: 10, awayScore: 3 },
-          { home: "Chatham", away: "Windsor", homeScore: 12, awayScore: 2 },
-          { home: "Leamington", away: "Sarnia", homeScore: 7, awayScore: 4 },
-          { home: "Leamington", away: "Windsor", homeScore: 9, awayScore: 1 },
-          { home: "Sarnia", away: "Windsor", homeScore: 6, awayScore: 5 },
+          { home: "Chatham", away: "Leamington", homeScore: 8, awayScore: 5, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Chatham", away: "Sarnia", homeScore: 10, awayScore: 3, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Chatham", away: "Windsor", homeScore: 12, awayScore: 2, homeInnings: "5.0", awayInnings: "6.0" },
+          { home: "Leamington", away: "Sarnia", homeScore: 7, awayScore: 4, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Leamington", away: "Windsor", homeScore: 9, awayScore: 1, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Sarnia", away: "Windsor", homeScore: 6, awayScore: 5, homeInnings: "6.0", awayInnings: "6.0" },
         ],
         B: [
-          { home: "Brantford", away: "Simcoe", homeScore: 11, awayScore: 6 },
-          { home: "Brantford", away: "St. Thomas", homeScore: 9, awayScore: 4 },
-          { home: "Brantford", away: "Woodstock", homeScore: 13, awayScore: 1 },
-          { home: "Simcoe", away: "St. Thomas", homeScore: 8, awayScore: 5 },
-          { home: "Simcoe", away: "Woodstock", homeScore: 10, awayScore: 3 },
-          { home: "St. Thomas", away: "Woodstock", homeScore: 7, awayScore: 6 },
+          { home: "Brantford", away: "Simcoe", homeScore: 11, awayScore: 6, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Brantford", away: "St. Thomas", homeScore: 9, awayScore: 4, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Brantford", away: "Woodstock", homeScore: 13, awayScore: 1, homeInnings: "5.0", awayInnings: "6.0" },
+          { home: "Simcoe", away: "St. Thomas", homeScore: 8, awayScore: 5, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Simcoe", away: "Woodstock", homeScore: 10, awayScore: 3, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "St. Thomas", away: "Woodstock", homeScore: 7, awayScore: 6, homeInnings: "6.0", awayInnings: "6.0" },
         ],
         C: [
-          { home: "Welland", away: "Grimsby", homeScore: 10, awayScore: 7 },
-          { home: "Welland", away: "St. Catharines", homeScore: 11, awayScore: 4 },
-          { home: "Welland", away: "Niagara Falls", homeScore: 14, awayScore: 2 },
-          { home: "Grimsby", away: "St. Catharines", homeScore: 9, awayScore: 6 },
-          { home: "Grimsby", away: "Niagara Falls", homeScore: 12, awayScore: 3 },
-          { home: "St. Catharines", away: "Niagara Falls", homeScore: 8, awayScore: 7 },
+          { home: "Welland", away: "Grimsby", homeScore: 10, awayScore: 7, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Welland", away: "St. Catharines", homeScore: 11, awayScore: 4, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Welland", away: "Niagara Falls", homeScore: 14, awayScore: 2, homeInnings: "5.0", awayInnings: "6.0" },
+          { home: "Grimsby", away: "St. Catharines", homeScore: 9, awayScore: 6, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Grimsby", away: "Niagara Falls", homeScore: 12, awayScore: 3, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "St. Catharines", away: "Niagara Falls", homeScore: 8, awayScore: 7, homeInnings: "6.0", awayInnings: "6.0" },
         ],
         D: [
-          { home: "Orangeville", away: "Caledon", homeScore: 12, awayScore: 8 },
-          { home: "Orangeville", away: "Bolton", homeScore: 10, awayScore: 5 },
-          { home: "Orangeville", away: "Shelburne", homeScore: 15, awayScore: 3 },
-          { home: "Caledon", away: "Bolton", homeScore: 11, awayScore: 7 },
-          { home: "Caledon", away: "Shelburne", homeScore: 13, awayScore: 4 },
-          { home: "Bolton", away: "Shelburne", homeScore: 9, awayScore: 8 },
+          { home: "Orangeville", away: "Caledon", homeScore: 12, awayScore: 8, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Orangeville", away: "Bolton", homeScore: 10, awayScore: 5, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Orangeville", away: "Shelburne", homeScore: 15, awayScore: 3, homeInnings: "5.0", awayInnings: "6.0" },
+          { home: "Caledon", away: "Bolton", homeScore: 11, awayScore: 7, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Caledon", away: "Shelburne", homeScore: 13, awayScore: 4, homeInnings: "6.0", awayInnings: "6.0" },
+          { home: "Bolton", away: "Shelburne", homeScore: 9, awayScore: 8, homeInnings: "6.0", awayInnings: "6.0" },
         ],
       };
       
@@ -1833,6 +1833,8 @@ Waterdown 10U AA
             awayTeamId,
             homeScore: result.homeScore,
             awayScore: result.awayScore,
+            homeInningsBatted: result.homeInnings,
+            awayInningsBatted: result.awayInnings,
             status: "completed",
             date: "2025-11-15",
             time: `${9 + Math.floor(gameNumber / 4)}:${(gameNumber % 4) * 15}0`,
