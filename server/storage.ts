@@ -40,7 +40,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql, inArray } from "drizzle-orm";
-import { generateBracketGames, getPlayoffTeamsFromStandings } from "@shared/bracketGeneration";
+import { generateBracketGames, getPlayoffTeamsFromStandings, updateBracketProgression } from "@shared/bracketGeneration";
 import { calculateStandings } from "@shared/standingsCalculation";
 import { withRetry } from "./dbRetry";
 
@@ -393,6 +393,94 @@ export class DatabaseStorage implements IStorage {
           newValues: updates,
           metadata
         });
+
+        // Auto-advance winners in playoff brackets
+        if (updatedGame.playoffRound && updatedGame.playoffGameNumber && updatedGame.status === 'completed') {
+          // Determine winner and loser
+          const homeScore = Number(updatedGame.homeScore) || 0;
+          const awayScore = Number(updatedGame.awayScore) || 0;
+          
+          let winnerId: string | null = null;
+          let loserId: string | null = null;
+          
+          if (updatedGame.forfeitStatus === 'home') {
+            winnerId = updatedGame.awayTeamId;
+            loserId = updatedGame.homeTeamId;
+          } else if (updatedGame.forfeitStatus === 'away') {
+            winnerId = updatedGame.homeTeamId;
+            loserId = updatedGame.awayTeamId;
+          } else if (homeScore > awayScore) {
+            winnerId = updatedGame.homeTeamId;
+            loserId = updatedGame.awayTeamId;
+          } else if (awayScore > homeScore) {
+            winnerId = updatedGame.awayTeamId;
+            loserId = updatedGame.homeTeamId;
+          }
+          
+          // Only advance if we have a clear winner
+          if (winnerId && loserId) {
+            // Get the division ID for this game through its pool
+            const [currentPool] = await tx.select().from(pools).where(eq(pools.id, updatedGame.poolId));
+            if (!currentPool) {
+              throw new Error("Pool not found for game");
+            }
+            const divisionId = currentPool.ageDivisionId;
+            
+            // Get all playoff games for this tournament and division
+            const allPlayoffGames = await tx.select({
+              game: games,
+              pool: pools
+            })
+              .from(games)
+              .innerJoin(pools, eq(games.poolId, pools.id))
+              .where(and(
+                eq(games.tournamentId, updatedGame.tournamentId),
+                eq(pools.ageDivisionId, divisionId),
+                sql`${games.playoffRound} IS NOT NULL`
+              ));
+            
+            // Convert to the format expected by updateBracketProgression
+            const bracketGames = allPlayoffGames.map(({ game: g }) => ({
+              tournamentId: g.tournamentId,
+              divisionId: divisionId,
+              round: g.playoffRound || 1,
+              gameNumber: g.playoffGameNumber || 1,
+              bracket: (g.playoffBracket || 'winners') as 'winners' | 'losers' | 'championship',
+              team1Id: g.homeTeamId,
+              team2Id: g.awayTeamId,
+              team1Source: g.team1Source as any,
+              team2Source: g.team2Source as any,
+            }));
+            
+            // Update bracket progression
+            const updatedBracketGames = updateBracketProgression(
+              bracketGames,
+              updatedGame.playoffGameNumber,
+              winnerId,
+              loserId
+            );
+            
+            // Update affected games in database
+            for (const bracketGame of updatedBracketGames) {
+              const gameToUpdate = allPlayoffGames.find(
+                ({ game: g }) => g.playoffRound === bracketGame.round && 
+                                 g.playoffGameNumber === bracketGame.gameNumber
+              );
+              
+              if (gameToUpdate && (
+                gameToUpdate.game.homeTeamId !== bracketGame.team1Id || 
+                gameToUpdate.game.awayTeamId !== bracketGame.team2Id
+              )) {
+                await tx.update(games)
+                  .set({
+                    homeTeamId: bracketGame.team1Id,
+                    awayTeamId: bracketGame.team2Id
+                  })
+                  .where(eq(games.id, gameToUpdate.game.id));
+              }
+            }
+          }
+        }
 
         return updatedGame;
       });
