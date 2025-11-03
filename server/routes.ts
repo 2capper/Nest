@@ -1844,13 +1844,17 @@ Waterdown 10U AA
         }
       }
       
+      // Generate playoff bracket for the division
+      const playoffGames = await storage.generatePlayoffBracket(tournamentId, ageDivisionId);
+      
       res.json({
         success: true,
-        message: "Test data populated successfully",
+        message: "Test data populated successfully including playoff bracket",
         summary: {
           pools: 4,
           teams: 16,
-          games: 24
+          poolPlayGames: 24,
+          playoffGames: playoffGames.length
         }
       });
     } catch (error) {
