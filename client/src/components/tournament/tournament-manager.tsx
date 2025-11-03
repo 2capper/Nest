@@ -93,6 +93,32 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
     },
   });
 
+  // Populate test data mutation
+  const populateTestDataMutation = useMutation({
+    mutationFn: async (tournamentId: string) => {
+      const response = await apiRequest('POST', `/api/tournaments/${tournamentId}/populate-test-data`);
+      return await response.json();
+    },
+    onSuccess: (_, tournamentId) => {
+      toast({
+        title: "Test Data Populated",
+        description: "Created 4 pools, 16 teams, and 24 completed games with results.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/tournaments/${tournamentId}/age-divisions`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/tournaments/${tournamentId}/teams`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/tournaments/${tournamentId}/pools`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/tournaments/${tournamentId}/games`] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to populate test data",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Delete tournament mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -213,6 +239,17 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
+                {tournament.id === 'test-16-8-playoff-cross-pool-2025-11' && (
+                  <DropdownMenuItem 
+                    onClick={() => populateTestDataMutation.mutate(tournament.id)}
+                    className="text-blue-600"
+                  >
+                    <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Populate Test Data
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem 
                   onClick={() => setDeletingTournament(tournament)}
                   className="text-red-600"

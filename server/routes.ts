@@ -1731,6 +1731,132 @@ Waterdown 10U AA
     }
   });
 
+  // Populate test tournament data (admin only)
+  app.post("/api/tournaments/:tournamentId/populate-test-data", requireAdmin, async (req, res) => {
+    try {
+      const { tournamentId } = req.params;
+      
+      // Ontario cities for team names
+      const teamNames = {
+        A: ["Chatham", "Leamington", "Sarnia", "Windsor"],
+        B: ["Brantford", "Simcoe", "St. Thomas", "Woodstock"],
+        C: ["Welland", "Grimsby", "St. Catharines", "Niagara Falls"],
+        D: ["Orangeville", "Caledon", "Bolton", "Shelburne"]
+      };
+      
+      // Game results for each pool
+      const poolResults = {
+        A: [
+          { home: "Chatham", away: "Leamington", homeScore: 8, awayScore: 5 },
+          { home: "Chatham", away: "Sarnia", homeScore: 10, awayScore: 3 },
+          { home: "Chatham", away: "Windsor", homeScore: 12, awayScore: 2 },
+          { home: "Leamington", away: "Sarnia", homeScore: 7, awayScore: 4 },
+          { home: "Leamington", away: "Windsor", homeScore: 9, awayScore: 1 },
+          { home: "Sarnia", away: "Windsor", homeScore: 6, awayScore: 5 },
+        ],
+        B: [
+          { home: "Brantford", away: "Simcoe", homeScore: 11, awayScore: 6 },
+          { home: "Brantford", away: "St. Thomas", homeScore: 9, awayScore: 4 },
+          { home: "Brantford", away: "Woodstock", homeScore: 13, awayScore: 1 },
+          { home: "Simcoe", away: "St. Thomas", homeScore: 8, awayScore: 5 },
+          { home: "Simcoe", away: "Woodstock", homeScore: 10, awayScore: 3 },
+          { home: "St. Thomas", away: "Woodstock", homeScore: 7, awayScore: 6 },
+        ],
+        C: [
+          { home: "Welland", away: "Grimsby", homeScore: 10, awayScore: 7 },
+          { home: "Welland", away: "St. Catharines", homeScore: 11, awayScore: 4 },
+          { home: "Welland", away: "Niagara Falls", homeScore: 14, awayScore: 2 },
+          { home: "Grimsby", away: "St. Catharines", homeScore: 9, awayScore: 6 },
+          { home: "Grimsby", away: "Niagara Falls", homeScore: 12, awayScore: 3 },
+          { home: "St. Catharines", away: "Niagara Falls", homeScore: 8, awayScore: 7 },
+        ],
+        D: [
+          { home: "Orangeville", away: "Caledon", homeScore: 12, awayScore: 8 },
+          { home: "Orangeville", away: "Bolton", homeScore: 10, awayScore: 5 },
+          { home: "Orangeville", away: "Shelburne", homeScore: 15, awayScore: 3 },
+          { home: "Caledon", away: "Bolton", homeScore: 11, awayScore: 7 },
+          { home: "Caledon", away: "Shelburne", homeScore: 13, awayScore: 4 },
+          { home: "Bolton", away: "Shelburne", homeScore: 9, awayScore: 8 },
+        ],
+      };
+      
+      // Create age division
+      const ageDivisionId = `${tournamentId}-11u`;
+      await storage.createAgeDivision({
+        id: ageDivisionId,
+        name: "11U",
+        tournamentId
+      });
+      
+      // Create pools
+      const poolIds: Record<string, string> = {};
+      for (const poolName of ["A", "B", "C", "D"]) {
+        const poolId = `${tournamentId}-pool-${poolName.toLowerCase()}`;
+        await storage.createPool({
+          id: poolId,
+          name: poolName,
+          tournamentId,
+          ageDivisionId
+        });
+        poolIds[poolName] = poolId;
+      }
+      
+      // Create teams
+      const teamIds: Record<string, Record<string, string>> = {A: {}, B: {}, C: {}, D: {}};
+      for (const [poolName, cities] of Object.entries(teamNames)) {
+        for (const city of cities) {
+          const teamId = `${tournamentId}-${city.toLowerCase().replace(/\s+/g, '-')}`;
+          await storage.createTeam({
+            id: teamId,
+            name: city,
+            city,
+            division: "11U",
+            tournamentId,
+            poolId: poolIds[poolName]
+          });
+          teamIds[poolName as keyof typeof teamNames][city] = teamId;
+        }
+      }
+      
+      // Create games with results
+      let gameNumber = 1;
+      for (const [poolName, results] of Object.entries(poolResults)) {
+        for (const result of results) {
+          const homeTeamId = teamIds[poolName as keyof typeof poolResults][result.home];
+          const awayTeamId = teamIds[poolName as keyof typeof poolResults][result.away];
+          
+          await storage.createGame({
+            id: `${tournamentId}-game-${gameNumber}`,
+            tournamentId,
+            poolId: poolIds[poolName],
+            homeTeamId,
+            awayTeamId,
+            homeScore: result.homeScore,
+            awayScore: result.awayScore,
+            status: "completed",
+            date: "2025-11-15",
+            time: `${9 + Math.floor(gameNumber / 4)}:${(gameNumber % 4) * 15}0`,
+            location: `Diamond ${(gameNumber % 4) + 1}`
+          });
+          gameNumber++;
+        }
+      }
+      
+      res.json({
+        success: true,
+        message: "Test data populated successfully",
+        summary: {
+          pools: 4,
+          teams: 16,
+          games: 24
+        }
+      });
+    } catch (error) {
+      console.error("Error populating test data:", error);
+      res.status(500).json({ error: "Failed to populate test data" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
