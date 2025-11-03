@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Team, Game, Pool, AgeDivision, Tournament } from '@shared/schema';
 import { getPlayoffTeamCount } from '@shared/playoffFormats';
+import { CrossPoolBracketView } from './cross-pool-bracket-view';
 
 interface PlayoffsTabProps {
   teams: Team[];
@@ -364,7 +365,12 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
               if (b.points !== a.points) return b.points - a.points;
               if (a.runsAgainstPerInning !== b.runsAgainstPerInning) return a.runsAgainstPerInning - b.runsAgainstPerInning;
               return b.runsForPerInning - a.runsForPerInning;
-            });
+            })
+            .map((team, index) => ({
+              ...team,
+              poolName: poolKey,
+              poolRank: index + 1,
+            }));
           sortedByPool.push(...poolTeams);
         });
         
@@ -477,56 +483,77 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
             return `Round ${round}`;
           };
           
+          // Check if using cross-pool seeding
+          const isCrossPool = tournament.seedingPattern === 'cross_pool_4';
+          
           return (
             <TabsContent key={division.id} value={division.id} className="mt-6 space-y-6">
-              {/* Playoff Rankings Table */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">{division.name} Playoff Rankings</h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-left py-2 px-3 font-semibold text-gray-700">Rank</th>
-                        <th className="text-left py-2 px-3 font-semibold text-gray-700">Team</th>
-                        <th className="text-center py-2 px-3 font-semibold text-gray-700">W</th>
-                        <th className="text-center py-2 px-3 font-semibold text-gray-700">L</th>
-                        <th className="text-center py-2 px-3 font-semibold text-gray-700">T</th>
-                        <th className="text-center py-2 px-3 font-semibold text-gray-700">PTS</th>
-                        <th className="text-center py-2 px-3 font-semibold text-gray-700">RF</th>
-                        <th className="text-center py-2 px-3 font-semibold text-gray-700">RA</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {playoffTeams.map((team, index) => (
-                        <tr key={team.id} className={`border-b border-gray-100 ${index % 2 === 0 ? 'bg-gray-50' : ''}`}>
-                          <td className="py-2 px-3">
-                            <div className="flex items-center">
-                              <span className="font-bold text-gray-900">{index + 1}</span>
-                              {index < 3 && (
-                                <Medal className={`w-4 h-4 ml-2 ${
-                                  index === 0 ? 'text-yellow-500' :
-                                  index === 1 ? 'text-gray-400' :
-                                  'text-orange-600'
-                                }`} />
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-2 px-3 font-medium text-gray-900">{team.name}</td>
-                          <td className="text-center py-2 px-3">{team.wins}</td>
-                          <td className="text-center py-2 px-3">{team.losses}</td>
-                          <td className="text-center py-2 px-3">{team.ties}</td>
-                          <td className="text-center py-2 px-3 font-bold">{team.points}</td>
-                          <td className="text-center py-2 px-3">{team.runsFor}</td>
-                          <td className="text-center py-2 px-3">{team.runsAgainst}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              {isCrossPool ? (
+                /* Cross-Pool Bracket View */
+                <CrossPoolBracketView
+                  playoffGames={divisionPlayoffGames}
+                  teams={teams}
+                  playoffTeams={playoffTeams}
+                  onGameClick={(game) => {
+                    if (!isAuthenticated) {
+                      alert('Please sign in as an administrator to edit playoff scores.');
+                      return;
+                    }
+                    setSelectedGame(game);
+                  }}
+                  primaryColor={tournament.primaryColor || '#1f2937'}
+                  secondaryColor={tournament.secondaryColor || '#ca8a04'}
+                />
+              ) : (
+                <>
+                  {/* Playoff Rankings Table */}
+                  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">{division.name} Playoff Rankings</h4>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-200">
+                            <th className="text-left py-2 px-3 font-semibold text-gray-700">Rank</th>
+                            <th className="text-left py-2 px-3 font-semibold text-gray-700">Team</th>
+                            <th className="text-center py-2 px-3 font-semibold text-gray-700">W</th>
+                            <th className="text-center py-2 px-3 font-semibold text-gray-700">L</th>
+                            <th className="text-center py-2 px-3 font-semibold text-gray-700">T</th>
+                            <th className="text-center py-2 px-3 font-semibold text-gray-700">PTS</th>
+                            <th className="text-center py-2 px-3 font-semibold text-gray-700">RF</th>
+                            <th className="text-center py-2 px-3 font-semibold text-gray-700">RA</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {playoffTeams.map((team, index) => (
+                            <tr key={team.id} className={`border-b border-gray-100 ${index % 2 === 0 ? 'bg-gray-50' : ''}`}>
+                              <td className="py-2 px-3">
+                                <div className="flex items-center">
+                                  <span className="font-bold text-gray-900">{index + 1}</span>
+                                  {index < 3 && (
+                                    <Medal className={`w-4 h-4 ml-2 ${
+                                      index === 0 ? 'text-yellow-500' :
+                                      index === 1 ? 'text-gray-400' :
+                                      'text-orange-600'
+                                    }`} />
+                                  )}
+                                </div>
+                              </td>
+                              <td className="py-2 px-3 font-medium text-gray-900">{team.name}</td>
+                              <td className="text-center py-2 px-3">{team.wins}</td>
+                              <td className="text-center py-2 px-3">{team.losses}</td>
+                              <td className="text-center py-2 px-3">{team.ties}</td>
+                              <td className="text-center py-2 px-3 font-bold">{team.points}</td>
+                              <td className="text-center py-2 px-3">{team.runsFor}</td>
+                              <td className="text-center py-2 px-3">{team.runsAgainst}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
 
-              {/* Playoff Bracket */}
-              {divisionPlayoffGames.length > 0 ? (
+                  {/* Playoff Bracket */}
+                  {divisionPlayoffGames.length > 0 ? (
                 <div className="rounded-xl p-6" style={{ backgroundColor: tournament.primaryColor || '#1f2937' }}>
                   <div className={`grid grid-cols-1 gap-8`} style={{ 
                     gridTemplateColumns: rounds.length > 0 ? `repeat(${rounds.length}, minmax(0, 1fr))` : '1fr'
@@ -640,6 +667,8 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
                   <p className="text-gray-500">Generate the playoff bracket from the admin portal.</p>
                 </div>
               )}
+                </>
+              )}
             </TabsContent>
           );
         })}
@@ -657,7 +686,3 @@ export const PlayoffsTab = ({ teams, games, pools, ageDivisions, tournamentId, t
     </div>
   );
 };
-
-                    <h4 className="text-lg font-bold text-white text-center uppercase tracking-wider">Semifinals</h4>
-                    
-                    {/* SF Game 1 */}
