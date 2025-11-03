@@ -239,7 +239,7 @@ export function TournamentManager({ tournaments }: TournamentManagerProps) {
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                {tournament.id === 'test-16-8-playoff-cross-pool-2025-11' && (
+                {(tournament.id.toLowerCase().startsWith('test-') || tournament.id.toLowerCase().includes('-test-') || tournament.id.toLowerCase().includes('-testing-')) && (
                   <DropdownMenuItem 
                     onClick={() => populateTestDataMutation.mutate(tournament.id)}
                     className="text-blue-600"
