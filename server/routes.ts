@@ -1736,49 +1736,35 @@ Waterdown 10U AA
     try {
       const { tournamentId } = req.params;
       
-      // Ontario cities for team names
-      const teamNames = {
-        A: ["Chatham", "Leamington", "Sarnia", "Windsor"],
-        B: ["Brantford", "Simcoe", "St. Thomas", "Woodstock"],
-        C: ["Welland", "Grimsby", "St. Catharines", "Niagara Falls"],
-        D: ["Orangeville", "Caledon", "Bolton", "Shelburne"]
-      };
+      // Get tournament configuration
+      const tournament = await storage.getTournament(tournamentId);
+      if (!tournament) {
+        return res.status(404).json({ error: "Tournament not found" });
+      }
       
-      // Game results for each pool (with innings batted for tiebreaker calculations)
-      const poolResults = {
-        A: [
-          { home: "Chatham", away: "Leamington", homeScore: 8, awayScore: 5, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Chatham", away: "Sarnia", homeScore: 10, awayScore: 3, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Chatham", away: "Windsor", homeScore: 12, awayScore: 2, homeInnings: "5.0", awayInnings: "6.0" },
-          { home: "Leamington", away: "Sarnia", homeScore: 7, awayScore: 4, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Leamington", away: "Windsor", homeScore: 9, awayScore: 1, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Sarnia", away: "Windsor", homeScore: 6, awayScore: 5, homeInnings: "6.0", awayInnings: "6.0" },
-        ],
-        B: [
-          { home: "Brantford", away: "Simcoe", homeScore: 11, awayScore: 6, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Brantford", away: "St. Thomas", homeScore: 9, awayScore: 4, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Brantford", away: "Woodstock", homeScore: 13, awayScore: 1, homeInnings: "5.0", awayInnings: "6.0" },
-          { home: "Simcoe", away: "St. Thomas", homeScore: 8, awayScore: 5, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Simcoe", away: "Woodstock", homeScore: 10, awayScore: 3, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "St. Thomas", away: "Woodstock", homeScore: 7, awayScore: 6, homeInnings: "6.0", awayInnings: "6.0" },
-        ],
-        C: [
-          { home: "Welland", away: "Grimsby", homeScore: 10, awayScore: 7, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Welland", away: "St. Catharines", homeScore: 11, awayScore: 4, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Welland", away: "Niagara Falls", homeScore: 14, awayScore: 2, homeInnings: "5.0", awayInnings: "6.0" },
-          { home: "Grimsby", away: "St. Catharines", homeScore: 9, awayScore: 6, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Grimsby", away: "Niagara Falls", homeScore: 12, awayScore: 3, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "St. Catharines", away: "Niagara Falls", homeScore: 8, awayScore: 7, homeInnings: "6.0", awayInnings: "6.0" },
-        ],
-        D: [
-          { home: "Orangeville", away: "Caledon", homeScore: 12, awayScore: 8, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Orangeville", away: "Bolton", homeScore: 10, awayScore: 5, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Orangeville", away: "Shelburne", homeScore: 15, awayScore: 3, homeInnings: "5.0", awayInnings: "6.0" },
-          { home: "Caledon", away: "Bolton", homeScore: 11, awayScore: 7, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Caledon", away: "Shelburne", homeScore: 13, awayScore: 4, homeInnings: "6.0", awayInnings: "6.0" },
-          { home: "Bolton", away: "Shelburne", homeScore: 9, awayScore: 8, homeInnings: "6.0", awayInnings: "6.0" },
-        ],
-      };
+      const numberOfTeams = tournament.numberOfTeams || 16;
+      const numberOfPools = tournament.numberOfPools || 4;
+      
+      // Pool of Ontario city names
+      const allCityNames = [
+        "Chatham", "Leamington", "Sarnia", "Windsor", "Brantford", "Simcoe", 
+        "St. Thomas", "Woodstock", "Welland", "Grimsby", "St. Catharines", 
+        "Niagara Falls", "Orangeville", "Caledon", "Bolton", "Shelburne",
+        "London", "Kitchener", "Cambridge", "Waterloo", "Guelph", "Barrie",
+        "Oshawa", "Hamilton", "Kingston", "Peterborough", "Thunder Bay", "Sudbury"
+      ];
+      
+      // Pick the right number of cities
+      const selectedCities = allCityNames.slice(0, numberOfTeams);
+      
+      // Calculate teams per pool
+      const teamsPerPool = Math.floor(numberOfTeams / numberOfPools);
+      const extraTeams = numberOfTeams % numberOfPools;
+      
+      // Pool names (A, B, C, D, E, F, etc.)
+      const poolNames = Array.from({ length: numberOfPools }, (_, i) => 
+        String.fromCharCode(65 + i)
+      );
       
       // Create age division
       const ageDivisionId = `${tournamentId}-11u`;
@@ -1788,59 +1774,81 @@ Waterdown 10U AA
         tournamentId
       });
       
-      // Create pools
+      // Create pools and distribute teams
       const poolIds: Record<string, string> = {};
-      for (const poolName of ["A", "B", "C", "D"]) {
+      const poolTeams: Record<string, string[]> = {};
+      let cityIndex = 0;
+      
+      for (let i = 0; i < numberOfPools; i++) {
+        const poolName = poolNames[i];
         const poolId = `${tournamentId}-pool-${poolName.toLowerCase()}`;
+        
         await storage.createPool({
           id: poolId,
           name: poolName,
           tournamentId,
           ageDivisionId
         });
+        
         poolIds[poolName] = poolId;
-      }
-      
-      // Create teams
-      const teamIds: Record<string, Record<string, string>> = {A: {}, B: {}, C: {}, D: {}};
-      for (const [poolName, cities] of Object.entries(teamNames)) {
-        for (const city of cities) {
+        poolTeams[poolName] = [];
+        
+        // Add teams to this pool (some pools get 1 extra team if there's a remainder)
+        const teamCount = teamsPerPool + (i < extraTeams ? 1 : 0);
+        for (let j = 0; j < teamCount; j++) {
+          const city = selectedCities[cityIndex];
           const teamId = `${tournamentId}-${city.toLowerCase().replace(/\s+/g, '-')}`;
+          
           await storage.createTeam({
             id: teamId,
             name: city,
             city,
             division: "11U",
             tournamentId,
-            poolId: poolIds[poolName]
+            poolId: poolId
           });
-          teamIds[poolName as keyof typeof teamNames][city] = teamId;
+          
+          poolTeams[poolName].push(teamId);
+          cityIndex++;
         }
       }
       
-      // Create games with results
+      // Generate round-robin games for each pool
       let gameNumber = 1;
-      for (const [poolName, results] of Object.entries(poolResults)) {
-        for (const result of results) {
-          const homeTeamId = teamIds[poolName as keyof typeof poolResults][result.home];
-          const awayTeamId = teamIds[poolName as keyof typeof poolResults][result.away];
-          
-          await storage.createGame({
-            id: `${tournamentId}-game-${gameNumber}`,
-            tournamentId,
-            poolId: poolIds[poolName],
-            homeTeamId,
-            awayTeamId,
-            homeScore: result.homeScore,
-            awayScore: result.awayScore,
-            homeInningsBatted: result.homeInnings,
-            awayInningsBatted: result.awayInnings,
-            status: "completed",
-            date: "2025-11-15",
-            time: `${9 + Math.floor(gameNumber / 4)}:${(gameNumber % 4) * 15}0`,
-            location: `Diamond ${(gameNumber % 4) + 1}`
-          });
-          gameNumber++;
+      let totalPoolGames = 0;
+      
+      for (const [poolName, teamList] of Object.entries(poolTeams)) {
+        const poolId = poolIds[poolName];
+        
+        // Round-robin: each team plays every other team once
+        for (let i = 0; i < teamList.length; i++) {
+          for (let j = i + 1; j < teamList.length; j++) {
+            const homeTeamId = teamList[i];
+            const awayTeamId = teamList[j];
+            
+            // Generate randomized but realistic scores
+            const homeScore = Math.floor(Math.random() * 8) + 3; // 3-10
+            const awayScore = Math.floor(Math.random() * 8) + 1; // 1-8
+            
+            await storage.createGame({
+              id: `${tournamentId}-game-${gameNumber}`,
+              tournamentId,
+              poolId: poolId,
+              homeTeamId,
+              awayTeamId,
+              homeScore,
+              awayScore,
+              homeInningsBatted: homeScore > awayScore ? "6.0" : "6.0",
+              awayInningsBatted: awayScore > homeScore ? "6.0" : "6.0",
+              status: "completed",
+              date: tournament.startDate || "2025-11-15",
+              time: `${9 + Math.floor((gameNumber - 1) / 4)}:${((gameNumber - 1) % 4) * 15}0`,
+              location: `Diamond ${((gameNumber - 1) % 4) + 1}`
+            });
+            
+            gameNumber++;
+            totalPoolGames++;
+          }
         }
       }
       
@@ -1851,9 +1859,9 @@ Waterdown 10U AA
         success: true,
         message: "Test data populated successfully including playoff bracket",
         summary: {
-          pools: 4,
-          teams: 16,
-          poolPlayGames: 24,
+          pools: numberOfPools,
+          teams: numberOfTeams,
+          poolPlayGames: totalPoolGames,
           playoffGames: playoffGames.length
         }
       });
